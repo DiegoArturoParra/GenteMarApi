@@ -4,35 +4,6 @@
         <name>DIMARCore.Api</name>
     </assembly>
     <members>
-        <member name="T:DIMARCore.Api.SwaggerConfig">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:DIMARCore.Api.SwaggerConfig.GetXmlCommentsPath">
-            <summary>
-            OBTENEMOS EL PATH DEL ARCHIVO XML DE DOCUMENTACIÓN.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:DIMARCore.Api.SwaggerConfig.Register">
-            <summary>
-            registro de api con swagger 
-            </summary>
-        </member>
-        <member name="T:DIMARCore.Api.SwaggerConfig.AuthorizationHeaderParameterOperationFilter">
-            <summary>
-            AuthorizationHeaderParameterOperationFilter para introducir JWT en dialogo Swagger
-            </summary>
-        </member>
-        <member name="M:DIMARCore.Api.SwaggerConfig.AuthorizationHeaderParameterOperationFilter.Apply(Swashbuckle.Swagger.Operation,Swashbuckle.Swagger.SchemaRegistry,System.Web.Http.Description.ApiDescription)">
-            <summary>
-            
-            </summary>
-            <param name="operation"></param>
-            <param name="schemaRegistry"></param>
-            <param name="apiDescription"></param>
-        </member>
         <member name="T:DIMARCore.Api.WebApiConfig">
             <summary>
             
