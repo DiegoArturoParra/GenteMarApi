@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DIMARCore.Business</RootNamespace>
     <AssemblyName>DIMARCore.Business</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -125,7 +125,7 @@
       <Name>GenteMarCore.Entities</Name>
     </ProjectReference>
     <ProjectReference Include="..\DIMARCore.Repositories\DIMARCore.Repositories.csproj">
-      <Project>{efb43097-3e7b-48a1-956c-0921d12e6d0b}</Project>
+      <Project>{EFB43097-3E7B-48A1-956C-0921D12E6D0B}</Project>
       <Name>DIMARCore.Repositories</Name>
     </ProjectReference>
     <ProjectReference Include="..\DIMARCore.UIEntities\DIMARCore.UIEntities.csproj">

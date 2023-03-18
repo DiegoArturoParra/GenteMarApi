@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GenteMarCore.Entities</RootNamespace>
     <AssemblyName>GenteMarCore.Entities</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -140,7 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DIMARCore.Solution\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
-      <Project>{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}</Project>
+      <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
       <Name>DIMARCore.Utilities</Name>
     </ProjectReference>
   </ItemGroup>

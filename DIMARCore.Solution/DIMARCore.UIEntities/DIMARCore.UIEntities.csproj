@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DIMARCore.UIEntities</RootNamespace>
     <AssemblyName>DIMARCore.UIEntities</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -128,17 +128,17 @@
     <Compile Include="Requests\LoginRequest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj">
-      <Project>{E99819B7-D951-4C59-8928-220B258DBC9A}</Project>
+      <Project>{e99819b7-d951-4c59-8928-220b258dbc9a}</Project>
       <Name>GenteMarCore.Entities</Name>
     </ProjectReference>
     <ProjectReference Include="..\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
       <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
       <Name>DIMARCore.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

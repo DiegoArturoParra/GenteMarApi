@@ -16,7 +16,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DIMARCore.Api</RootNamespace>
     <AssemblyName>DIMARCore.Api</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -50,8 +50,8 @@
     <DocumentationFile>App_Data\DIMARCore.Api.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper, Version=8.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\packages\AutoMapper.8.0.0\lib\net461\AutoMapper.dll</HintPath>
+    <Reference Include="AutoMapper, Version=10.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.10.0.0\lib\net461\AutoMapper.dll</HintPath>
     </Reference>
     <Reference Include="AutoMapper.EF6, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoMapper.EF6.2.1.1\lib\net461\AutoMapper.EF6.dll</HintPath>
@@ -484,12 +484,18 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\index.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj">
       <Project>{e99819b7-d951-4c59-8928-220b258dbc9a}</Project>
       <Name>GenteMarCore.Entities</Name>
     </ProjectReference>
     <ProjectReference Include="..\DIMARCore.Business\DIMARCore.Business.csproj">
-      <Project>{33f42c59-9130-4ca9-b12b-3717725ee162}</Project>
+      <Project>{33F42C59-9130-4CA9-B12B-3717725EE162}</Project>
       <Name>DIMARCore.Business</Name>
     </ProjectReference>
     <ProjectReference Include="..\DIMARCore.UIEntities\DIMARCore.UIEntities.csproj">
@@ -500,12 +506,6 @@
       <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
       <Name>DIMARCore.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="Scripts\index.d.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
