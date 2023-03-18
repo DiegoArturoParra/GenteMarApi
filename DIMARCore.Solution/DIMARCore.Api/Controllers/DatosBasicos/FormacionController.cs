@@ -1,0 +1,167 @@
+﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Business.Logica;
+using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Enums;
+using DIMARCore.Utilities.Helpers;
+using GenteMarCore.Entities.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Cors;
+using System.Web.Http.Description;
+
+namespace DIMARCore.Api.Controllers
+{
+    /// <summary>
+    /// Api Formacion
+    /// </summary>
+    [EnableCors("*", "*", "*")]
+    [RoutePrefix("api/formacion")]
+    public class FormacionController : BaseApiController
+    {
+        private readonly FormacionBO _service;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public FormacionController()
+        {
+            _service = new FormacionBO();
+        }
+        /// <summary>
+        /// Metodo para listar las formaciones  
+        /// </summary>    
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>2022/02/26</Fecha>
+        /// <returns></returns>
+        /// <param name="estado">Booleano para consultar .</param>
+        /// <response code="200">OK. Devuelve la información de la formación.</response>
+        /// <response code="204">No Content. No hay estado.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<FormacionDTO>))]
+        [HttpGet]
+        [Route("{estado}")]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        public IHttpActionResult GetFormacion(bool estado)
+        {
+            var formacion = _service.GetFormacion(estado);
+            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<FormacionDTO>>(formacion);
+            return Ok(formacion);
+        }
+
+        /// <summary>
+        /// Metodo para listar las formaciones  
+        /// </summary>    
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>2022/02/26</Fecha>
+        /// <returns></returns>
+        /// <response code="200">OK. Devuelve la información de la formación.</response>
+        /// <response code="204">No Content. No hay estado.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<FormacionDTO>))]
+        [HttpGet]
+        [Route("lista")]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        public IHttpActionResult GetTableFormacion()
+        {
+            var formacion = _service.GetTableFormacion();
+            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<FormacionDTO>>(formacion);
+            return Ok(formacion);
+        }
+
+        /// <summary>
+        /// Metodo para listar formaciones activas
+        /// </summary>    
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>2022/02/26</Fecha>
+        /// <returns></returns>
+        /// <response code="200">OK. Devuelve la información de la formación.</response>
+        /// <response code="204">No Content. No hay estado.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<FormacionDTO>))]
+        [HttpGet]
+        [Route("listaActivo")]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        public IHttpActionResult GetTableFormacionActivo()
+        {
+            var formacion = _service.GetTableFormacionActivo();
+            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<FormacionDTO>>(formacion);
+            return Ok(formacion);
+        }
+        /// <summary>
+        /// Servicio para crear una formación
+        /// </summary>        
+        /// <remarks>
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>28/04/2022</Fecha>
+        /// </remarks>
+        /// <param name="fomacion">objeto para crear un estado.</param>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud de la formación.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        [ResponseType(typeof(Respuesta))]
+        [HttpPost]
+        [Route("crear")]
+        [AuthorizeRoles(RolesEnum.Administrador)]
+        public async Task<IHttpActionResult> CrearFormacion(FormacionDTO fomacion)
+        {
+            var data = Mapear<FormacionDTO, GENTEMAR_FORMACION>(fomacion);
+            var respuesta = await _service.CrearFormacion(data);
+            return ResultadoStatus(respuesta);
+        }
+        /// <summary>
+        /// Servicio para editar una formación 
+        /// </summary>
+        /// <param name="formacion">objeto para editar un estado.</param>
+        /// <remarks>
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>05/03/2022</Fecha>
+        /// </remarks>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud de la formación.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        [ResponseType(typeof(Respuesta))]
+        [HttpPut]
+        [Route("actualizar")]
+        [AuthorizeRoles(RolesEnum.Administrador)]
+        public async Task<IHttpActionResult> actualizarFormacion(FormacionDTO formacion)
+        {
+            var data = Mapear<FormacionDTO, GENTEMAR_FORMACION>(formacion);
+            var respuesta = await _service.actualizarFormacion(data);
+            return ResultadoStatus(respuesta);
+        }
+        /// <summary>
+        /// Servicio para Inactivar una formación 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>05/03/2022</Fecha>
+        /// </remarks>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(Respuesta))]
+        [HttpPut]
+        [Route("inhabilitar/{id}")]
+        [AuthorizeRoles( RolesEnum.Administrador)]
+        public async Task<IHttpActionResult> CambiarFormacion(int id)
+        {
+            var respuesta = await _service.cambiarFormacion(id);
+            return ResultadoStatus(respuesta);
+        }
+    }
+}

@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" style="background-color:#29387b !important;">
+        <div class="container">
+            <div class="navbar-header">
+                <div class="row">
+                    <div class="col col-lg-4 col-sm-4 text-center">
+                        <a href="https://www.dimar.mil.co/" title="DIMAR">
+                            <img alt="DIMAR" class="img-fluid" src="@Url.Content("~/Imagenes/logo_dimar.png")" />
+                        </a>
+                    </div>
+                    <div class="col col-lg-4 col-sm-4 text-center">
+                        <a href="https://www.mindefensa.gov.co/irj/portal/Mindefensa" title="Mindefensa">
+                            <img alt="Mindefensa" class="img-fluid" src="@Url.Content("~/Imagenes/logo_mindefensa.png")" />
+                        </a>
+                    </div>
+                    <div class="col col-lg-4 col-sm-4 text-center">
+                        <a href="https://id.presidencia.gov.co/Paginas/presidencia.aspx" title="Gobierno de Colombia">
+                            <img alt="Gobierno de Colombia" class="img-fluid" src="@Url.Content("~/Imagenes/logo_gobierno_colombia.png")" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-collapse collapse">
+                @*<ul class="nav navbar-nav">*@
+                @*<li>@Html.ActionLink("Inicio", "Index", "Home", new { area = "" }, null)</li>*@
+                @*<li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>*@
+                @*</ul>*@
+            </div>
+        </div>
+    </div>
+
+    <div class="container body-content" style="padding-top:50px;">
+        <div class="row">
+            <div class="col col-lg-12">
+                @Html.ActionLink("INICIO", "Index", "Home", new { area = "" }, null)
+            </div>
+        </div>
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - DIMAR - <a href="https://www.dimar.mil.co/" target="_blank" style="text-decoration:none;">Dirección General Marítima</a></p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
