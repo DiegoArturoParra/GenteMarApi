@@ -128,9 +128,6 @@
     <Compile Include="Requests\LoginRequest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj">
       <Project>{e99819b7-d951-4c59-8928-220b258dbc9a}</Project>
       <Name>GenteMarCore.Entities</Name>
@@ -139,6 +136,9 @@
       <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
       <Name>DIMARCore.Utilities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
