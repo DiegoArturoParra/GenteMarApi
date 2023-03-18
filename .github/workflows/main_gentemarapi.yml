@@ -11,7 +11,7 @@ on:
 env:
   CONFIGURATION: Release
   WORKING_DIRECTORY: DIMARCore.Solution
-  WORKING_DIRECTORY_API:  \DIMARCore.Api
+  WORKING_DIRECTORY_API: DIMARCore.Solution\DIMARCore.Api
 jobs:
   build:
     runs-on: windows-latest
