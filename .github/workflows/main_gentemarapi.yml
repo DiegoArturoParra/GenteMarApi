@@ -32,7 +32,7 @@ jobs:
         run: nuget restore "${{ env.WORKING_DIRECTORY_ENTITIES }}"
 
       - name: Publish to folder
-        run: msbuild "${{ env.WORKING_DIRECTORY_API }}" /nologo /verbosity:m /t:Build
+        run: msbuild "${{ env.WORKING_DIRECTORY_API }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
