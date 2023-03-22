@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenteMarCore.Entities", "GenteMarCore.Entities\GenteMarCore.Entities.csproj", "{E99819B7-D951-4C59-8928-220B258DBC9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

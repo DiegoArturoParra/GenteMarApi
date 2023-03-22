@@ -1,0 +1,94 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIMARCore.Api", "DIMARCore.Api\DIMARCore.Api.csproj", "{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIMARCore.Business", "DIMARCore.Business\DIMARCore.Business.csproj", "{33F42C59-9130-4CA9-B12B-3717725EE162}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIMARCore.Repositories", "DIMARCore.Repositories\DIMARCore.Repositories.csproj", "{EFB43097-3E7B-48A1-956C-0921D12E6D0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIMARCore.UIEntities", "DIMARCore.UIEntities\DIMARCore.UIEntities.csproj", "{330C7E03-F1B4-49E7-965A-B6D9785AA084}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIMARCore.Utilities", "DIMARCore.Utilities\DIMARCore.Utilities.csproj", "{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenteMarCore.Entities", "..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj", "{E99819B7-D951-4C59-8928-220B258DBC9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DIMARCore.Api.Desarrollo|Any CPU = DIMARCore.Api.Desarrollo|Any CPU
+		DIMARCore.Api.Produccion|Any CPU = DIMARCore.Api.Produccion|Any CPU
+		DIMARCore.Api.Pruebas|Any CPU = DIMARCore.Api.Pruebas|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = DIMARCore.Api.Desarrollo|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = DIMARCore.Api.Desarrollo|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = DIMARCore.Api.Produccion|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.DIMARCore.Api.Produccion|Any CPU.Build.0 = DIMARCore.Api.Produccion|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = DIMARCore.Api.Pruebas|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = DIMARCore.Api.Pruebas|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.DIMARCore.Api.Produccion|Any CPU.Build.0 = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33F42C59-9130-4CA9-B12B-3717725EE162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.DIMARCore.Api.Produccion|Any CPU.Build.0 = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB43097-3E7B-48A1-956C-0921D12E6D0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.DIMARCore.Api.Produccion|Any CPU.Build.0 = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{330C7E03-F1B4-49E7-965A-B6D9785AA084}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.DIMARCore.Api.Produccion|Any CPU.Build.0 = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B589E3F9-8B8E-4AE7-AEA5-7E42D93174AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.DIMARCore.Api.Produccion|Any CPU.Build.0 = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Debug|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99819B7-D951-4C59-8928-220B258DBC9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BF0A0EE1-B869-4275-8A46-6DEC2B722D63}
+	EndGlobalSection
+EndGlobal

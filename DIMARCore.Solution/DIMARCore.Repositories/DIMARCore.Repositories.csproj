@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EFB43097-3E7B-48A1-956C-0921D12E6D0B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DIMARCore.Repositories</RootNamespace>
+    <AssemblyName>DIMARCore.Repositories</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DIMARCore.Api.Desarrollo|AnyCPU'">
+    <OutputPath>bin\DIMARCore.Api.Desarrollo\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DIMARCore.Api.Pruebas|AnyCPU'">
+    <OutputPath>bin\DIMARCore.Api.Pruebas\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DIMARCore.Api.Produccion|AnyCPU'">
+    <OutputPath>bin\DIMARCore.Api.Produccion\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Repository\AclaracionEstupefacienteRepository.cs" />
+    <Compile Include="Repository\ActividadRepository.cs" />
+    <Compile Include="Repository\ActividadSeccionLicenciasRepository.cs" />
+    <Compile Include="Repository\AplicacionRepository.cs" />
+    <Compile Include="Repository\AplicacionRolesRepository.cs" />
+    <Compile Include="Repository\CapacidadRepository.cs" />
+    <Compile Include="Repository\CargoHabilitacionRepository.cs" />
+    <Compile Include="Repository\CargoLicenciaRepository.cs" />
+    <Compile Include="Repository\CargoLimitacionRepository.cs" />
+    <Compile Include="Repository\CargoTituloRepository.cs" />
+    <Compile Include="Repository\CategoriaRepository.cs" />
+    <Compile Include="Repository\ClaseLicenciasRepository.cs" />
+    <Compile Include="Repository\ClaseTitulosRepository.cs" />
+    <Compile Include="GenericRepository.cs" />
+    <Compile Include="Repository\DatosBasicosRepository.cs" />
+    <Compile Include="Repository\DimRegistroEmbarqueRepository.cs" />
+    <Compile Include="Repository\EntidadEstupefacienteRepository.cs" />
+    <Compile Include="Repository\EstadoEstupefacienteRepository.cs" />
+    <Compile Include="Repository\EstadoLicenciaRepository.cs" />
+    <Compile Include="Repository\EstadoTituloRepository.cs" />
+    <Compile Include="Repository\EstupefacienteRepository.cs" />
+    <Compile Include="Repository\HistorialDocumentoRepository.cs" />
+    <Compile Include="Repository\LicenciaRepository.cs" />
+    <Compile Include="Repository\LimitanteRepository.cs" />
+    <Compile Include="Repository\MenuRepository.cs" />
+    <Compile Include="Repository\ObservacionesEstupefacienteRepository.cs" />
+    <Compile Include="Repository\ObservacionesLicenciasRepository.cs" />
+    <Compile Include="Repository\ObservacionesTitulosRepository.cs" />
+    <Compile Include="Repository\ReglaCargoRepository.cs" />
+    <Compile Include="Repository\DimRepository.cs" />
+    <Compile Include="Repository\FormacionRepository.cs" />
+    <Compile Include="Repository\FotografiaRepository.cs" />
+    <Compile Include="Repository\FuncionRepository.cs" />
+    <Compile Include="Repository\GeneroRepository.cs" />
+    <Compile Include="IGenericRepository.cs" />
+    <Compile Include="Repository\GenteDeMarEstadoRepository.cs" />
+    <Compile Include="Repository\GradoRepository.cs" />
+    <Compile Include="Repository\HabilitacionRepository.cs" />
+    <Compile Include="Repository\LimitacionRepository.cs" />
+    <Compile Include="Repository\MunicipiosRepository.cs" />
+    <Compile Include="Repository\NivelTituloRepository.cs" />
+    <Compile Include="Repository\ObservacionesDatosBasicosRepository.cs" />
+    <Compile Include="Repository\PaisRepository.cs" />
+    <Compile Include="Repository\RangoRepository.cs" />
+    <Compile Include="Repository\ReglaFuncionRepository.cs" />
+    <Compile Include="Repository\ReglaRepository.cs" />
+    <Compile Include="Repository\SeccionClaseRepository.cs" />
+    <Compile Include="Repository\SeccionLicenciasRepository.cs" />
+    <Compile Include="Repository\SeccionTitulosRepository.cs" />
+    <Compile Include="Repository\ServiciosAplicacionesRepository.cs" />
+    <Compile Include="Repository\SGDEARepository.cs" />
+    <Compile Include="Repository\TerritorioRepository.cs" />
+    <Compile Include="Repository\TipoDocumentoRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\TipoLicenciaRepository.cs" />
+    <Compile Include="Repository\TituloRepository.cs" />
+    <Compile Include="Repository\TramiteEstupefacienteRepository.cs" />
+    <Compile Include="Repository\UsuarioRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj">
+      <Project>{e99819b7-d951-4c59-8928-220b258dbc9a}</Project>
+      <Name>GenteMarCore.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DIMARCore.UIEntities\DIMARCore.UIEntities.csproj">
+      <Project>{330c7e03-f1b4-49e7-965a-b6d9785aa084}</Project>
+      <Name>DIMARCore.UIEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
+      <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
+      <Name>DIMARCore.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+</Project>
