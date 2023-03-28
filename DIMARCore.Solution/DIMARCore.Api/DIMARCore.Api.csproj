@@ -359,12 +359,6 @@
     <None Include="Properties\PublishProfiles\DIMARCore.Api.Desarrollo.pubxml" />
     <None Include="Properties\PublishProfiles\DIMARCore.Api.Produccion.pubxml" />
     <None Include="Properties\PublishProfiles\DIMARCore.Api.Pruebas.pubxml" />
-    <Content Include="RepositorioArchivos\DATOS_BASICOS\IMAGENES_GENTE_MAR\0_05432f00-2a2c-494d-b0e2-e93421475dae_firma.png" />
-    <Content Include="RepositorioArchivos\DATOS_BASICOS\IMAGENES_GENTE_MAR\0_28afa3c1-f3f7-4bbb-b84a-a8b6dc4d8d31_firma.png" />
-    <Content Include="RepositorioArchivos\LICENCIAS\OBSERVACIONES\2f845473-ce79-4e3a-8557-7566b92f3137.pdf" />
-    <Content Include="RepositorioArchivos\LICENCIAS\OBSERVACIONES\77215374-bc8b-47fc-9b49-41bba8f2fcb5.pdf" />
-    <Content Include="RepositorioArchivos\LICENCIAS\OBSERVACIONES\7dc89d20-f8bc-4a19-8ce4-7d5d4f10d8f5.pdf" />
-    <Content Include="RepositorioArchivos\LICENCIAS\OBSERVACIONES\bd83acd4-ceeb-449a-add1-c45b122f5f62.pdf" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -516,6 +510,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="RepositorioArchivos\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\index.d.ts" />
