@@ -1,7 +1,6 @@
 ﻿using DIMARCore.UIEntities.Models;
 using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -91,18 +90,14 @@ namespace DIMARCore.Repositories.Repository
                                   where aplicaciones.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
                                   select new AplicacionSession() { Id = aplicaciones.ID_APLICACION, Nombre = aplicaciones.NOMBRE }).FirstOrDefault(),
 
-                    Capitania = (from sucursal in _context.APLICACIONES_LOGIN_SUCURSAL
-                                 join capitania in _context.APLICACIONES_CAPITANIAS on sucursal.ID_SUCURSAL equals capitania.ID_CAPITANIA into dcap
-                                 from detalleCapitania in dcap.DefaultIfEmpty()
-                                 join categoria in _context.APLICACIONES_CATEGORIA on detalleCapitania.ID_CATEGORIA equals categoria.ID_CATEGORIA into dcat
-                                 from detalleCategoria in dcat.DefaultIfEmpty()
-                                 where sucursal.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
+                    Capitania = (from logins in _context.APLICACIONES_LOGINS
+                                 join capitania in _context.APLICACIONES_CAPITANIAS on logins.ID_CAPITANIA equals capitania.ID_CAPITANIA
                                  select new CapitaniaSession()
                                  {
-                                     Id = detalleCapitania.ID_CAPITANIA,
-                                     Descripcion = detalleCapitania.DESCRIPCION,
-                                     Sigla = detalleCapitania.SIGLA_CAPITANIA,
-                                     Categoria = detalleCategoria.ID_CATEGORIA
+                                     Id = capitania.ID_CAPITANIA,
+                                     Descripcion = capitania.DESCRIPCION,
+                                     Sigla = capitania.SIGLA_CAPITANIA,
+                                     Categoria = capitania.ID_CATEGORIA
                                  }).FirstOrDefault(),
                     EstadoId = m.login.ID_TIPO_ESTADO,
                     Roles = (from login_rol in _context.APLICACIONES_LOGIN_ROL
@@ -112,7 +107,6 @@ namespace DIMARCore.Repositories.Repository
                              where login_rol.ID_LOGIN == user.ID_LOGIN && detalleRoles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar && login_rol.ID_ESTADO == 1
                              select new Rol { Id = detalleRoles.ID_ROL, NombreRol = detalleRoles.ROL }).ToList()
                 }).FirstOrDefaultAsync();
-
             }
             return userSesion;
         }
