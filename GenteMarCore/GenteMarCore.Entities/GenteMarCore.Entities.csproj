@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E99819B7-D951-4C59-8928-220B258DBC9A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GenteMarCore.Entities</RootNamespace>
+    <AssemblyName>GenteMarCore.Entities</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GenteDeMarCoreContext.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\GENTEMAR_ACLARACION_ANTECEDENTES.cs" />
+    <Compile Include="Models\GENTEMAR_CARGO_LICENCIA_LIMITANTE.cs" />
+    <Compile Include="Helpers\BanderaBasic.cs" />
+    <Compile Include="Helpers\GENTEMAR_CAMPOS_AUDITORIA.cs" />
+    <Compile Include="Helpers\GENTEMAR_CLASE.cs" />
+    <Compile Include="Helpers\GENTEMAR_OBSERVACIONES.cs" />
+    <Compile Include="Models\APLICACIONES.cs" />
+    <Compile Include="Models\APLICACIONES_CAPITANIAS.cs" />
+    <Compile Include="Models\APLICACIONES_CATEGORIA.cs" />
+    <Compile Include="Models\APLICACIONES_DEPARTAMENTO.cs" />
+    <Compile Include="Models\APLICACIONES_ESTADO.cs" />
+    <Compile Include="Models\GENTEMAR_ESTADO_TITULO.cs" />
+    <Compile Include="Models\APLICACIONES_GENERO.cs" />
+    <Compile Include="Models\APLICACIONES_GRADO.cs" />
+    <Compile Include="Models\APLICACIONES_LOGINS.cs" />
+    <Compile Include="Models\APLICACIONES_LOGIN_ROL.cs" />
+    <Compile Include="Models\APLICACIONES_LOGIN_SUCURSAL.cs" />
+    <Compile Include="Models\APLICACIONES_MENU.cs" />
+    <Compile Include="Models\APLICACIONES_MUNICIPIO.cs" />
+    <Compile Include="Models\APLICACIONES_RANGO.cs" />
+    <Compile Include="Models\APLICACIONES_ROLES.cs" />
+    <Compile Include="Models\APLICACIONES_ROL_MENU.cs" />
+    <Compile Include="Models\APLICACIONES_TIPO_DOCUMENTO.cs" />
+    <Compile Include="Models\APLICACIONES_TIPO_SOLICITUD.cs" />
+    <Compile Include="Models\DIM_IMPRESION.cs" />
+    <Compile Include="Models\DIM_PERSONAS.cs" />
+    <Compile Include="Models\DIM_REGISTRO_EMBARQUES.cs" />
+    <Compile Include="Models\GENTEMAR_ACTIVIDAD.cs" />
+    <Compile Include="Models\GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.cs" />
+    <Compile Include="Models\GENTEMAR_ANTECEDENTES.cs" />
+    <Compile Include="Models\GENTEMAR_ANTECEDENTES_DATOSBASICOS.cs" />
+    <Compile Include="Models\GENTEMAR_CAPACIDAD.cs" />
+    <Compile Include="Models\GENTEMAR_CARGO_HABILITACION.cs" />
+    <Compile Include="Models\GENTEMAR_CARGO_LICENCIA.cs" />
+    <Compile Include="Models\GENTEMAR_CARGO_LICENCIA_CATEGORIA.cs" />
+    <Compile Include="Models\GENTEMAR_CARGO_LIMITACION.cs" />
+    <Compile Include="Models\GENTEMAR_HISTORIAL_DOCUMENTO.cs" />
+    <Compile Include="Models\GENTEMAR_LIMITANTE.cs" />
+    <Compile Include="Models\GENTEMAR_OBSERVACIONES_LICENCIAS.cs" />
+    <Compile Include="Models\GENTEMAR_REGLAS_CARGO.cs" />
+    <Compile Include="Models\GENTEMAR_CARGO_TITULO.cs" />
+    <Compile Include="Models\GENTEMAR_CLASE_LICENCIAS.cs" />
+    <Compile Include="Models\GENTEMAR_CLASE_TITULOS.cs" />
+    <Compile Include="Models\GENTEMAR_DATOSBASICOS.cs" />
+    <Compile Include="Models\GENTEMAR_ENTIDAD.cs" />
+    <Compile Include="Models\GENTEMAR_ESTADO.cs" />
+    <Compile Include="Models\GENTEMAR_ESTADO_ANTECEDENTE.cs" />
+    <Compile Include="Models\GENTEMAR_ESTADO_LICENCIA.cs" />
+    <Compile Include="Models\GENTEMAR_FORMACION.cs" />
+    <Compile Include="Models\GENTEMAR_FORMACION_GRADO.cs" />
+    <Compile Include="Models\GENTEMAR_FOTOGRAFIA.cs" />
+    <Compile Include="Models\GENTEMAR_FUNCIONES.cs" />
+    <Compile Include="Models\GENTEMAR_HABILITACION.cs" />
+    <Compile Include="Models\GENTEMAR_LICENCIAS.cs" />
+    <Compile Include="Models\GENTEMAR_LIMITACION.cs" />
+    <Compile Include="Models\GENTEMAR_NIVEL.cs" />
+    <Compile Include="Models\GENTEMAR_OBSERVACIONES_TITULOS.cs" />
+    <Compile Include="Models\GENTEMAR_OBSERVACIONES_DATOSBASICOS.cs" />
+    <Compile Include="Models\GENTEMAR_OBSERVACIONES_ANTECEDENTES.cs" />
+    <Compile Include="Models\GENTEMAR_REGLAS.cs" />
+    <Compile Include="Models\GENTEMAR_REGLA_FUNCION.cs" />
+    <Compile Include="Models\GENTEMAR_SECCION_CLASE.cs" />
+    <Compile Include="Models\GENTEMAR_SECCION_LICENCIAS.cs" />
+    <Compile Include="Models\GENTEMAR_SECCION_TITULOS.cs" />
+    <Compile Include="Models\GENTEMAR_TERRITORIO.cs" />
+    <Compile Include="Models\GENTEMAR_TIPO_LICENCIA.cs" />
+    <Compile Include="Models\GENTEMAR_TIPO_TRAMITE.cs" />
+    <Compile Include="Models\GENTEMAR_TITULOS.cs" />
+    <Compile Include="Models\GENTEMAR_TITULO_FUNCION.cs" />
+    <Compile Include="Models\GENTEMAR_TITULO_HABILITACION.cs" />
+    <Compile Include="Models\GENTEMAR_REPOSITORIO_ARCHIVOS.cs" />
+    <Compile Include="Models\PAISES.cs" />
+    <Compile Include="Models\SGDEA_PREVISTAS.cs" />
+    <Compile Include="Partials\GENTEMAR_CARGO_LICENCIA.cs" />
+    <Compile Include="Partials\GENTEMAR_DATOSBASICOS.cs" />
+    <Compile Include="Partials\GENTEMAR_LICENCIAS.cs" />
+    <Compile Include="Partials\GENTEMAR_REGLAS_CARGO.cs" />
+    <Compile Include="Partials\GENTEMAR_TITULOS.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DIMARCore.Solution\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
+      <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
+      <Name>DIMARCore.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+</Project>
