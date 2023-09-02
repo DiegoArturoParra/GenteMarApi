@@ -44,6 +44,9 @@
     <OutputPath>bin\DIMARCore.Api.Produccion\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.0.143\lib\net461\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -53,10 +56,16 @@
     <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Odbc, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.Odbc.7.0.0\lib\net462\System.Data.Odbc.dll</HintPath>
+    </Reference>
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -69,9 +78,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Repository\AclaracionEstupefacienteRepository.cs" />
+    <Compile Include="Repository\ExpedienteObservacionEstupefacienteRepository.cs" />
+    <Compile Include="Repository\ObservacionEntidadEstupefacienteRepository.cs" />
     <Compile Include="Repository\ActividadRepository.cs" />
     <Compile Include="Repository\ActividadSeccionLicenciasRepository.cs" />
+    <Compile Include="Repository\EstupefacienteDatosBasicosRepository.cs" />
     <Compile Include="Repository\AplicacionRepository.cs" />
     <Compile Include="Repository\AplicacionRolesRepository.cs" />
     <Compile Include="Repository\CapacidadRepository.cs" />
@@ -83,6 +94,7 @@
     <Compile Include="Repository\ClaseLicenciasRepository.cs" />
     <Compile Include="Repository\ClaseTitulosRepository.cs" />
     <Compile Include="GenericRepository.cs" />
+    <Compile Include="Repository\ConsolidadoEstupefacienteRepository.cs" />
     <Compile Include="Repository\DatosBasicosRepository.cs" />
     <Compile Include="Repository\DimRegistroEmbarqueRepository.cs" />
     <Compile Include="Repository\EntidadEstupefacienteRepository.cs" />
@@ -90,10 +102,14 @@
     <Compile Include="Repository\EstadoLicenciaRepository.cs" />
     <Compile Include="Repository\EstadoTituloRepository.cs" />
     <Compile Include="Repository\EstupefacienteRepository.cs" />
+    <Compile Include="Repository\ExpedienteRepository.cs" />
     <Compile Include="Repository\HistorialDocumentoRepository.cs" />
+    <Compile Include="Repository\HistorialAclaracionEstupefacienteRepository.cs" />
     <Compile Include="Repository\LicenciaRepository.cs" />
     <Compile Include="Repository\LimitanteRepository.cs" />
     <Compile Include="Repository\MenuRepository.cs" />
+    <Compile Include="Repository\MultaRepository.cs" />
+    <Compile Include="Repository\NaveRepository.cs" />
     <Compile Include="Repository\ObservacionesEstupefacienteRepository.cs" />
     <Compile Include="Repository\ObservacionesLicenciasRepository.cs" />
     <Compile Include="Repository\ObservacionesTitulosRepository.cs" />
@@ -124,6 +140,8 @@
     <Compile Include="Repository\TipoDocumentoRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\TipoLicenciaRepository.cs" />
+    <Compile Include="Repository\TipoRefrendoRepository.cs" />
+    <Compile Include="Repository\TituloReglaCargosRepository.cs" />
     <Compile Include="Repository\TituloRepository.cs" />
     <Compile Include="Repository\TramiteEstupefacienteRepository.cs" />
     <Compile Include="Repository\UsuarioRepository.cs" />

@@ -1,0 +1,162 @@
+﻿using ClosedXML.Excel;
+using DIMARCore.Repositories.Repository;
+using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
+using DIMARCore.Utilities.CorreoSMTP;
+using DIMARCore.Utilities.Enums;
+using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
+using GenteMarCore.Entities.Models;
+using log4net;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+
+namespace DIMARCore.Business.Logica
+{
+    public class ConsolidadoBO
+    {
+        private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public async Task<IEnumerable<GENTEMAR_CONSOLIDADO>> GetConsolidados()
+        {
+            return await new ConsolidadoEstupefacienteRepository().GetAllAsync();
+        }
+
+        public async Task<Respuesta> GenerarExcelConConsolidadoDeEstupefacientes(string email, CrearConsolidadoExcelDTO consolidadoDTO)
+        {
+            string numeroConsolidado = string.Empty;
+            IList<EstupefacientesExcelDTO> data;
+            using (var repository = new EstupefacienteRepository())
+            {
+                using (var ConsolidadoRepository = new ConsolidadoEstupefacienteRepository())
+                {
+                    bool repiteConsolidado = consolidadoDTO.IsNew
+                        ? await ConsolidadoRepository.AnyWithCondition(y => y.numero_consolidado == consolidadoDTO.Consolidado) : false;
+
+                    if (repiteConsolidado)
+                        throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el número de consolidado {consolidadoDTO.Consolidado}"));
+
+                    data = await repository.GetEstupefacientesEstadoInicial();
+                    if (!data.Any())
+                        return Responses.SetNotFoundResponse("No hay datos actualmente para exportar al Excel.");
+
+
+                    IList<long> EstupefacientesIds = data.Select(x => x.EstupefacienteId).ToList();
+                    var datosAEditar = await repository.GetAllWithConditionAsync(x => EstupefacientesIds.Contains(x.id_antecedente));
+
+
+                    datosAEditar = datosAEditar.Select(entidad =>
+                    {
+                        // Realizar los cambios necesarios en cada objeto de la lista
+                        entidad.id_estado_antecedente = (int)EstadoEstupefacienteEnum.Consulta;
+                        return entidad;
+                    }).ToList();
+                    if (!consolidadoDTO.IsNew)
+                    {
+                        var consolidado = await ConsolidadoRepository.GetById(int.Parse(consolidadoDTO.Consolidado))
+                            ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el consolidado.");
+                        numeroConsolidado = consolidado.numero_consolidado.ToString();
+                        await repository.EditBulkWithconsolidated(datosAEditar, 100, consolidado.id_consolidado.ToString(), consolidadoDTO.ArrayExpedientesEntidad, false);
+                    }
+                    else
+                    {
+                        numeroConsolidado = consolidadoDTO.Consolidado.ToString();
+                        await repository.EditBulkWithconsolidated(datosAEditar, 100, consolidadoDTO.Consolidado, consolidadoDTO.ArrayExpedientesEntidad, true);
+                    }
+                }
+
+            }
+
+            var archivoBytes = GenerateExcel(data, numeroConsolidado);
+
+            var archivoBase64 = Convert.ToBase64String(archivoBytes);
+
+            _ = Task.Run(async () =>
+            {
+                String[] correos = { email };
+                SendEmailRequest request = new SendEmailRequest
+                {
+                    CorreosAEnviar = correos,
+                    Asunto = $"Se generó consolidado {numeroConsolidado} excel para enviar el día: {DateTime.Now:dd/MM/yyyy hh: mm:ss tt}",
+                    CuerpoDelMensaje = $"Se actualizaron {data.Count()} estupefacientes a estado EN CONSULTA para el consolidado con número: {numeroConsolidado}",
+                    Footer = Constantes.FOOTER_EMAIL
+                };
+
+                await new EnvioNotificacionesBO().SendNotificationByEmail(_logger, request);
+            });
+
+
+            return Responses.SetOkResponse(new { ArchivoBase64 = archivoBase64, Extension = Constantes.EXTENSION_EXCEL });
+        }
+
+        #region Generar reporte en excel
+        public byte[] GenerateExcel(IList<EstupefacientesExcelDTO> datosEstupefacientes, string numeroDeConsolidado)
+        {
+
+            using (var workbook = new XLWorkbook())
+            {
+                try
+                {
+                    var worksheet = workbook.Worksheets.Add($"consolidado_numero_{numeroDeConsolidado}");
+                    var currentRow = 1;
+                    // Create a style for the header cells
+                    var headerStyle = worksheet.Style;
+                    headerStyle.Font.Bold = true;
+                    // Cabeceros
+                    worksheet.Cell(currentRow, 1).Value = ExcelEstupefacienteConfig.ITEM;
+                    worksheet.Cell(currentRow, 2).Value = ExcelEstupefacienteConfig.NUMERO_SGDEA;
+                    worksheet.Cell(currentRow, 3).Value = ExcelEstupefacienteConfig.FECHA_SGDEA;
+                    worksheet.Cell(currentRow, 4).Value = ExcelEstupefacienteConfig.LUGAR_TRAMITE;
+                    worksheet.Cell(currentRow, 5).Value = ExcelEstupefacienteConfig.TIPO_TRAMITE;
+                    worksheet.Cell(currentRow, 6).Value = ExcelEstupefacienteConfig.TIPO_DOCUMENTO;
+                    worksheet.Cell(currentRow, 7).Value = ExcelEstupefacienteConfig.DOCUMENTO;
+                    worksheet.Cell(currentRow, 8).Value = ExcelEstupefacienteConfig.NOMBRES;
+                    worksheet.Cell(currentRow, 9).Value = ExcelEstupefacienteConfig.APELLIDOS;
+                    worksheet.Cell(currentRow, 10).Value = ExcelEstupefacienteConfig.FECHA_NACIMIENTO;
+                    worksheet.Cell(currentRow, 11).Value = ExcelEstupefacienteConfig.FECHA_SECE;
+                    // Apply the header style to the entire row
+                    worksheet.Row(currentRow).Style = headerStyle;
+                    currentRow++;
+                    // Data
+                    foreach (var item in datosEstupefacientes)
+                    {
+                        worksheet.Cell(currentRow, 1).Value = currentRow - 1;
+                        worksheet.Cell(currentRow, 2).Style.NumberFormat.Format = "@";
+                        worksheet.Cell(currentRow, 2).Value = item.Radicado;
+                        worksheet.Cell(currentRow, 3).Value = item.FechaRadicadoFormato;
+                        worksheet.Cell(currentRow, 4).Value = item.LugarTramiteCapitania;
+                        worksheet.Cell(currentRow, 5).Value = item.TipoTramite;
+                        worksheet.Cell(currentRow, 6).Value = item.TipoDocumento;
+                        worksheet.Cell(currentRow, 7).Style.NumberFormat.Format = "@";
+                        worksheet.Cell(currentRow, 7).Value = item.Documento;
+                        worksheet.Cell(currentRow, 8).Value = item.Nombres;
+                        worksheet.Cell(currentRow, 9).Value = item.Apellidos;
+                        worksheet.Cell(currentRow, 10).Value = item.FechaNacimientoFormato;
+                        worksheet.Cell(currentRow, 11).Value = item.FechaSolicitudSedeCentralFormato;
+                        currentRow++;
+                    }
+                    // Create a table using the entire range of data
+                    var dataRange = worksheet.Range(1, 1, currentRow - 1, 11);
+                    var table = dataRange.CreateTable();
+                    // Set the table style
+                    worksheet.ColumnsUsed().AdjustToContents();
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+                        return content;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"Error: No se pudo generar el Excel, {ex.Message}");
+                }
+            }
+        }
+        #endregion
+
+    }
+}

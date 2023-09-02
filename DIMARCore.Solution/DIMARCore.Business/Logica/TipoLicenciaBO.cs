@@ -4,7 +4,7 @@ using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business
 {
     public class TipoLicenciaBO

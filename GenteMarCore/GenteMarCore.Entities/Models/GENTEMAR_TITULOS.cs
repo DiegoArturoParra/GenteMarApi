@@ -11,8 +11,6 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public long id_titulo { get; set; }
 
-        public int id_cargo_regla { get; set; }
-
         public long id_gentemar { get; set; }
 
         public DateTime fecha_vencimiento { get; set; }
@@ -25,6 +23,8 @@ namespace GenteMarCore.Entities.Models
         public int id_estado_tramite { get; set; }
 
         public int id_capitania { get; set; }
+
+        public int id_tipo_refrendo { get; set; }
 
         public int id_tipo_solicitud { get; set; }
 

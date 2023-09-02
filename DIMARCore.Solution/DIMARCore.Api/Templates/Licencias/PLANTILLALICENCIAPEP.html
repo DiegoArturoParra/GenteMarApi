@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Licencia Pep</title>
+    <style type="text/css">
+        .a-4-1,
+        .a-4-1 * {
+            box-sizing: border-box;
+            font: 400 15px "Arial";
+            text-transform: uppercase;
+        }
+
+        .a-4-1 {
+            background: #ffffff;
+            padding: 30px;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            width: 700px;
+            height: 965px;
+        }
+
+        .usuario-1 {
+            flex-shrink: 0;
+            width: 162.46px;
+            height: 165.72px;
+            margin: 5% 0 0 85.14px;
+        }
+
+        .logo-1 {
+            flex-shrink: 0;
+            width: 127px;
+            height: 170px;
+            position: absolute;
+            left: 443.56px;
+            top: 59px;
+
+        }
+
+        .rep-blica-de-colombia-ministerio-de-defensa {
+            text-align: center;
+            position: absolute;
+            right: 45px;
+            top: 0;
+            width: 300px;
+            height: 58.05px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .titulo-1 {
+            margin: 60px 0 0 0;
+        }
+
+        .m-15 {
+            margin: 30px 0 0 0;
+        }
+
+        .f-700 {
+            font: 700 18px "Arial";
+        }
+
+        .f-400 {
+            font: 400 14px "Arial";
+        }
+
+        .tx-center {
+            text-align: center;
+        }
+
+        .flex {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flex div {
+            margin: 0 10px;
+        }
+
+        .t-5 {
+            text-align: center;
+        }
+
+        .negrita {
+            font-weight: bold;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            border: 2px solid black;
+            margin: auto;
+        }
+
+        th,
+        td {
+            padding: 2px;
+            border: 2px solid #000;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="a-4-1">
+        <img class="usuario-1" src="{url}/RepositorioArchivos/{Foto}" />
+
+        <div class="rep-blica-de-colombia-ministerio-de-defensa f-700">
+            REPÚBLICA DE COLOMBIA<br />MINISTERIO DE DEFENSA
+        </div>
+        <img class="logo-1" src="{url}/Imagenes/logo-1.png" />
+
+
+        <div class="titulo-1 f-700 tx-center">DIRECCIÓN GENERAL MARÍTIMA</div>
+
+        <div class="m-15 tx-center">
+            EN ATENCIÓN A QUE EL SEÑOR: <span class="negrita"> {NombreCompleto}</span>
+        </div>
+        <div class="flex m-15 tx-center">
+            <div class="identificacion">IDENTIFICADO CON CC No: <span class="negrita">{Documento}</span></div>
+
+            <div class="expedido">EXPEDIDA EN: <span class="negrita"> {CiudadExpedicion}</span></div>
+        </div>
+
+        <div class="m-15 tx-center">
+            CON LICENCIA DE NAVEGACIÓN No. <span class="negrita">{Documento}</span> QUE LO ACREDITA COMO:
+        </div>
+
+        <div class="m-15 tx-center negrita">{Limitantes}</div>
+
+        <div class="m-15 tx-center">
+            HA CUMPLIDO CON LOS REQUISITOS LEGALES ESTABLECIDOS EN LOS ARTÍCULOS 31, 32,
+            33 Y 34 DE LA LEY 658 DEL 2001, SE LE CONCEDE:
+        </div>
+
+        <div class="m-15 tx-center negrita">
+            {Limitacion}
+        </div>
+
+        <div class="m-15 tx-center">
+            AUTORIZADO PARA EFECTUAR MANIOBRAS Y NAVEGACIÓN POR EL CANAL DE ACCESO AL
+            PUERTO DE <span class="negrita">{CapitaniaFirmante}</span>
+        </div>
+
+        <div class="m-15 tx-center">
+            <table>
+                <tr>
+                    <td>
+                        <div class="negrita">MOTONAVE</div>
+                    </td>
+                    <td>
+                        <div class="negrita">MATRICULA</div>
+                    </td>
+                </tr>
+                {ParametroDinamico}
+            </table>
+        </div>
+
+        <div class="flex m-15 tx-center">
+            <div class="f-2">FECHA DE EXPEDICIÓN: <span class="negrita"> {FechaExpedicion}</span></div>
+
+            <div class="f-1">VÁLIDA HASTA: <span class="negrita"> {FechaVencimiento}</span></div>
+        </div>
+    </div>
+
+</body>
+
+</html>

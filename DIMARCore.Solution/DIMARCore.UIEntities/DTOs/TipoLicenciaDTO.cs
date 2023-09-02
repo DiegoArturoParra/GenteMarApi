@@ -1,15 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DIMARCore.UIEntities.DTOs
 {
     public class TipoLicenciaDTO
     {
-        
+
         public int? IdTipoLicencia { get; set; }
         [JsonIgnore]
         public string _TipoLicencia;

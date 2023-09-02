@@ -1,7 +1,11 @@
 ﻿namespace DIMARCore.Utilities.Config
 {
-    public static class AutenticacionConfig
+    public class AutenticacionConfig
     {
+        static AutenticacionConfig()
+        {
+
+        }
         public const string HEADERS_ID_APLICACION = "Aplicacion";
         public const string HEADERS_AUTHORIZATION = "Authorization";
 

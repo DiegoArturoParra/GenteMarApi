@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 
 namespace DIMARCore.UIEntities.Requests
@@ -18,7 +13,7 @@ namespace DIMARCore.UIEntities.Requests
         /// </summary>
         [Required(ErrorMessage = "El nombre de usuario es requerido.")]
         [MaxLength(50, ErrorMessage = "La longitud del nombre de usuario no es valida.")]
-        public string Username { get; set; }
+        public string UserName { get; set; }
         /// <summary>
         /// Contraseña
         /// </summary>
@@ -28,7 +23,7 @@ namespace DIMARCore.UIEntities.Requests
         /// Id de la aplicación
         /// </summary>
         [Required(ErrorMessage = "El tipo la aplicación es un dato requerido.")]
-        public int Aplicacion { get; set; }
+        public string Aplicacion { get; set; }
 
     }
 }

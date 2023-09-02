@@ -23,7 +23,5 @@ namespace GenteMarCore.Entities.Models
         public int ID_APLICACION { get; set; }
 
         public byte ID_ESTADO { get; set; }
-
-        public virtual APLICACIONES_ESTADO APLICACIONES_ESTADO { get; set; }
     }
 }

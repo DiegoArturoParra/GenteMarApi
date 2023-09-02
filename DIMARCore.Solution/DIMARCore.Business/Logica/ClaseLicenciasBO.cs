@@ -4,6 +4,7 @@ using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DIMARCore.Utilities.Middleware;
 
 namespace DIMARCore.Business.Logica
 {
@@ -11,7 +12,6 @@ namespace DIMARCore.Business.Logica
     {
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_CLASE_LICENCIAS datos, IList<GENTEMAR_SECCION_LICENCIAS> secciones)
         {
-
             Respuesta respuesta = new Respuesta();
             using (var repo = new ClaseLicenciasRepository())
             {

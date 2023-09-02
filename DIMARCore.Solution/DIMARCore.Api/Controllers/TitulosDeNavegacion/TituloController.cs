@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
@@ -9,7 +10,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -28,14 +28,14 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     [RoutePrefix("api/titulos")]
     public class TituloController : BaseApiController
     {
-        private readonly TituloBO _service;
+        private readonly TituloBO _serviceTitulo;
 
         /// <summary>
         /// Constructor
         /// </summary>
         public TituloController()
         {
-            _service = new TituloBO();
+            _serviceTitulo = new TituloBO();
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
                 paginacion = new ParametrosPaginacion();
             }
 
-            var queryable = _service.GetTitulosQueryable();
+            var queryable = _serviceTitulo.GetTitulosQueryable();
             if (queryable.Count() == 0)
             {
                 return Ok(Responses.SetOkResponse(null, "No hay titulos"));
@@ -70,6 +70,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var paginador = Paginador<ListadoTituloDTO>.CrearPaginador(queryable.Count(), listado, paginacion);
             return Ok(paginador);
         }
+
 
         /// <summary>
         /// Servicio que retorna toda la información de un titulo en especifico por Id
@@ -83,14 +84,14 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>     
         /// <response code="404">NotFound. No se ha el titulo solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<InfoTituloDTO>))]
         [HttpGet]
         [Route("{id}")]
         [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
-        public async Task<IHttpActionResult> GetTitulo(long id)
+        public async Task<IHttpActionResult> GetTituloPorId(long id)
         {
-            var query = await new TituloBO().GetByIdAsync(id);
-            return ResultadoStatus(query);
+            var response = await _serviceTitulo.GetTituloById(id);
+            return Ok(response);
         }
 
 
@@ -111,16 +112,11 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpPost]
         [Route("filter-by-identification")]
         [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
-        public async Task<IHttpActionResult> FiltroByIdentificacion(FiltroPaginacionByIdentificacion filtro)
+        public async Task<IHttpActionResult> GetTitulosByIdentificacion(FiltroByIdentificacion filtro)
         {
-            var response = await new TituloBO().ExistePersonaByIdentificacion(filtro.IdentificacionConPuntos);
-            if (response.Estado)
-            {
-                var query = await new TituloBO().GetTitulosFiltro(filtro.IdentificacionConPuntos);
-                return Ok(query);
-            }
-
-            return ResultadoStatus(response);
+            await _serviceTitulo.ExistePersonaByIdentificacion(filtro.IdentificacionConPuntos);
+            var query = await _serviceTitulo.GetTitulosFiltro(filtro.IdentificacionConPuntos);
+            return Ok(query);
         }
 
         /// <summary>
@@ -140,16 +136,11 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpPost]
         [Route("filter-by-id")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
-        public async Task<IHttpActionResult> FiltroByIdGenteMar(FiltroPaginacionById filtro)
+        public async Task<IHttpActionResult> GetTitulosById(FiltroById filtro)
         {
-            var response = await new DatosBasicosBO().ExisteById(Convert.ToInt64(filtro.Id));
-            if (response.Estado)
-            {
-                var query = await new TituloBO().GetTitulosFiltro(string.Empty, Convert.ToInt64(filtro.Id));
-                return Ok(query);
-            }
-
-            return ResultadoStatus(response);
+            await new DatosBasicosBO().ExisteById(Convert.ToInt64(filtro.Id));
+            var query = await _serviceTitulo.GetTitulosFiltro(string.Empty, Convert.ToInt64(filtro.Id));
+            return Ok(query);
         }
 
 
@@ -202,57 +193,20 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var format = "dd/MM/yyyy"; // your datetime format
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
             var datos = req["Data"];
-            if (datos != null)
-            {
-                TituloDTO titulo = JsonConvert.DeserializeObject<TituloDTO>(datos, dateTimeConverter);
-                if (archivo != null)
-                    titulo.Observacion.Archivo = archivo;
-                respuesta = ValidarTitulo(titulo);
-                if (respuesta.Estado)
-                {
-                    respuesta = await new ReglaCargoBO().GetIdByTablasForaneas(titulo.IdsLlaveCompuesta);
-                    if (respuesta.Estado)
-                    {
-                        titulo.CargoReglaId = (int)respuesta.Data;
-                        titulo.CapitaniaId = GetIdCapitania();
-                        var data = Mapear<TituloDTO, GENTEMAR_TITULOS>(titulo);
-                        respuesta = await new TituloBO().CrearAsync(data, PathActual);
-                    }
-                }
-            }
-            else
-            {
-                respuesta.StatusCode = HttpStatusCode.BadRequest;
-                respuesta.Mensaje = "Objeto invalido";
-                respuesta.Estado = false;
-            }
+            if (datos == null)
+                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(TituloDTO)}, debe enviar los datos correctos."));
 
+            TituloDTO titulo = JsonConvert.DeserializeObject<TituloDTO>(datos, dateTimeConverter);
+            if (archivo != null)
+                titulo.Observacion.Archivo = archivo;
+            ValidateModelAndThrowIfInvalid(titulo);
+            titulo.CapitaniaId = GetIdCapitania();
+            var data = Mapear<TituloDTO, GENTEMAR_TITULOS>(titulo);
+            respuesta = await new TituloBO().CrearAsync(data, PathActual);
             return ResultadoStatus(respuesta);
         }
 
-        /// <summary>
-        /// Valida el dto del titulo
-        /// </summary>
-        /// <param name="titulo"></param>
-        /// <returns></returns>
-        private Respuesta ValidarTitulo(TituloDTO titulo)
-        {
-            Respuesta res = new Respuesta();
-            this.Validate(titulo);
-            if (!ModelState.IsValid)
-            {
-                var errores = GetErrorListFromModelState(ModelState);
-                res.Estado = false;
-                res.StatusCode = HttpStatusCode.BadRequest;
-                res.Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray());
-            }
-            else
-            {
-                res.Estado = true;
-            }
 
-            return res;
-        }
 
         /// <summary>
         /// Servicio para editar un titulo
@@ -281,22 +235,36 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             TituloDTO titulo = JsonConvert.DeserializeObject<TituloDTO>(req["Data"], dateTimeConverter);
             if (archivo != null)
                 titulo.Observacion.Archivo = archivo;
-            respuesta = ValidarTitulo(titulo);
-            if (respuesta.Estado)
-            {
-                respuesta = await new ReglaCargoBO().GetIdByTablasForaneas(titulo.IdsLlaveCompuesta);
-                if (respuesta.Estado)
-                {
-                    titulo.CargoReglaId = (int)respuesta.Data;
-                    titulo.CapitaniaId = GetIdCapitania();
-                    var data = Mapear<TituloDTO, GENTEMAR_TITULOS>(titulo);
-                    respuesta = await new TituloBO().ActualizarAsync(data, PathActual);
-                }
-            }
-
+            ValidateModelAndThrowIfInvalid(titulo);
+            titulo.CapitaniaId = GetIdCapitania();
+            var data = Mapear<TituloDTO, GENTEMAR_TITULOS>(titulo);
+            respuesta = await new TituloBO().ActualizarAsync(data, PathActual);
             return ResultadoStatus(respuesta);
         }
 
+        /// <summary>
+        /// Servicio para desactivar un cargo en especifico de un titulo
+        /// </summary>
+        /// <remarks>
+        ///  Servicio para desactivar un cargo en especifico de un titulo de navegación de personal en gente de mar.
+        /// </remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>2023/07/14</Fecha>
+        /// <param name="desactivateCargo"></param>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        /// <returns></returns>
+        [ResponseType(typeof(Respuesta))]
+        [HttpPut]
+        [Route("desactivar-cargo")]
+        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        public async Task<IHttpActionResult> DesactivarCargoDelTitulo(DesactivateCargoDTO desactivateCargo)
+        {
+            Respuesta respuesta = await _serviceTitulo.DesactivarCargoDelTitulo(desactivateCargo);
+            return Ok(respuesta);
+        }
 
         /// <summary>
         /// fechas por defecto de un titulo de navegación si una persona de gente de mar tiene titulos con la sección puente
@@ -320,5 +288,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var response = await new TituloBO().GetFechasRadioOperadores(idGenteMar);
             return ResultadoStatus(response);
         }
+
+        
     }
 }

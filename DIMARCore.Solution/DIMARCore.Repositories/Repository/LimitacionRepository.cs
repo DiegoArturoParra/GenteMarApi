@@ -1,8 +1,5 @@
-﻿using GenteMarCore.Entities;
-using GenteMarCore.Entities.Models;
-using System;
+﻿using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 
 
@@ -10,8 +7,6 @@ namespace DIMARCore.Repositories.Repository
 {
     public class LimitacionRepository : GenericRepository<GENTEMAR_LIMITACION>
     {
-        GenteDeMarCoreContext contexto = new GenteDeMarCoreContext();
-
         /// <summary>
         /// Lista de Limitaciones
         /// </summary>
@@ -19,20 +14,12 @@ namespace DIMARCore.Repositories.Repository
         /// <tabla>GENTEMAR_LIMITACION</tabla>
         public IList<GENTEMAR_LIMITACION> GetLimitaciones()
         {
-            try
-            {
-                var resultado = (from a in this.contexto.GENTEMAR_LIMITACION
-                                 select a
-                                 ).OrderBy(p => p.limitaciones).ToList();
 
-                //var resultado = contexto.GENTEMAR_LIMITACION.OrderBy(e => e.limitaciones).ToList();
+            var resultado = (from a in this.Table
+                             select a
+                             ).OrderBy(p => p.limitaciones).ToList();
+            return resultado;
 
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
 
 
@@ -44,22 +31,13 @@ namespace DIMARCore.Repositories.Repository
         /// <tabla>GENTEMAR_LIMITACION</tabla>
         public GENTEMAR_LIMITACION GetLimitacion(int id)
         {
-            try
-            {
-                var resultado = (from c in this.contexto.GENTEMAR_LIMITACION
-                                 where c.id_limitacion == id
-                                 select c
-                                ).FirstOrDefault();
+            var resultado = (from c in this.Table
+                             where c.id_limitacion == id
+                             select c
+                            ).FirstOrDefault();
 
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return resultado;
         }
-
-        
     }
 
 }

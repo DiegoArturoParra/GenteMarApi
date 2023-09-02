@@ -23,11 +23,11 @@ namespace DIMARCore.Repositories.Repository
                                equals regla.id_regla
 
                                where reglaCargo.id_cargo_titulo == cargoId
-                               group regla by new { regla.id_regla, regla.Regla } into objeto
+                               group regla by new { regla.id_regla, regla.nombre_regla } into objeto
                                select new ReglaDTO
                                {
                                    Id = objeto.Key.id_regla,
-                                   Descripcion = objeto.Key.Regla
+                                   Descripcion = objeto.Key.nombre_regla
                                }).ToListAsync();
             return query;
         }

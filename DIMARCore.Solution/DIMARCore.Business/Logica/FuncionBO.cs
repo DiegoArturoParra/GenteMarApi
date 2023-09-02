@@ -4,7 +4,7 @@ using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
     public class FuncionBO : IGenericCRUD<GENTEMAR_FUNCIONES, int>
@@ -58,22 +58,14 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> AnulaOrActivaAsync(int Id)
         {
-            string mensaje;
             var obj = await GetByIdAsync(Id);
-
             var entidad = (GENTEMAR_FUNCIONES)obj.Data;
             entidad.activo = !entidad.activo;
             await new FuncionRepository().Update(entidad);
             if (entidad.activo)
-            {
-                mensaje = $"Se activo {entidad.funcion}";
-            }
-            else
-            {
-                mensaje = $"Se anulo {entidad.funcion}";
-            }
+                return Responses.SetOkResponse(entidad, $"Se activo {entidad.funcion}");
 
-            return Responses.SetOkResponse(entidad, mensaje);
+            return Responses.SetOkResponse(entidad, $"Se anulo {entidad.funcion}");
         }
 
         public async Task<Respuesta> Validaciones(int reglaId)

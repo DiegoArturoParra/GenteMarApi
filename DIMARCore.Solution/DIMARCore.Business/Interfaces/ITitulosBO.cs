@@ -1,6 +1,7 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,6 +11,10 @@ namespace DIMARCore.Business.Interfaces
     {
         Task<Respuesta> ActualizarAsync(GENTEMAR_TITULOS entidad, string pathActual);
         Task<Respuesta> CrearAsync(GENTEMAR_TITULOS entidad, string pathActual);
+        Task ExistById(long id);
+        Task<Respuesta> ExistePersonaByIdentificacion(string identificacionConPuntos);
+        Task<Respuesta> GetTituloById(long id);
+        Task<IEnumerable<ListadoTituloDTO>> GetTitulosFiltro(string identificacionConPuntos, long Id = 0);
         IQueryable<ListadoTituloDTO> GetTitulosQueryable();
     }
 }

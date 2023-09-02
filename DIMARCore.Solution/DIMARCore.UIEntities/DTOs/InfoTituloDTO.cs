@@ -6,24 +6,14 @@ namespace DIMARCore.UIEntities.DTOs
 {
     public class InfoTituloDTO
     {
-
         public long TituloId { get; set; }
-        public int CargoId { get; set; }
-        public int SeccionId { get; set; }
-        public int ReglaId { get; set; }
-        public int CapacidadId { get; set; }
         public int EstadoTramiteId { get; set; }
         public int TipoSolicitudId { get; set; }
+        public int TipoRefrendoId { get; set; }
         public int CapitaniaId { get; set; }
         public int CapitaniaFirmanteId { get; set; }
-        public List<HabilitacionInfoDTO> Habilitaciones { get; set; }
-        public List<FuncionesTituloDTO> Funciones { get; set; }
-        public string Capacidad { get; set; }
-        public string Regla { get; set; }
-        public string Seccion { get; set; }
+        public List<ListarCargosTituloDTO> Cargos { get; set; }
         public string Pais { get; set; }
-        public string CargoTitulo { get; set; }
-        public string Nivel { get; set; }
         public string Solicitud { get; set; }
         public string NombreUsuario { get; set; }
         public string CapitaniaFirma { get; set; }
@@ -40,16 +30,23 @@ namespace DIMARCore.UIEntities.DTOs
         public string FechaVencimientoFormato => string.Format("{0:dd/MM/yyyy}", this.FechaVencimiento);
 
     }
-    public class HabilitacionInfoDTO
+    public class ListarCargosTituloDTO
     {
-        public int Id { get; set; }
-        public string Descripcion { get; set; }
-    }
-
-    public class FuncionesTituloDTO
-    {
-        public int Id { get; set; }
-        public string Descripcion { get; set; }
-        public string Limitacion { get; set; }
+        public long TituloCargoReglaId { get; set; }
+        public string Capacidad { get; set; }
+        public string Regla { get; set; }
+        public string Seccion { get; set; }
+        public int ReglaCargoId { get; set; }
+        public string CargoTitulo { get; set; }
+        public string Nivel { get; set; }
+        public int NivelId { get; set; }
+        public int CargoId { get; set; }
+        public int SeccionId { get; set; }
+        public int ReglaId { get; set; }
+        public int CapacidadId { get; set; }
+        public string HabilitacionesJson { get; set; }
+        public string FuncionesJson { get; set; }
+        public List<HabilitacionCargoDTO> Habilitaciones { get; set; }
+        public List<FuncionCargoDTO> Funciones { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DIMARCore.UIEntities.DTOs
 {
@@ -11,8 +12,7 @@ namespace DIMARCore.UIEntities.DTOs
         public DateTime? FechaVencimiento { get; set; }
         public int? IdCapitania { get; set; }
         public int? IdEstadoLicencia { get; set; }
-        public int? IdTramite { get; set; }
-        public string Radicado { get; set; }
+        public decimal Radicado { get; set; }
         public int? IdCapitaniaFirmante { get; set; }
         public bool? Activo { get; set; }
         public CargoLicenciaDTO CargoLicencia { get; set; }
@@ -21,5 +21,6 @@ namespace DIMARCore.UIEntities.DTOs
         public CapitaniaDTO CapitaniaFirmante { get; set; }
         public UsuarioGenteMarDTO Usuario { get; set; }
         public ObservacionDTO Observacion { get; set; }
+        public List<string> ListaNaves { get; set; }
     }
 }

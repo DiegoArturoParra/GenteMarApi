@@ -11,10 +11,24 @@ namespace DIMARCore.UIEntities.DTOs
         public int EntidadId { get; set; }
         [StringLength(5000, ErrorMessage = "Debe tener una longitud máxima de {1} caracteres.")]
         public string Descripcion { get; set; }
-        public DateTime? FechaRespuestaEntidad { get; set; }
+        [Required(ErrorMessage = "Fecha respuesta requerida")]
+        public DateTime FechaRespuestaEntidad { get; set; }
+        [Required(ErrorMessage = "verificación requerida")]
+        public bool VerificacionExitosa { get; set; }
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
+        [StringLength(12, ErrorMessage = "Longitud mínima de {1} caracteres y máximo de {2} caracteres.", MinimumLength = 2)]
+        [Required(ErrorMessage = "Número de expediente requerido.")]
+        public string NumeroDeExpediente { get; set; }
     }
 
-    public class AclaracionCreateDTO
+    public class AclaracionDTO
+    {
+        [Required(ErrorMessage = "Antecedente id requerida.")]
+        public long AntecedenteId { get; set; }
+        public AclaracionEstupefacienteDTO Aclaracion { get; set; }
+    }
+
+    public class AclaracionesBulkDTO
     {
         [Required(ErrorMessage = "Antecedente id requerida.")]
         public long AntecedenteId { get; set; }

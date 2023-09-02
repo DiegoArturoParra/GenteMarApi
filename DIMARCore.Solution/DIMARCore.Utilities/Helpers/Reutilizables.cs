@@ -1,8 +1,16 @@
-﻿using log4net;
+﻿using DIMARCore.Utilities.Middleware;
+using iText.Html2pdf;
+using iText.Html2pdf.Resolver.Font;
+using iText.Layout.Font;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using log4net;
 using System;
-using System.Globalization;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
@@ -77,6 +85,75 @@ namespace DIMARCore.Utilities.Helpers
             }
         }
 
+        public static string DescargarArchivoServidor(string rutaNombreArchivo)
+        {
+            try
+            {
+                // Acceder al archivo usando FileStream
+                using (FileStream fileStream = new FileStream(rutaNombreArchivo, FileMode.Open, FileAccess.Read))
+                {
+                    // Leer el contenido del archivo
+                    byte[] fileBytes = new byte[fileStream.Length];
+                    fileStream.Read(fileBytes, 0, (int)fileStream.Length);
+
+                    // Hacer algo con los datos del archivo, como convertirlo a Base64
+                    return Convert.ToBase64String(fileBytes);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El archivo no se encuentra en el repositorio {ex}"));
+            }
+        }
+
+        public static Respuesta GuardarArchivoDeBytes(byte[] archivoBytes, string rutaInicial, string rutaModuloTipoDocumento, string nombreArchivo = "")
+        {
+            try
+            {
+                rutaInicial = string.IsNullOrEmpty(rutaInicial) ? rutaInicial.Trim() : rutaInicial;
+                nombreArchivo = string.IsNullOrEmpty(nombreArchivo) ? nombreArchivo.Trim() : nombreArchivo;
+                if (string.IsNullOrEmpty(rutaInicial))
+                {
+                    string mensaje = "Error, la ruta no es valida. Por favor contacte al administrador del sistema.";
+                    _logger.Error(mensaje);
+                    return Responses.SetConflictResponse(mensaje);
+                }
+                // valida existencia ruta inicial
+                bool rutaInicialExiste = Directory.Exists(rutaInicial);
+                if (!rutaInicialExiste)
+                {
+                    string mensaje = "Error. No se encuentra la ruta principal. Por favor contacte al administrador del sistema.";
+                    _logger.Error(mensaje);
+                    return Responses.SetConflictResponse(mensaje);
+                }
+                // arma la ruta
+                var rutaCompletaModuloTipoDocumento = $@"{rutaInicial}\{rutaModuloTipoDocumento}";
+                bool rutaModuloExiste = Directory.Exists(rutaCompletaModuloTipoDocumento);
+                if (!rutaModuloExiste)
+                {
+                    Directory.CreateDirectory(rutaCompletaModuloTipoDocumento);
+                }
+                if (string.IsNullOrEmpty(nombreArchivo))
+                {
+                    nombreArchivo = Guid.NewGuid().ToString();
+                    nombreArchivo = $"{nombreArchivo}{Path.GetExtension(nombreArchivo)}";
+                }
+                // arma la ruta del archivo
+                var rutaNombreArchivo = $@"{rutaCompletaModuloTipoDocumento}\{nombreArchivo}";
+                File.WriteAllBytes(rutaNombreArchivo, archivoBytes);
+                return Responses.SetOkResponse(new Archivo
+                {
+                    NombreArchivo = nombreArchivo,
+                    PathArchivo = rutaNombreArchivo
+                });
+            }
+            catch (Exception ex)
+            {
+                Responses.SetInternalServerErrorResponse(ex, "Error al guardar el archivo. Por favor contacte al administrador del sistema.");
+                throw new Exception("Error al guardar el archivo. Por favor contacte al administrador del sistema.");
+            }
+        }
+
         /// <summary>
         /// guardar un archivo en el servidor
         /// </summary>
@@ -98,6 +175,7 @@ namespace DIMARCore.Utilities.Helpers
                     string mensaje = "Error, la ruta no es valida. Por favor contacte al administrador del sistema.";
                     _logger.Error(mensaje);
                     respuesta = Responses.SetConflictResponse(mensaje);
+                    return respuesta;
                 }
 
                 // valida existencia ruta inicial
@@ -107,6 +185,7 @@ namespace DIMARCore.Utilities.Helpers
                     string mensaje = "Error. No se encuentra la ruta principal. Por favor contacte al administrador del sistema.";
                     _logger.Error(mensaje);
                     respuesta = Responses.SetConflictResponse(mensaje);
+                    return respuesta;
                 }
 
                 // arma la ruta
@@ -128,13 +207,13 @@ namespace DIMARCore.Utilities.Helpers
 
                 file.SaveAs(rutaNombreArchivo);
 
-                respuesta =  Responses.SetOkResponse(new Archivo()
+                respuesta = Responses.SetOkResponse(new Archivo()
                 {
                     PathArchivo = $@"{rutaModuloTipoDocumento}\{nombreArchivo}",
                     NombreArchivo = nombreArchivo
                 });
                 _logger.Info($"Se crea el archivo {nombreArchivo}");
-                
+
             }
             catch (Exception ex)
             {
@@ -217,5 +296,206 @@ namespace DIMARCore.Utilities.Helpers
             }
             return documento;
         }
+        /// <summary>
+        /// generar pdf en base64 a partir de un html 
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        public static string GeneratePdftoBase64(string html)
+        {
+            // Generar el archivo PDF desde la plantilla HTML
+            MemoryStream outputMemoryStream = new MemoryStream();
+            FontProvider fontProvider = new DefaultFontProvider(false, false, true);
+            fontProvider.AddFont($"{Environment.CurrentDirectory}\\Templates\\Fonts\\arial.ttf");
+            fontProvider.AddFont($"{Environment.CurrentDirectory}\\Templates\\Fonts\\arial_bold.ttf");
+            // Step 3: Set up conversion properties
+            ConverterProperties converterProperties = new ConverterProperties();
+            converterProperties.SetFontProvider(fontProvider);
+
+            HtmlConverter.ConvertToPdf(html, outputMemoryStream, converterProperties);
+
+            byte[] outputBytes = outputMemoryStream.ToArray();
+            string base64String = Convert.ToBase64String(outputBytes);
+
+            return base64String;
+        }
+
+        /// <summary>
+        /// Une los pdf que se le pasen en el array  y devuelve el base 64 
+        /// </summary>
+        /// <param name="base64PdfList"></param>
+        /// <returns></returns>
+        public static string CombinePdfListInBase64(String[] base64PdfList)
+        {
+            using (MemoryStream outputMemoryStream = new MemoryStream())
+            {
+                // Abrir el documento PDF combinado
+                Document document = new Document();
+                PdfCopy pdfCopy = new PdfCopy(document, outputMemoryStream);
+                document.Open();
+
+                foreach (string base64Pdf in base64PdfList)
+                {
+                    // Convertir el base64 en bytes
+                    byte[] pdfBytes = Convert.FromBase64String(base64Pdf);
+
+                    // Abrir el documento PDF desde los bytes
+                    iTextSharp.text.pdf.PdfReader pdfReader = new iTextSharp.text.pdf.PdfReader(pdfBytes);
+                    for (int page = 1; page <= pdfReader.NumberOfPages; page++)
+                    {
+                        pdfCopy.AddPage(pdfCopy.GetImportedPage(pdfReader, page));
+                    }
+
+                    // Cerrar el lector
+                    pdfReader.Close();
+                }
+
+                // Cerrar el documento
+                document.Close();
+
+                // Convertir el PDF combinado a base64
+                return Convert.ToBase64String(outputMemoryStream.ToArray());
+            }
+        }
+
+        public static byte[] GenerateBase64toPdf(string base64String)
+        {
+            try
+            {
+                // Decodifica la cadena Base64 en un arreglo de bytes
+                byte[] pdfBytes = Convert.FromBase64String(base64String);
+
+                // Crear un MemoryStream y escribir los bytes decodificados en él
+                using (MemoryStream memoryStream = new MemoryStream(pdfBytes))
+                {
+                    return memoryStream.ToArray();
+                }
+
+                // El archivo en memoria se liberará automáticamente al salir del bloque using
+            }
+            catch (Exception ex)
+            {
+                throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error al convertir Base64 a PDF"));
+            }
+        }
+        /// <summary>
+        /// leer un archivo en el repocitorio local 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static string ReadFile(string filePath)
+        {
+            try
+            {
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    var buffer = new byte[4096]; // Tamaño del búfer de lectura
+                    var stringBuilder = new StringBuilder();
+
+                    int bytesRead;
+                    while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        var chunk = new string(Encoding.UTF8.GetChars(buffer, 0, bytesRead));
+                        stringBuilder.Append(chunk);
+                    }
+
+                    return stringBuilder.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al leer el archivo: " + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// replazar las variables en una plantilla html 
+        /// </summary>
+        /// <param name="template"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string ReplaceVariables(string template, object data, string htmlLabelReplace)
+        {
+            Type type = data.GetType();
+            foreach (var property in type.GetProperties())
+            {
+                string variable = "{" + property.Name + "}";
+                string value = property.GetValue(data)?.ToString() ?? "";
+                // convierte las fechas a un formato dd/MM/yyyy
+                if (property.PropertyType == typeof(DateTime))
+                {
+                    DateTime dateTimeValue = (DateTime)property.GetValue(data);
+                    value = dateTimeValue.ToString("dd/MM/yyyy");
+                }
+                // obtiene los valores de la lista de strings
+                if (property.PropertyType == typeof(List<string>))
+                {
+                    List<string> listValue = (List<string>)property.GetValue(data);
+                    if (listValue != null && listValue.Count > 0)
+                    {
+                        value = string.Join(htmlLabelReplace, listValue);
+                    }
+                }
+                template = template.Replace(variable, value);
+            }
+            return template;
+        }
+
+
+        /// <summary>
+        /// Construit Tabla en HTMl con una lista de objetos generico 
+        /// </summary>
+        /// <param name="template"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string TablaHtmlVariables(object data)
+        {
+            var tablaHtml = new StringBuilder();
+
+            // Verifica si el objeto es una lista
+            if (data is IList lista)
+            {
+                // Verifica si la lista tiene elementos
+                if (lista.Count > 0)
+                {
+                    var itemType = lista[0].GetType();
+                    var properties = itemType.GetProperties();
+                    // Recorre los elementos de la lista y crea las filas de datos
+                    foreach (var item in lista)
+                    {
+                        tablaHtml.AppendLine("<tr>");
+                        foreach (var property in properties)
+                        {
+                            var propertyValue = property.GetValue(item)?.ToString();
+                            tablaHtml.AppendLine($"<td>{propertyValue}</td>");
+                        }
+                        tablaHtml.AppendLine("</tr>");
+                    }
+                }
+            }
+
+            return tablaHtml.ToString();
+        }
+        /// <summary>
+        /// Calcula la edad en base a la fecha de nacimiento y la fecha actual 
+        /// </summary>
+        /// <param name="fechaNacimiento"></param>
+        /// <param name="fechaActual"></param>
+        /// <returns></returns>
+        public static int CalcularEdad(DateTime fechaNacimiento)
+        {
+            var fechaActual = DateTime.Now;
+            int edad = fechaActual.Year - fechaNacimiento.Year;
+
+            // Verificar si el cumpleaños ya ocurrió este año
+            if (fechaNacimiento > fechaActual.AddYears(-edad))
+            {
+                edad--;
+            }
+
+            return edad;
+        }
     }
+
 }

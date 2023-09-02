@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -62,8 +61,8 @@ namespace DIMARCore.Api.Controllers
             if (filtro.Paginacion.Page == 0 && filtro.Paginacion.PageSize == 0)
             {
                 filtro.Paginacion.Page = 1;
-                filtro.Paginacion.PageSize = queryable.Count();
             }
+            filtro.Paginacion.PageSize = queryable.Count();
 
             var listado = GetPaginacion(filtro.Paginacion, queryable);
             var paginador =
@@ -121,27 +120,12 @@ namespace DIMARCore.Api.Controllers
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
             dataDatosBasicos = JsonConvert.DeserializeObject<DatosBasicosDTO>(req["Data"], dateTimeConverter);
             dataDatosBasicos.Archivo = archivo;
-            if (dataDatosBasicos != null)
-            {
-                this.Validate(dataDatosBasicos);
-                if (!ModelState.IsValid)
-                {
-                    var errores = GetErrorListFromModelState(ModelState);
-                    Respuesta res = new Respuesta()
-                    {
-                        Estado = false,
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray())
-                    };
-                    return Content(HttpStatusCode.BadRequest, res);
-                }
-
-                var data = Mapear<DatosBasicosDTO, GENTEMAR_DATOSBASICOS>(dataDatosBasicos);
-                var response = await _service.CrearAsync(data, PathActual);
-                return ResultadoStatus(response);
-            }
-
-            return BadRequest("Datos invalidos");
+            if (dataDatosBasicos == null)
+                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(DatosBasicosDTO)}, debe enviar los datos correctos."));
+            ValidateModelAndThrowIfInvalid(dataDatosBasicos);
+            var data = Mapear<DatosBasicosDTO, GENTEMAR_DATOSBASICOS>(dataDatosBasicos);
+            var response = await _service.CrearAsync(data, PathActual);
+            return ResultadoStatus(response);
         }
 
         /// <summary>
@@ -196,19 +180,9 @@ namespace DIMARCore.Api.Controllers
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
             dataDatosBasicos = JsonConvert.DeserializeObject<DatosBasicosDTO>(req["Data"], dateTimeConverter);
             dataDatosBasicos.Archivo = archivo;
-            this.Validate(dataDatosBasicos);
-            if (!ModelState.IsValid)
-            {
-                var errores = GetErrorListFromModelState(ModelState);
-                Respuesta res = new Respuesta()
-                {
-                    Estado = false,
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray())
-                };
-                return Content(HttpStatusCode.BadRequest, res);
-            }
-
+            if (dataDatosBasicos == null)
+                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(DatosBasicosDTO)}, debe enviar los datos correctos."));
+            ValidateModelAndThrowIfInvalid(dataDatosBasicos);
             var data = Mapear<DatosBasicosDTO, GENTEMAR_DATOSBASICOS>(dataDatosBasicos);
             var response = await _service.ActualizarAsync(data, PathActual);
             return ResultadoStatus(response);
@@ -254,20 +228,14 @@ namespace DIMARCore.Api.Controllers
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
             var data1 = req["Data"];
             dataDatosBasicos = JsonConvert.DeserializeObject<DatosBasicosDTO>(req["Data"], dateTimeConverter);
+
+            if (dataDatosBasicos == null)
+                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(DatosBasicosDTO)}, debe enviar los datos correctos."));
+
             if (archivo != null)
                 dataDatosBasicos.Observacion.Archivo = archivo;
-            this.Validate(dataDatosBasicos);
-            if (!ModelState.IsValid)
-            {
-                var errores = GetErrorListFromModelState(ModelState);
-                Respuesta res = new Respuesta()
-                {
-                    Estado = false,
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray())
-                };
-                return Content(HttpStatusCode.BadRequest, res);
-            }
+
+            ValidateModelAndThrowIfInvalid(dataDatosBasicos);
 
             var data = Mapear<DatosBasicosDTO, GENTEMAR_DATOSBASICOS>(dataDatosBasicos);
             var response = await _service.ChangeStatus(data, PathActual);
@@ -288,18 +256,8 @@ namespace DIMARCore.Api.Controllers
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
         public IHttpActionResult GetById(long id)
         {
-            Respuesta respuesta = new Respuesta();
             var DatosBasicos = _service.GetDatosBasicosId(id, PathActual);
-            if (DatosBasicos != null)
-            {
-                //var data = Mapear<GENTEMAR_DATOSBASICOS, DatosBasicosDTO>(DatosBasicos);
-                return Ok(DatosBasicos);
-            }
-
-            respuesta.MensajeIngles = "User not found";
-            respuesta.StatusCode = HttpStatusCode.NotFound;
-            respuesta.Mensaje = "Usuario no encontrado";
-            return ResultadoStatus(respuesta);
+            return Ok(DatosBasicos);
         }
 
 

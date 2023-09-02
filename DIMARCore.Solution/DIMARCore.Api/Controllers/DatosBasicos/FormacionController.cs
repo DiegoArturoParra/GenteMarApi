@@ -46,7 +46,6 @@ namespace DIMARCore.Api.Controllers
         public IHttpActionResult GetFormacion(bool estado)
         {
             var formacion = _service.GetFormacion(estado);
-            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<FormacionDTO>>(formacion);
             return Ok(formacion);
         }
 
@@ -68,7 +67,6 @@ namespace DIMARCore.Api.Controllers
         public IHttpActionResult GetTableFormacion()
         {
             var formacion = _service.GetTableFormacion();
-            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<FormacionDTO>>(formacion);
             return Ok(formacion);
         }
 

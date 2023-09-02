@@ -2,7 +2,7 @@
 using System;
 
 namespace DIMARCore.UIEntities.DTOs
-{
+{   
     public class UsuarioGenteMarDTO
     {
         public long Id { get; set; }
@@ -16,6 +16,7 @@ namespace DIMARCore.UIEntities.DTOs
         public string NombreCompleto => $"{Nombres} {Apellidos}";
         public DateTime? FechaNacimiento { get; set; }
         public bool ExisteEnDatosBasicosEstupefaciente { get; set; }
+        public bool ContieneEstupefacienteVigente { get; set; }
         public DateTime? FechaVencimiento { get; set; }
         private bool ValidarCreacionTituloOLicencia()
         {
@@ -31,9 +32,6 @@ namespace DIMARCore.UIEntities.DTOs
                     break;
                 case (int)EstadoGenteMarEnum.FALLECIDO:
 
-                    validar = false;
-                    break;
-                case (int)EstadoGenteMarEnum.ANTECEDENTE:
                     validar = false;
                     break;
                 case (int)EstadoGenteMarEnum.ENPROCESO:

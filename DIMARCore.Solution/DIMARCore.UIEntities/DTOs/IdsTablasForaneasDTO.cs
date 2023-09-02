@@ -4,6 +4,17 @@ namespace DIMARCore.UIEntities.DTOs
 {
     public class IdsTablasForaneasDTO
     {
+        public IdsTablasForaneasDTO()
+        {
+
+        }
+        public IdsTablasForaneasDTO(int nivelId, int reglaId, int cargoId, int capacidadId)
+        {
+            NivelId = nivelId;
+            ReglaId = reglaId;
+            CargoId = cargoId;
+            CapacidadId = capacidadId;
+        }
 
         [Required(ErrorMessage = "El id de nivel es requerido.")]
         public int NivelId { get; set; }

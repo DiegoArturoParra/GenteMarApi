@@ -50,7 +50,7 @@ namespace DIMARCore.Repositories.Repository
                                    IdTablaRelacion = observaciones.id_antecedente,
                                    Observacion = observaciones.observacion,
                                    FechaHoraCreacion = observaciones.fecha_hora_creacion,
-                                   ArchivoBase = new ArchivoBase()
+                                   ArchivoBase = new ArchivoBaseDTO()
                                    {
                                        RutaArchivo = observaciones.ruta_archivo != string.Empty || observaciones.ruta_archivo != null
                                        ? (from archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS

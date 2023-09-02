@@ -1,8 +1,7 @@
 ﻿using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
-using DIMARCore.Utilities.Helpers;
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
@@ -17,7 +16,14 @@ namespace DIMARCore.Api.Controllers
     [AllowAnonymous]
     public class SGDEAController : BaseApiController
     {
-
+        private readonly SgdeaBO _SGDEAService;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SGDEAController()
+        {
+            _SGDEAService = new SgdeaBO();
+        }
 
         // GET: radicados-titulos
         /// <summary>
@@ -34,13 +40,37 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<RadicadoDTO>))]
         [HttpPost]
         [Route("radicados-titulos")]
-        public IHttpActionResult GetRadicadosTitulos(CedulaDTO obj)     
+        public async Task<IHttpActionResult> GetRadicadosTitulos(CedulaDTO obj)
         {
 
-            var respuesta = new SgdeaBO().GetRadicadosTitulosByCedula(obj.Identificacion);
+            var respuesta = await _SGDEAService.GetRadicadosTitulosByCedula(obj.Identificacion);
             return Ok(respuesta);
 
         }
+
+        // GET: radicados-para-estupefaciente
+        /// <summary>
+        ///  Listado de radicados con información si es titulo o licencia
+        /// </summary>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>28/04/2023</Fecha>
+        /// </remarks>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+
+        
+        [ResponseType(typeof(List<RadicadoInfoDTO>))]
+        [HttpGet]
+        [Route("radicados-info-estupefacientes/{isTitulo}")]
+        public async Task<IHttpActionResult> GetRadicadosParaEstupefacientes(bool isTitulo)
+        {
+            var respuesta = await _SGDEAService.GetRadicadosInfoPersonaParaEstupefacientes(isTitulo);
+            return Ok(respuesta);
+        }
+
         // GET: radicados-licencias
         /// <summary>
         ///  Listado de radicados de las licencias 
@@ -56,12 +86,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<RadicadoDTO>))]
         [HttpPost]
         [Route("radicados-licencias")]
-        public IHttpActionResult GetRadicadosLicencias(CedulaDTO obj)
+        public async Task<IHttpActionResult> GetRadicadosLicencias(CedulaDTO obj)
         {
-
-            var respuesta = new SgdeaBO().GetRadicadosLicenciasByCedula(obj.Identificacion);
+            var respuesta = await _SGDEAService.GetRadicadosLicenciasByCedula(obj.Identificacion);
             return Ok(respuesta);
-
         }
     }
 }

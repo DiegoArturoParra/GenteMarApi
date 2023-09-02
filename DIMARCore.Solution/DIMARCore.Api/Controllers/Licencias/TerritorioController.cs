@@ -15,13 +15,10 @@ namespace DIMARCore.Api.Controllers
     [RoutePrefix("api/territorios")]
     public class TerritorioController : BaseApiController
     {
-        // <summary>
-        /// Listado de territorios con información basica
+        /// <summary>
+        /// 
         /// </summary>
-        /// <returns>Listado de Limitaciones</returns>
-        /// <Autor>Victor Fuentes</Autor>
-        /// <Fecha>2021/12/21</Fecha>
-        /// <UltimaActualizacion>2021/12/21 - Victor Fuentes - Creación del servicio</UltimaActualizacion>
+        /// <returns></returns>
         [HttpGet]
         [Route("lista")]
         [AllowAnonymous]
@@ -32,13 +29,10 @@ namespace DIMARCore.Api.Controllers
             return Ok(data);
         }
 
-        // <summary>
-        /// Listado de territorios activos con información basica
+        /// <summary>
+        /// 
         /// </summary>
-        /// <returns>Listado de Limitaciones</returns>
-        /// <Autor>Victor Fuentes</Autor>
-        /// <Fecha>2021/12/21</Fecha>
-        /// <UltimaActualizacion>2021/12/21 - Victor Fuentes - Creación del servicio</UltimaActualizacion>
+        /// <returns></returns>
         [HttpGet]
         [Route("lista-activo")]
         [AllowAnonymous]

@@ -41,6 +41,15 @@
     <OutputPath>bin\DIMARCore.Api.Produccion\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.96.0.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.96.0\lib\net46\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.16.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.16.0\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.1.0.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
     </Reference>
@@ -50,6 +59,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -60,28 +70,36 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interfaces\IGenericCRUD.cs" />
     <Compile Include="Interfaces\ITitulosBO.cs" />
     <Compile Include="Logica\AclaracionEstupefacienteBO.cs" />
+    <Compile Include="Logica\ObservacionEntidadEstupefacienteBO.cs" />
     <Compile Include="Logica\ActividadBO.cs" />
     <Compile Include="Logica\AplicacionBO.cs" />
     <Compile Include="Logica\AplicacionRolesBO.cs" />
     <Compile Include="Logica\CargoLicenciaBO.cs" />
     <Compile Include="Logica\CategoriaBO.cs" />
+    <Compile Include="Logica\ConsolidadoBO.cs" />
     <Compile Include="Logica\DimRegistroEmbarqueBO.cs" />
     <Compile Include="Logica\EntidadBO.cs" />
+    <Compile Include="Logica\EnvioNotificacionesBO.cs" />
     <Compile Include="Logica\EstadoEstupefacienteBO.cs" />
     <Compile Include="Logica\EstadoTituloBO.cs" />
     <Compile Include="Logica\EstupefacienteBO.cs" />
     <Compile Include="Logica\EstadoLicenciaBO.cs" />
+    <Compile Include="Logica\ExpedienteBO.cs" />
+    <Compile Include="Logica\HistoricoEstupefacienteBO.cs" />
+    <Compile Include="Logica\ImpresionDocumentosBO.cs" />
     <Compile Include="Logica\LicenciaBO.cs" />
     <Compile Include="Logica\LimitanteBO.cs" />
     <Compile Include="Logica\MenuBO.cs" />
+    <Compile Include="Logica\MultasBO.cs" />
+    <Compile Include="Logica\NaveBO.cs" />
     <Compile Include="Logica\ReglaFuncionBO.cs" />
     <Compile Include="Logica\CapacidadBO.cs" />
-    <Compile Include="Logica\CargoLimitacionBO.cs" />
     <Compile Include="Logica\CargoTituloBO.cs" />
     <Compile Include="Logica\ClaseLicenciasBO.cs" />
     <Compile Include="Logica\ClaseTituloBO.cs" />
@@ -135,6 +153,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

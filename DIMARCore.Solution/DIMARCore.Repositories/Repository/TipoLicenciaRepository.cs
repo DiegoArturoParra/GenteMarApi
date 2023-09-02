@@ -1,8 +1,5 @@
-﻿using GenteMarCore.Entities;
-using GenteMarCore.Entities.Models;
-using System;
+﻿using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 
 

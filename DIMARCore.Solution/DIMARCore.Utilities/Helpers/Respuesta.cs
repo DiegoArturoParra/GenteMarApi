@@ -59,6 +59,5 @@ namespace DIMARCore.Utilities.Helpers
             }
             return 1;
         }
-
     }
 }

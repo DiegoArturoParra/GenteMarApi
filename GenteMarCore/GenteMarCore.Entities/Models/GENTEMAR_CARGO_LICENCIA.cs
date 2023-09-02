@@ -14,5 +14,6 @@ namespace GenteMarCore.Entities.Models
         public bool activo { get; set; }
         public int id_actividad_seccion_licencia { get; set; }
         public int id_seccion_clase { get; set; }
+        public bool nave { get; set; }
     }
 }

@@ -103,6 +103,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <summary>
         /// Servicio para editar las funciones de una regla.
         /// <param name="info">objeto para editar una regla con funciones.</param>
+        /// </summary>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>

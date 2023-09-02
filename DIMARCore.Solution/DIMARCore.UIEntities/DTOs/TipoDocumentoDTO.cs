@@ -1,6 +1,4 @@
-﻿
-
-namespace DIMARCore.UIEntities.DTOs
+﻿namespace DIMARCore.UIEntities.DTOs
 {
     public class TipoDocumentoDTO
     {

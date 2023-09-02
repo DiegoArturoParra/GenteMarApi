@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers.Estupefacientes
 {
@@ -45,9 +47,11 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(List<EntidadDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes, RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
+            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceEntidad.GetAll(dto != null ? dto.Activo : null);
@@ -68,18 +72,17 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-
+        [ResponseType(typeof(ResponseTypeSwagger<EntidadDTO>))]
         [HttpGet]
         [Route("{id}")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
         public async Task<IHttpActionResult> GetEntidad(int id)
         {
             var entidad = await _serviceEntidad.GetByIdAsync(id);
-            if (entidad.Estado)
-            {
-                var obj = Mapear<GENTEMAR_ENTIDAD, EntidadDTO>((GENTEMAR_ENTIDAD)entidad.Data);
-                entidad.Data = obj;
-            }
+
+            var obj = Mapear<GENTEMAR_ENTIDAD, EntidadDTO>((GENTEMAR_ENTIDAD)entidad.Data);
+            entidad.Data = obj;
+
             return ResultadoStatus(entidad);
         }
 
@@ -98,6 +101,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
@@ -123,6 +127,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
@@ -139,13 +144,14 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <param name="id"></param>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>08/07/2022</Fecha>
         /// </remarks>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. anular o activa la entidad indicada.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]

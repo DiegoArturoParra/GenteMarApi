@@ -6,8 +6,6 @@ using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -78,11 +76,8 @@ namespace DIMARCore.Api.Controllers
 
             Respuesta respuesta;
             respuesta = ValidarObservacion();
-            if (respuesta.Estado)
-            {
-                var datos = Mapear<ObservacionDTO, GENTEMAR_OBSERVACIONES_DATOSBASICOS>((ObservacionDTO)respuesta.Data);
-                respuesta = await _serviceObservaciones.CrearObservacionesDatosBasicos(datos, PathActual);
-            }
+            var datos = Mapear<ObservacionDTO, GENTEMAR_OBSERVACIONES_DATOSBASICOS>((ObservacionDTO)respuesta.Data);
+            respuesta = await _serviceObservaciones.CrearObservacionesDatosBasicos(datos, PathActual);
             return ResultadoStatus(respuesta);
         }
 
@@ -109,7 +104,7 @@ namespace DIMARCore.Api.Controllers
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Administrador)]
         public async Task<IHttpActionResult> GetObservacionesTitulos(int id)
         {
-            await new TituloBO().ExistById((long)id);
+            await new TituloBO().ExistById(id);
             var observacionesTitulos = await new ObservacionesBO().GetObservacionesId(id, PathActual, ObservacionEnum.Titulos);
             return Ok(observacionesTitulos);
         }
@@ -134,12 +129,8 @@ namespace DIMARCore.Api.Controllers
         {
             Respuesta respuesta;
             respuesta = ValidarObservacion();
-            if (respuesta.Estado)
-            {
-                var datos = Mapear<ObservacionDTO, GENTEMAR_OBSERVACIONES_TITULOS>((ObservacionDTO)respuesta.Data);
-                respuesta = await _serviceObservaciones.CrearObservacionesTitulos(datos, PathActual);
-            }
-
+            var datos = Mapear<ObservacionDTO, GENTEMAR_OBSERVACIONES_TITULOS>((ObservacionDTO)respuesta.Data);
+            respuesta = await _serviceObservaciones.CrearObservacionesTitulos(datos, PathActual);
             return ResultadoStatus(respuesta);
         }
 
@@ -205,8 +196,6 @@ namespace DIMARCore.Api.Controllers
         #endregion
 
         #region Observaciones de estupefacientes
-
-
         /// <summary>
         /// Metodo para listar las observaciones de un estupefaciente en especifico.
         /// </summary>
@@ -264,28 +253,15 @@ namespace DIMARCore.Api.Controllers
 
         private Respuesta ValidarObservacion()
         {
-            Respuesta res = new Respuesta();
-            ObservacionDTO observacion = new ObservacionDTO();
             var req = HttpContext.Current.Request;
             var archivo = req.Files["File"];
-            observacion = JsonConvert.DeserializeObject<ObservacionDTO>(req["Data"]);
+            ObservacionDTO observacion = JsonConvert.DeserializeObject<ObservacionDTO>(req["Data"]);
             if (archivo != null)
             {
                 observacion.Archivo = archivo;
             }
-            this.Validate(observacion);
-            if (!ModelState.IsValid)
-            {
-                var errores = GetErrorListFromModelState(ModelState);
-                res.Estado = false;
-                res.StatusCode = HttpStatusCode.BadRequest;
-                res.Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray());
-            }
-            else
-            {
-                res = Responses.SetOkResponse(observacion);
-            }
-            return res;
+            ValidateModelAndThrowIfInvalid(observacion);
+            return Responses.SetOkResponse(observacion);
         }
     }
 }

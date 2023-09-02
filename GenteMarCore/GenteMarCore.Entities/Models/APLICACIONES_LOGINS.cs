@@ -44,6 +44,6 @@ namespace GenteMarCore.Entities.Models
 
         public int ID_USUARIO_REGISTRO { get; set; }
 
-        public int ID_CAPITANIA { get; set; }
+        public int? ID_CAPITANIA { get; set; }
     }
 }

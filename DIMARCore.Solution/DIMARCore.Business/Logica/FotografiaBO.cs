@@ -1,5 +1,4 @@
-﻿using DIMARCore.Business.Interfaces;
-using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
@@ -10,6 +9,13 @@ using System.Web;
 
 namespace DIMARCore.Business.Logica
 {
+    /// <summary>
+    /// version anterior de la clase FotografiaBO para serializar en base de datos
+    /// </summary>
+    /// OBSOLETO
+    [Obsolete]
+
+    #region Obsolete
     public class FotografiaBO
     {
         public Respuesta ValidarArchivo(HttpPostedFile file)
@@ -101,5 +107,6 @@ namespace DIMARCore.Business.Logica
         {
             return await new FotografiaRepository().GetWithCondition(x => x.id_gentemar.Equals(id));
         }
-    }
+    } 
+    #endregion
 }

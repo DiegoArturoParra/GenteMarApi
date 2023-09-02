@@ -45,6 +45,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ListadoDetalleCargoReglaDTO))]
         [HttpGet]
         [Route("listado")]
         public IHttpActionResult GetDetalles([FromUri] DetalleReglaFilter filtro)
@@ -70,6 +71,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(Respuesta))]
         [HttpGet]
         [Route("{id}")]
         public async Task<IHttpActionResult> GetDetallesById(int id)
@@ -128,6 +130,5 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var respuesta = await _service.EditarCargoRegla(data);
             return ResultadoStatus(respuesta);
         }
-
     }
 }

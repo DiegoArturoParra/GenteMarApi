@@ -1,4 +1,6 @@
-﻿using DIMARCore.Utilities.Helpers;
+﻿using DIMARCore.Utilities.Config;
+using DIMARCore.Utilities.Middleware;
+using DIMARCore.Utilities.Seguridad;
 using System;
 using System.Configuration;
 using System.IO;
@@ -14,18 +16,16 @@ namespace DIMARCore.Utilities.CorreoSMTP
     }
     public class EMailService : IEmailService
     {
-        private readonly string from;
-        private readonly int port;
-        private readonly string password;
-        private readonly string host;
+        private readonly string _from;
+        private readonly int _port;
+        private readonly string _password;
+        private readonly string _host;
         public EMailService()
         {
-            from = Encryption.EncryptDecrypt.Decrypt(ConfigurationManager.AppSettings["EmailSMTP"]);
-            password = Encryption.EncryptDecrypt.Decrypt(ConfigurationManager.AppSettings["PwdSMTP"]);
-
-            host = ConfigurationManager.AppSettings["HostSMTP"];
-            port = Convert.ToInt16(ConfigurationManager.AppSettings["PortSMTP"]);
-
+            _from = SecurityEncrypt.GenerateDecrypt(ConfigurationManager.AppSettings[SmtpConfig.EMAIL]);
+            _password = SecurityEncrypt.GenerateDecrypt(ConfigurationManager.AppSettings[SmtpConfig.PWD]);
+            _host = ConfigurationManager.AppSettings[SmtpConfig.HOST];
+            _port = Convert.ToInt16(ConfigurationManager.AppSettings[SmtpConfig.PORT]);
         }
 
         public async Task SendMail(string[] correosDestino, string mensaje, string body, string title = "GDM", string footer = "por favor comuniquese con el administrador.")
@@ -39,7 +39,7 @@ namespace DIMARCore.Utilities.CorreoSMTP
                 Emailtemplate.Dispose();
                 Emailtemplate = null;
                 var mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(from, "Sistema GDM");
+                mailMessage.From = new MailAddress(_from, "Sistema GDM");
 
                 foreach (var item in correosDestino)
                 {
@@ -55,13 +55,13 @@ namespace DIMARCore.Utilities.CorreoSMTP
 
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Priority = MailPriority.Normal;
-                using (var client = new SmtpClient(host, port))
+                using (var client = new SmtpClient(_host, _port))
                 {
 
                     client.EnableSsl = false;
                     client.UseDefaultCredentials = false;
                     // Pass SMTP credentials
-                    client.Credentials = new NetworkCredential(from, password);
+                    client.Credentials = new NetworkCredential(_from, _password);
                     await client.SendMailAsync(mailMessage);
                     client.Dispose();
                 }

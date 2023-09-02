@@ -1,6 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -20,8 +19,8 @@ namespace DIMARCore.Repositories.Repository
             return await listaAgrupada.Select(x => new InfoReglaFuncionDTO
             {
                 ReglaId = x.Key.id_regla,
-                Regla = x.Select(y => y.GENTEMAR_REGLAS.Regla).FirstOrDefault(),
-                Funciones = x.ToList().Select(y => new InfoDTO
+                Regla = x.Select(y => y.GENTEMAR_REGLAS.nombre_regla).FirstOrDefault(),
+                Funciones = x.ToList().Select(y => new InfoFuncionDTO
                 {
                     Descripcion = y.GENTEMAR_FUNCIONES.funcion,
                     Id = y.GENTEMAR_FUNCIONES.id_funcion,
@@ -59,7 +58,7 @@ namespace DIMARCore.Repositories.Repository
             var listado = await ReglasInDetalle();
             var reglas = await _context.GENTEMAR_REGLAS.Where(x => !listado.Contains(x.id_regla) && x.activo == true).Select(x => new ReglaDTO
             {
-                Descripcion = x.Regla,
+                Descripcion = x.nombre_regla,
                 Id = x.id_regla,
                 IsActive = x.activo
             }).ToListAsync();

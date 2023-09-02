@@ -10,9 +10,7 @@ namespace DIMARCore.Utilities.Enums
         INACTIVO = 2,
         [Description("Fallecido")]
         FALLECIDO = 3,
-        [Description("Antecedente")]
-        ANTECEDENTE = 4,
         [Description("EN PROCESO")]
-        ENPROCESO = 5
+        ENPROCESO = 4
     };
 }

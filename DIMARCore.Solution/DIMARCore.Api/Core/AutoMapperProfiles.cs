@@ -17,6 +17,10 @@ namespace DIMARCore.Api.Core
         {
             var mapperConfiguration = new MapperConfiguration(cfg =>
             {
+                cfg.CreateMap<APLICACIONES_TIPO_REFRENDO, TipoRefrendoDTO>()
+                .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.ID_TIPO_CERTIFICADO))
+                .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.DESCRIPCION)).ReverseMap();
+
                 cfg.CreateMap<APLICACIONES_MUNICIPIO, MunicipioDTO>()
                 .ForMember(x => x.Nombre, o => o.MapFrom(s => s.NOMBRE_MUNICIPIO))
                 .ForMember(x => x.Id, o => o.MapFrom(s => s.ID_MUNICIPIO))
@@ -106,7 +110,7 @@ namespace DIMARCore.Api.Core
 
                 cfg.CreateMap<GENTEMAR_REGLAS, ReglaDTO>()
                  .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_regla))
-                 .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.Regla))
+                 .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.nombre_regla))
                  .ForMember(ent => ent.IsActive, dto => dto.MapFrom(s => s.activo)).ReverseMap();
 
                 cfg.CreateMap<GENTEMAR_FUNCIONES, FuncionDTO>()
@@ -142,11 +146,19 @@ namespace DIMARCore.Api.Core
                  .ForMember(ent => ent.FechaVencimiento, dto => dto.MapFrom(s => s.fecha_vencimiento))
                  .ForMember(ent => ent.CapitaniaId, dto => dto.MapFrom(s => s.id_capitania))
                  .ForMember(ent => ent.CapitaniaFirmanteId, dto => dto.MapFrom(s => s.id_capitania_firmante))
-                  .ForMember(ent => ent.CodigoPais, dto => dto.MapFrom(s => s.cod_pais))
-                 .ForMember(ent => ent.CargoReglaId, dto => dto.MapFrom(s => s.id_cargo_regla))
+                 .ForMember(ent => ent.CodigoPais, dto => dto.MapFrom(s => s.cod_pais))
+                 .ForMember(ent => ent.CargosDelTitulo, dto => dto.MapFrom(s => s.Cargos))
                  .ForMember(ent => ent.Radicado, dto => dto.MapFrom(s => s.radicado))
                  .ForMember(ent => ent.TipoSolicitudId, dto => dto.MapFrom(s => s.id_tipo_solicitud))
+                 .ForMember(ent => ent.TipoRefrendoId, dto => dto.MapFrom(s => s.id_tipo_refrendo))
                  .ForMember(ent => ent.EstadoTramiteId, dto => dto.MapFrom(s => s.id_estado_tramite)).ReverseMap();
+
+                cfg.CreateMap<CargosReglaDTO, CargosTitulo>()
+                 .ForMember(ent => ent.IdsRelacion, dto => dto.MapFrom(s => s.IdsLlaveCompuesta))
+                 .ForMember(ent => ent.HabilitacionesId, dto => dto.MapFrom(s => s.HabilitacionesId))
+                 .ForMember(ent => ent.FuncionesId, dto => dto.MapFrom(s => s.FuncionesId))
+                 .ForMember(ent => ent.TituloCargoReglaId, dto => dto.MapFrom(s => s.TituloCargoReglaId))
+                 .ForMember(ent => ent.CargoReglaId, dto => dto.MapFrom(s => s.CargoReglaId));
 
                 cfg.CreateMap<GENTEMAR_DATOSBASICOS, DatosBasicosDTO>()
                 .ForMember(ent => ent.CodPais, dto => dto.MapFrom(s => s.cod_pais))
@@ -160,7 +172,8 @@ namespace DIMARCore.Api.Core
                 .ForMember(ent => ent.IdGenero, dto => dto.MapFrom(s => s.id_genero))
                 .ForMember(ent => ent.IdGentemar, dto => dto.MapFrom(s => s.id_gentemar))
                 .ForMember(ent => ent.IdMunicipioExpedicion, dto => dto.MapFrom(s => s.id_municipio_expedicion))
-                .ForMember(ent => ent.IdMunicipioNacimiento, dto => dto.MapFrom(s => s.id_municipio_nacimiento))
+                .ForMember(ent => ent.IdPaisNacimiento, dto => dto.MapFrom(s => s.id_pais_nacimiento))
+                .ForMember(ent => ent.IdPaisResidencia, dto => dto.MapFrom(s => s.id_pais_residencia))
                 .ForMember(ent => ent.IdMunicipioResidencia, dto => dto.MapFrom(s => s.id_municipio_residencia))
                 .ForMember(ent => ent.IdTipoDocumento, dto => dto.MapFrom(s => s.id_tipo_documento))
                 .ForMember(ent => ent.NumeroMovil, dto => dto.MapFrom(s => s.numero_movil))
@@ -222,12 +235,14 @@ namespace DIMARCore.Api.Core
                  .ForMember(ent => ent.vigencia, dto => dto.MapFrom(s => s.Vigencia))
                  .ForMember(ent => ent.id_actividad_seccion_licencia, dto => dto.MapFrom(s => s.IdActividadSeccion))
                  .ForMember(ent => ent.id_seccion_clase, dto => dto.MapFrom(s => s.IdSeccionClase))
-                  .ReverseMap();
+                 .ForMember(ent => ent.nave, dto => dto.MapFrom(s => s.Nave))
+                 .ReverseMap();
+
                 cfg.CreateMap<CategoriaDTO, APLICACIONES_CATEGORIA>()
-                  .ForMember(ent => ent.ID_CATEGORIA, dto => dto.MapFrom(s => s.IdCategoria))
-                  .ForMember(ent => ent.SIGLA_CATEGORIA, dto => dto.MapFrom(s => s.SiglaCategoria))
-                  .ForMember(ent => ent.DESCRIPCION, dto => dto.MapFrom(s => s.Descripcion))
-                   .ReverseMap();
+                 .ForMember(ent => ent.ID_CATEGORIA, dto => dto.MapFrom(s => s.IdCategoria))
+                 .ForMember(ent => ent.SIGLA_CATEGORIA, dto => dto.MapFrom(s => s.SiglaCategoria))
+                 .ForMember(ent => ent.DESCRIPCION, dto => dto.MapFrom(s => s.Descripcion))
+                 .ReverseMap();
 
                 cfg.CreateMap<LicenciaDTO, GENTEMAR_LICENCIAS>()
                  .ForMember(ent => ent.id_capitania, dto => dto.MapFrom(s => s.IdCapitania))
@@ -236,49 +251,79 @@ namespace DIMARCore.Api.Core
                  .ForMember(ent => ent.id_estado_licencia, dto => dto.MapFrom(s => s.IdEstadoLicencia))
                  .ForMember(ent => ent.id_gentemar, dto => dto.MapFrom(s => s.IdGentemar))
                  .ForMember(ent => ent.id_licencia, dto => dto.MapFrom(s => s.IdLicencia))
-                 .ForMember(ent => ent.id_tramite, dto => dto.MapFrom(s => s.IdTramite))
                  .ForMember(ent => ent.radicado, dto => dto.MapFrom(s => s.Radicado))
                  .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
                  .ForMember(ent => ent.fecha_expedicion, dto => dto.MapFrom(s => s.FechaExpedicion))
                  .ForMember(ent => ent.fecha_vencimiento, dto => dto.MapFrom(s => s.FechaVencimiento))
-                  .ReverseMap();
+                 .ForMember(ent => ent.ListaNaves, dto => dto.MapFrom(s => s.ListaNaves))
+                 .ReverseMap();
 
                 cfg.CreateMap<EstadoLicenciaDTO, GENTEMAR_ESTADO_LICENCIA>()
-                  .ForMember(ent => ent.id_estado_licencias, dto => dto.MapFrom(s => s.IdEstadoLicencias))
-                  .ForMember(ent => ent.descripcion_estado, dto => dto.MapFrom(s => s.DescripcionEstado))
-                  .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
-                   .ReverseMap();
+                .ForMember(ent => ent.id_estado_licencias, dto => dto.MapFrom(s => s.IdEstadoLicencias))
+                .ForMember(ent => ent.descripcion_estado, dto => dto.MapFrom(s => s.DescripcionEstado))
+                .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
+                .ReverseMap();
 
                 cfg.CreateMap<ObservacionDTO, GENTEMAR_OBSERVACIONES_LICENCIAS>()
-                   .ForMember(ent => ent.id_licencia, dto => dto.MapFrom(s => s.IdTablaRelacion))
-                   .ForMember(ent => ent.observacion, dto => dto.MapFrom(s => s.Observacion.Trim()))
-                   .ForMember(ent => ent.Archivo, dto => dto.MapFrom(s => s.Archivo));
+                .ForMember(ent => ent.id_licencia, dto => dto.MapFrom(s => s.IdTablaRelacion))
+                .ForMember(ent => ent.observacion, dto => dto.MapFrom(s => s.Observacion.Trim()))
+                .ForMember(ent => ent.Archivo, dto => dto.MapFrom(s => s.Archivo));
 
                 cfg.CreateMap<LimitanteDTO, GENTEMAR_LIMITANTE>()
-                  .ForMember(ent => ent.id_limitante, dto => dto.MapFrom(s => s.IdLimitante))
-                  .ForMember(ent => ent.descripcion, dto => dto.MapFrom(s => s.Descripcion))
-                   .ReverseMap();
+                .ForMember(ent => ent.id_limitante, dto => dto.MapFrom(s => s.IdLimitante))
+                .ForMember(ent => ent.descripcion, dto => dto.MapFrom(s => s.Descripcion))
+                .ReverseMap();
 
                 cfg.CreateMap<EstupefacienteCrearDTO, GENTEMAR_ANTECEDENTES>()
-                 .ForMember(ent => ent.id_antecedente, dto => dto.MapFrom(s => s.EstupefacienteId))
-                 .ForMember(ent => ent.id_gentemar_antecedente, dto => dto.MapFrom(s => s.GenteDeMarId))
-                 .ForMember(ent => ent.numero_sgdea, dto => dto.MapFrom(s => s.Radicado))
-                 .ForMember(ent => ent.fecha_sgdea, dto => dto.MapFrom(s => s.FechaRadicadoSgdea))
-                 .ForMember(ent => ent.id_estado_antecedente, dto => dto.MapFrom(s => s.EstadoId))
-                 .ForMember(ent => ent.id_tipo_tramite, dto => dto.MapFrom(s => s.TramiteId));
+                .ForMember(ent => ent.id_antecedente, dto => dto.MapFrom(s => s.EstupefacienteId))
+                .ForMember(ent => ent.id_gentemar_antecedente, dto => dto.MapFrom(s => s.GenteDeMarId))
+                .ForMember(ent => ent.numero_sgdea, dto => dto.MapFrom(s => s.Radicado))
+                .ForMember(ent => ent.fecha_sgdea, dto => dto.MapFrom(s => s.FechaRadicadoSgdea))
+                .ForMember(ent => ent.id_estado_antecedente, dto => dto.MapFrom(s => s.EstadoId))
+                .ForMember(ent => ent.id_tipo_tramite, dto => dto.MapFrom(s => s.TramiteId));
 
                 cfg.CreateMap<EstupefacienteDatosBasicosDTO, GENTEMAR_ANTECEDENTES_DATOSBASICOS>()
-                   .ForMember(ent => ent.identificacion, dto => dto.MapFrom(s => s.Identificacion))
-                   .ForMember(ent => ent.fecha_nacimiento, dto => dto.MapFrom(s => s.FechaNacimiento))
-                   .ForMember(ent => ent.nombres, dto => dto.MapFrom(s => s.Nombres))
-                   .ForMember(ent => ent.apellidos, dto => dto.MapFrom(s => s.Apellidos))
-                   .ForMember(ent => ent.id_tipo_documento, dto => dto.MapFrom(s => s.TipoDocumentoId))
-                   .ForMember(ent => ent.IsExist, dto => dto.MapFrom(s => s.IsExist));
+                .ForMember(ent => ent.identificacion, dto => dto.MapFrom(s => s.Identificacion))
+                .ForMember(ent => ent.fecha_nacimiento, dto => dto.MapFrom(s => s.FechaNacimiento))
+                .ForMember(ent => ent.nombres, dto => dto.MapFrom(s => s.Nombres))
+                .ForMember(ent => ent.apellidos, dto => dto.MapFrom(s => s.Apellidos))
+                .ForMember(ent => ent.id_tipo_documento, dto => dto.MapFrom(s => s.TipoDocumentoId))
+                .ForMember(ent => ent.IsExist, dto => dto.MapFrom(s => s.IsExist));
 
-                cfg.CreateMap<AclaracionEstupefacienteDTO, GENTEMAR_ACLARACION_ANTECEDENTES>()
+                cfg.CreateMap<ObservacionEntidadEstupefacienteDTO, GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>()
                 .ForMember(ent => ent.id_entidad, dto => dto.MapFrom(s => s.EntidadId))
-                .ForMember(ent => ent.descripcion, dto => dto.MapFrom(s => s.Descripcion))
+                .ForMember(ent => ent.descripcion, dto => dto.MapFrom(s => s.DetalleObservacion))
+                .ForMember(ent => ent.verificacion_exitosa, dto => dto.MapFrom(s => s.VerificacionExitosa))
                 .ForMember(ent => ent.fecha_respuesta_entidad, dto => dto.MapFrom(s => s.FechaRespuestaEntidad));
+
+                cfg.CreateMap<NavesDTO, NAVES_BASE>()
+                .ForMember(ent => ent.identi, dto => dto.MapFrom(s => s.Identi))
+                .ForMember(ent => ent.nom_naves, dto => dto.MapFrom(s => s.NomNaves))
+                .ForMember(ent => ent.activa, dto => dto.MapFrom(s => s.Activa))
+                .ForMember(ent => ent.maximo, dto => dto.MapFrom(s => s.Maximo))
+                .ForMember(ent => ent.tiponave, dto => dto.MapFrom(s => s.TipoNave))
+                .ForMember(ent => ent.tiponavegacion, dto => dto.MapFrom(s => s.TipoNavegacion))
+                .ReverseMap();
+
+                cfg.CreateMap<GENTEMAR_CONSOLIDADO, ConsolidadoDTO>()
+                .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_consolidado))
+                .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.numero_consolidado))
+                .ReverseMap();
+
+                cfg.CreateMap<GENTEMAR_EXPEDIENTE, ExpedienteDTO>()
+                .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_expediente))
+                .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.numero_expediente))
+                .ReverseMap();
+
+                cfg.CreateMap<EditInfoEstupefacienteDTO, GENTEMAR_ANTECEDENTES>()
+                .ForMember(ent => ent.id_antecedente, dto => dto.MapFrom(s => s.EstupefacienteId))
+                .ForMember(ent => ent.id_estado_antecedente, dto => dto.MapFrom(s => s.EstadoId))
+                .ForMember(ent => ent.id_gentemar_antecedente, dto => dto.MapFrom(s => s.GenteDeMarId))
+                .ForMember(ent => ent.fecha_vigencia, dto => dto.MapFrom(s => s.FechaVigencia))
+                .ForMember(ent => ent.id_tipo_tramite, dto => dto.MapFrom(s => s.TramiteId))
+                .ForMember(ent => ent.id_capitania, dto => dto.MapFrom(s => s.CapitaniaId))
+                .ForMember(ent => ent.fecha_aprobacion, dto => dto.MapFrom(s => s.FechaAprobacion));
+
             });
             return mapperConfiguration.CreateMapper();
         }

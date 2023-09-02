@@ -1,8 +1,6 @@
-﻿using System;
+﻿using DIMARCore.Utilities.Core.ValidAttributes;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
 using System.Web;
 namespace DIMARCore.UIEntities.DTOs
 {
@@ -29,7 +27,8 @@ namespace DIMARCore.UIEntities.DTOs
         }
         public int? IdGenero { get; set; }
         public DateTime? FechaNacimiento { get; set; }
-        public int? IdMunicipioNacimiento { get; set; }
+        public int? IdPaisNacimiento { get; set; }
+        public int? IdPaisResidencia { get; set; }
         private string _direccion;
         public string Direccion
         {
@@ -54,40 +53,9 @@ namespace DIMARCore.UIEntities.DTOs
         public string FotoBase64 { get; set; }
         public string UrlArchivo { get; set; }
         public List<HistorialDocumentoDTO> HistorialDocumento { get; set; }
-        [ValidFileAttribute(ErrorMessage = "Es incorrecto el formato, solo se permiten extensiones JPG,JPEG,PNG")]
-        [ValidSizeFileAttribute(ErrorMessage = "Es incorrecto el tamaño, solo se permite 5 mb por el archivo.")]
-        public HttpPostedFile Archivo { get; set; }        
+        [ValidExtensionFile("JPG", "JPEG", "PNG")]
+        [ValidSizeFile(MaxFileSizeMB = 5)] // Utiliza un tamaño máximo de 5 MB
+        public HttpPostedFile Archivo { get; set; }
         public ObservacionDTO Observacion { get; set; }
-        public class ValidFileAttribute : ValidationAttribute
-        {
-            public override bool IsValid(object value)
-            {
-                if (value == null)
-                    return true;
-
-                string[] _validExtensions = { "JPG", "JPEG", "PNG" };
-
-                var file = (HttpPostedFile)value;
-
-                var ext = Path.GetExtension(file.FileName).ToUpper().Replace(".", "");
-                return _validExtensions.Contains(ext);
-            }
-        }
-        public class ValidSizeFileAttribute : ValidationAttribute
-        {
-            public override bool IsValid(object value)
-            {
-                if (value == null)
-                    return true;
-
-                var file = (HttpPostedFile)value;
-
-                if (file.ContentLength > 5242880)
-                {
-                    return false;
-                }
-                return true;
-            }
-        }
     }
 }

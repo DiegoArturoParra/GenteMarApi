@@ -16,7 +16,7 @@ namespace GenteMarCore.Entities.Models
         public int id_regla { get; set; }
 
         [StringLength(20)]
-        public string Regla { get; set; }
+        public string nombre_regla { get; set; }
 
         public bool activo { get; set; } = true;
 

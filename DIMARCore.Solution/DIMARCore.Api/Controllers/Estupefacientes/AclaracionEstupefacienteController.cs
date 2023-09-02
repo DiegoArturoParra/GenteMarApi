@@ -1,16 +1,10 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
-using DIMARCore.Utilities.Helpers;
-using GenteMarCore.Entities.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
@@ -18,81 +12,51 @@ using System.Web.Http.Description;
 namespace DIMARCore.Api.Controllers.Estupefacientes
 {
     /// <summary>
-    /// servicios para las aclaraciones de los estupefacientes
+    /// servicios para las aclaraciones de un estupefaciente
     /// <Autor>Diego Parra</Autor>
-    /// <Fecha>20/10/2022</Fecha>
+    /// <Fecha>08/07/2022</Fecha>
     /// </summary>
     [EnableCors("*", "*", "*")]
-    [RoutePrefix("api/aclaraciones-por-estupefaciente")]
+    [RoutePrefix("api/aclaracion-estupefaciente")]
     public class AclaracionEstupefacienteController : BaseApiController
     {
-        private readonly AclaracionEstupefacienteBO _service;
-
+        private readonly AclaracionEstupefacienteBO _Aclaracionservice;
         /// <summary>
-        /// Constructor
+        /// constructor
         /// </summary>
         public AclaracionEstupefacienteController()
         {
-            _service = new AclaracionEstupefacienteBO();
+            _Aclaracionservice = new AclaracionEstupefacienteBO();
         }
 
-
-
-
+        // GET: Historial de las aclaraciones de un estupefaciente
         /// <summary>
-        /// servicio get aclaraciones por id estupefaciente
+        ///  Historial de las aclaraciones de un estupefaciente por cada entidad
         /// </summary>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>20/10/2022</Fecha>
+        /// <Fecha>01/08/2023</Fecha>
         /// </remarks>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
-        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="200">OK. Devuelve el listado de expedientes.</response>        
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        /// <returns>retorna un listado de aclaraciones dependiendo el estupefaciente.</returns>
-
-        [ResponseType(typeof(IEnumerable<DetalleAclaracionesEstupefacienteDTO>))]
+        [ResponseType(typeof(List<HistorialAclaracionDTO>))]
         [HttpGet]
-        [Route("lista/{EstupefacienteId}")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
-        public async Task<IHttpActionResult> GetAclaracionesPorEstupefaciente(long EstupefacienteId)
+        [Route("historico/{id}")]
+        public async Task<IHttpActionResult> GetHistorialPorEstupefacienteId(long id)
         {
-            var data = await _service.GetAclaracionesPorEstupefacienteId(EstupefacienteId);
-            return Ok(data);
+            var historialAclaraciones = await _Aclaracionservice.GetHistorialPorEstupefacienteId(id, PathActual);
+            return Ok(historialAclaraciones);
         }
 
-
+        // Post: Agregar una aclaración a la observación de un estupefaciente
         /// <summary>
-        /// Servicio para crear aclaraciones por las entidades
-        /// </summary>
-        /// <param name="aclaraciones"></param>
-        /// <remarks>
-        /// <Autor>Diego Parra</Autor>
-        /// <Fecha>08/07/2022</Fecha>
-        /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de las aclaraciones del estupefaciente.</response>   
-        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
-        [HttpPost]
-        [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
-        public async Task<IHttpActionResult> Crear([FromBody] AclaracionCreateDTO aclaraciones)
-        {
-            var data = Mapear<IList<AclaracionEstupefacienteDTO>, IList<GENTEMAR_ACLARACION_ANTECEDENTES>>(aclaraciones.Aclaraciones);
-            var response = await _service.CrearAclaracionesPorEntidades(data, aclaraciones.AntecedenteId);
-            return Created(string.Empty, response);
-        }
-
-
-        /// <summary>
-        /// Servicio para editar las aclaraciones por las entidades
+        /// Servicio para agregar una aclaración al expediente de un estupefaciente
         /// </summary>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>08/07/2022</Fecha>
+        /// <Fecha>08/07/2023</Fecha>
         /// </remarks>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. se ha actualizado el recurso (capacidad).</response>   
@@ -100,55 +64,14 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
-        [HttpPut]
-        [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
-        public async Task<IHttpActionResult> Editar()
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [HttpPost]
+        [Route("agregar-al-expediente")]
+        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
+        public async Task<IHttpActionResult> AgregarAclaracionAlExpediente(AclaracionEditDTO aclaracionEdit)
         {
-            Respuesta response;
-            var req = HttpContext.Current.Request;
-            var archivo = req.Files["File"];
-            var format = "dd/MM/yyyy"; // your datetime format
-            var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
-            var obj = JsonConvert.DeserializeObject<object>(req["Data"], dateTimeConverter);
-
-            AclaracionEditDTO dto = JsonConvert.DeserializeObject<AclaracionEditDTO>(req["Data"], dateTimeConverter);
-            if (dto != null)
-                dto.Observacion.Archivo = archivo;
-            response = ValidarAclaracionConObservacion(dto);
-            if (response.Estado)
-            {
-                var data = Mapear<IList<AclaracionEstupefacienteDTO>, IList<GENTEMAR_ACLARACION_ANTECEDENTES>>(dto.Aclaraciones);
-                var dataObservacion = Mapear<ObservacionDTO, GENTEMAR_OBSERVACIONES_ANTECEDENTES>(dto.Observacion);
-                dataObservacion.id_antecedente = dto.AntecedenteId;
-                response = await _service.EditarAclaracionesPorEntidades(data, PathActual, dataObservacion);
-            }
+            var response = await _Aclaracionservice.AgregarAclaracionEstupefaciente(aclaracionEdit, PathActual);
             return ResultadoStatus(response);
-        }
-
-        /// <summary>
-        /// Valida los datos
-        /// </summary>
-        /// <param name="aclaracionEdit"></param>
-        /// <returns></returns>
-        private Respuesta ValidarAclaracionConObservacion(AclaracionEditDTO aclaracionEdit)
-        {
-            Respuesta res = new Respuesta();
-            this.Validate(aclaracionEdit);
-            if (!ModelState.IsValid)
-            {
-                var errores = GetErrorListFromModelState(ModelState);
-                res.Estado = false;
-                res.StatusCode = HttpStatusCode.BadRequest;
-                res.Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray());
-            }
-            else
-            {
-                res.Estado = true;
-            }
-
-            return res;
         }
     }
 }

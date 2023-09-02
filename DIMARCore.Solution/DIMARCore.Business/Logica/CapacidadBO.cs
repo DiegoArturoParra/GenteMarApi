@@ -5,6 +5,7 @@ using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DIMARCore.Utilities.Middleware;
 
 namespace DIMARCore.Business.Logica
 {

@@ -1,7 +1,7 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.Utilities.Helpers;
 using System.Threading.Tasks;
-
+using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business
 {
     public class AplicacionBO
@@ -9,12 +9,11 @@ namespace DIMARCore.Business
         /// <summary>
         /// metodo para obtener la aplicacion de gente de mar
         /// </summary>
-        /// <param name="idAplicacion"></param>
+        /// <param name="nombreAplicacion"></param>
         /// <returns></returns>
-        /// <exception cref="HttpStatusCodeException"></exception>
-        public async Task<Respuesta> GetAplicacion(int idAplicacion)
+        public async Task<Respuesta> GetAplicacion(string nombreAplicacion)
         {
-            var existe = await new AplicacionRepository().AnyWithCondition(x => x.ID_APLICACION == idAplicacion);
+            var existe = await new AplicacionRepository().AnyWithCondition(x => x.NOMBRE.Equals(nombreAplicacion));
             if (!existe)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontro la aplicación de gente de mar."));
             return Responses.SetOkResponse();

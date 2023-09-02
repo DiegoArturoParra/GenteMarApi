@@ -1,11 +1,12 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
-using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,115 +14,97 @@ namespace DIMARCore.Business.Logica
 {
     public class AclaracionEstupefacienteBO
     {
-        public async Task<Respuesta> CrearAclaracionesPorEntidades(IList<GENTEMAR_ACLARACION_ANTECEDENTES> data, long antecedenteId)
+        public async Task<Respuesta> AgregarAclaracionEstupefaciente(AclaracionEditDTO aclaracionEdit, string pathActual)
         {
-            var existeEstupefaciente = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == antecedenteId);
+            if (aclaracionEdit.Archivo == null)
+                throw new HttpStatusCodeException(Responses.SetBadRequestResponse("El archivo no puede ir vacio."));
 
-            if (!existeEstupefaciente)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El antecedente no se encuentra registrado."));
+            var expedienteObservacion = await new ExpedienteObservacionEstupefacienteRepository().GetById(aclaracionEdit.ExpedienteObservacionId);
+            if (expedienteObservacion == null)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El expediente con observación no existe."));
 
-            await Validaciones(data, antecedenteId);
-            using (var repo = new AclaracionEstupefacienteRepository())
+            var antecedente = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == aclaracionEdit.AntecedenteId);
+            if (!antecedente)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estupefaciente no existe."));
+
+            using (var aclaracionRepo = new HistorialAclaracionEstupefacienteRepository())
             {
-                await repo.CrearAclaracionesCascade(data);
-                return Responses.SetCreatedResponse(data);
-            }
-        }
-
-        private async Task Validaciones(IList<GENTEMAR_ACLARACION_ANTECEDENTES> data, long antecedenteId)
-        {
-            var count = new EntidadEstupefacienteRepository().GetAllAsQueryable().Where(x => x.activo == true).Count();
-            if (count != data.Count)
-                throw new HttpStatusCodeException(Responses.SetConflictResponse($"El rango de aclaraciones debe ser: {count}"));
-
-
-            var duplicates = data.GroupBy(x => x.id_entidad)
-                            .SelectMany(g => g.Skip(1))
-                            .Distinct()
-                            .ToList();
-
-            if (duplicates.Count() > 0)
-                throw new HttpStatusCodeException(Responses.SetConflictResponse($"No puede duplicar aclaraciones con la misma entidad."));
-
-            foreach (var item in data)
-            {
-                using (var repo = new EntidadEstupefacienteRepository())
-                {
-                    if (!await repo.AnyWithCondition(x => x.id_entidad == item.id_entidad && x.activo == true))
-                        throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La entidad no se encuentra registrada."));
-
-                    item.id_antecedente = antecedenteId;
-                }
-            }
-
-            var yahayAclaraciones = new AclaracionEstupefacienteRepository().GetAllAsQueryable().Where(x => x.id_antecedente == antecedenteId).Count();
-            if (count == yahayAclaraciones)
-                throw new HttpStatusCodeException(Responses.SetConflictResponse($"No puede agregar mas aclaraciones al estupefaciente seleccionado."));
-        }
-
-        public async Task<Respuesta> EditarAclaracionesPorEntidades(IList<GENTEMAR_ACLARACION_ANTECEDENTES> data, string pathActual,
-            GENTEMAR_OBSERVACIONES_ANTECEDENTES observacion)
-        {
-
-            var respuesta = new Respuesta();
-            var existeEstupefaciente = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == observacion.id_antecedente);
-
-            if (!existeEstupefaciente)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El antecedente no se encuentra registrado."));
-
-            await Validaciones(data, observacion.id_antecedente);
-            using (var repo = new AclaracionEstupefacienteRepository())
-            {
+                Archivo archivo = null;
                 try
                 {
-                    if (observacion.Archivo != null)
-                    {
-                        string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_OBSERVACIONES}";
-                        respuesta = Reutilizables.GuardarArchivo(observacion.Archivo, pathActual, path);
-                        if (respuesta.Estado)
-                        {
-                            var archivo = (Archivo)respuesta.Data;
-                            if (archivo != null)
-                            {
-                                observacion.ruta_archivo = archivo.PathArchivo;
+                    string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_ACLARACION_EXPEDIENTE}";
+                    var nombreArchivo = $"{Guid.NewGuid()}_.{aclaracionEdit.Extension}";
+                    var response = Reutilizables.GuardarArchivoDeBytes(aclaracionEdit.Archivo, pathActual, path, nombreArchivo);
 
-                                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                                {
-                                    IdAplicacion = Constantes.ID_APLICACION,
-                                    NombreModulo = Constantes.CARPETA_MODULO_ESTUPEFACIENTES,
-                                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                    FechaCargue = DateTime.Now,
-                                    NombreArchivo = observacion.Archivo.FileName,
-                                    RutaArchivo = observacion.ruta_archivo,
-                                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                    DescripcionDocumento = "observación de titulos.",
-                                };
-                                await repo.EditarAclaracionesCascade(data, observacion, repositorio);
-                            }
-                        }
-                    }
-                    else
+                    archivo = (Archivo)response.Data;
+                    if (archivo != null)
                     {
-                        await repo.EditarAclaracionesCascade(data, observacion);
+                        GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
+                        {
+                            IdAplicacion = Constantes.ID_APLICACION,
+                            NombreModulo = Constantes.CARPETA_MODULO_ESTUPEFACIENTES,
+                            TipoDocumento = Constantes.CARPETA_ACLARACION_EXPEDIENTE,
+                            FechaCargue = DateTime.Now,
+                            NombreArchivo = nombreArchivo,
+                            RutaArchivo = archivo.PathArchivo,
+                        };
+
+
+                        aclaracionEdit.ObservacionAnterior = new ObservacionAnteriorDTO()
+                        {
+                            DetalleAnterior = expedienteObservacion.descripcion,
+                            VerificacionExitosaAnterior = expedienteObservacion.verificacion_exitosa.Value
+                        };
+
+                        var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
+                        {
+                            detalle_aclaracion = aclaracionEdit.DetalleAclaracion,
+                            fecha_hora_creacion = DateTime.Now,
+                            usuario_creador_registro = ClaimsHelper.GetNombreCompletoUsuario(),
+                            id_expediente_observacion = expedienteObservacion.id_expediente_observacion,
+                            ruta_archivo = archivo.PathArchivo,
+                            detalle_observacion_anterior_json = JsonConvert.SerializeObject(aclaracionEdit.ObservacionAnterior)
+                        };
+
+                        expedienteObservacion.descripcion = aclaracionEdit.DetalleObservacionNuevo;
+                        expedienteObservacion.verificacion_exitosa = aclaracionEdit.VerificacionExitosa;
+                        await aclaracionRepo.AgregarAclaracionPorExpedienteObservacion(dataAclaracion, expedienteObservacion, repositorio);
                     }
                 }
                 catch (Exception ex)
                 {
-                    var archivo = (Archivo)respuesta.Data;
                     if (archivo != null)
                     {
                         Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
                     }
-                    respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    return Responses.SetInternalServerErrorResponse(ex);
                 }
-                object obj = new { Aclaraciones = data, Observacion = observacion };
-                return Responses.SetUpdatedResponse(obj);
+                return Responses.SetCreatedResponse(null, "La aclaración se agregó satisfactoriamente.");
             }
         }
 
-        public async Task<IEnumerable<DetalleAclaracionesEstupefacienteDTO>> GetAclaracionesPorEstupefacienteId(long estupefacienteId)
+        public async Task<IEnumerable<HistorialAclaracionDTO>> GetHistorialPorEstupefacienteId(long id, string pathActual)
         {
-            return await new AclaracionEstupefacienteRepository().GetAclaracionesPorEstupefacienteId(estupefacienteId);
+            var historial = await new HistorialAclaracionEstupefacienteRepository().GetHistorialPorEstupefacienteId(id);
+            if (historial.Any())
+            {
+                foreach (var item in historial)
+                {
+                    if (item.ArchivoBase != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(item.ArchivoBase.RutaArchivo))
+                        {
+                            var rutaArchivo = $@"{pathActual}\{item.ArchivoBase.RutaArchivo}";
+                            var respuestaBuscarArchivo = Reutilizables.DescargarArchivo(rutaArchivo, out string archivoBase64);
+                            if (respuestaBuscarArchivo != null && respuestaBuscarArchivo.Estado && !string.IsNullOrEmpty(archivoBase64))
+                            {
+                                item.ArchivoBase.ArchivoBase64 = archivoBase64;
+                            }
+                        }
+                    }
+                }
+            }
+            return historial;
         }
     }
 }

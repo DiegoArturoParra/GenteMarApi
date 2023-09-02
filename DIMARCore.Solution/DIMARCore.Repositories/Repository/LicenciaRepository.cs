@@ -34,7 +34,6 @@ namespace DIMARCore.Repositories.Repository
                              {
                                  Activo = licencia.activo,
                                  Radicado = licencia.radicado,
-                                 IdTramite = licencia.id_tramite,
                                  IdLicencia = licencia.id_licencia,
                                  IdGentemar = licencia.id_gentemar,
                                  IdEstadoLicencia = licencia.id_estado_licencia,
@@ -85,7 +84,6 @@ namespace DIMARCore.Repositories.Repository
                              {
                                  Activo = licencia.activo,
                                  Radicado = licencia.radicado,
-                                 IdTramite = licencia.id_tramite,
                                  IdLicencia = licencia.id_licencia,
                                  IdGentemar = licencia.id_gentemar,
                                  IdEstadoLicencia = licencia.id_estado_licencia,
@@ -102,6 +100,13 @@ namespace DIMARCore.Repositories.Repository
                                      DocumentoIdentificacion = usuario.documento_identificacion,
                                      FechaNacimiento = usuario.fecha_vencimiento
                                  },
+                                 ListaNaves = (from licenciaNave in _context.GENTEMAR_LICENCIA_NAVES
+                                               join naves in _context.TABLA_NAVES_BASE on licenciaNave.identi equals naves.identi
+                                               where licenciaNave.id_licencia == licencia.id_licencia
+                                               select new
+                                               {
+                                                   naves
+                                               }).Select(x => x.naves.identi).ToList()
 
 
                              }).FirstOrDefault();
@@ -134,7 +139,6 @@ namespace DIMARCore.Repositories.Repository
                              {
                                  Activo = licencia.activo,
                                  Radicado = licencia.radicado,
-                                 IdTramite = licencia.id_tramite,
                                  IdLicencia = licencia.id_licencia,
                                  IdGentemar = licencia.id_gentemar,
                                  IdEstadoLicencia = licencia.id_estado_licencia,
@@ -191,9 +195,10 @@ namespace DIMARCore.Repositories.Repository
                 {
                     try
                     {
-                        datos.id_estado_licencia = (int)EnumEstados.PROCESO;
+                        datos.id_estado_licencia = (int)EstadosTituloLicenciaEnum.PROCESO;
                         _context.GENTEMAR_LICENCIAS.Add(datos);
                         await SaveAllAsync();
+                        await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
                         if (datos.Observacion != null)
                         {
                             datos.Observacion.id_licencia = (int)datos.id_licencia;
@@ -219,6 +224,22 @@ namespace DIMARCore.Repositories.Repository
             }
         }
 
+        private async Task CrateInCascadeNaves(IList<string> data, long? idLicencia)
+        {
+            foreach (string item in data)
+            {
+                var categoria = new GENTEMAR_LICENCIA_NAVES
+                {
+                    id_licencia = (long)idLicencia,
+                    identi = item
+                };
+
+                _context.GENTEMAR_LICENCIA_NAVES.Add(categoria);
+
+            }
+            await SaveAllAsync();
+        }
+
         public async Task ActualizarLicencia(GENTEMAR_LICENCIAS datos, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
             using (_context)
@@ -231,6 +252,15 @@ namespace DIMARCore.Repositories.Repository
                         var entry = _context.Entry(datos);
                         entry.State = EntityState.Modified;
                         await SaveAllAsync();
+                        if (datos.ListaNaves.Count() > 0)
+                        {
+                            // elimina los resgistros de las naves existente 
+                            _context.GENTEMAR_LICENCIA_NAVES.RemoveRange(
+                                _context.GENTEMAR_LICENCIA_NAVES.Where(x => x.id_licencia == datos.id_licencia)
+                            );
+                            //crea ls nuevas naves
+                            await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
+                        }
                         if (datos.Observacion != null)
                         {
                             datos.Observacion.id_licencia = (int)datos.id_licencia;

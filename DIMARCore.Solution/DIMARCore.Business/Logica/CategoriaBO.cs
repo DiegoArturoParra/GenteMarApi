@@ -6,7 +6,7 @@ namespace DIMARCore.Business.Logica
 {
     public class CategoriaBO
     {
-        public IEnumerable<APLICACIONES_CATEGORIA> GetAll(bool? activo = true)
+        public IEnumerable<APLICACIONES_CATEGORIA> GetAll()
         {
             return new CategoriaRepository().GetAll();
         }

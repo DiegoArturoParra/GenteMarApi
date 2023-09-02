@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DIMARCore.Utilities.Middleware;
 
 namespace DIMARCore.Business.Logica
 {
@@ -42,11 +43,11 @@ namespace DIMARCore.Business.Logica
                     observaciones = await new ObservacionesEstupefacienteRepository().GetObservacionesId(id);
                     break;
                 default:
-                    throw new HttpStatusCodeException(HttpStatusCode.BadRequest, @"El modulo no corresponde al numero digitado.DatosBasicos = 1, 
+                    throw new HttpStatusCodeException(HttpStatusCode.BadRequest, @"El modulo no corresponde al numero digitado. DatosBasicos = 1, 
                                                                                    Titulos = 2, Licencias = 3, Estupefacientes = 4");
             }
 
-            if (observaciones.Count() > 0)
+            if (observaciones.Any())
             {
                 foreach (var item in observaciones)
                 {
@@ -55,8 +56,7 @@ namespace DIMARCore.Business.Logica
                         if (!string.IsNullOrWhiteSpace(item.ArchivoBase.RutaArchivo))
                         {
                             var rutaArchivo = $@"{rutaInicial}\{item.ArchivoBase.RutaArchivo}";
-                            string archivoBase64 = null;
-                            var respuestaBuscarArchivo = Reutilizables.DescargarArchivo(rutaArchivo, out archivoBase64);
+                            var respuestaBuscarArchivo = Reutilizables.DescargarArchivo(rutaArchivo, out string archivoBase64);
                             if (respuestaBuscarArchivo != null && respuestaBuscarArchivo.Estado && !string.IsNullOrEmpty(archivoBase64))
                             {
                                 item.ArchivoBase.ArchivoBase64 = archivoBase64;

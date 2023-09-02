@@ -1,16 +1,14 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers.Estupefacientes
 {
@@ -49,9 +47,11 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(List<EstadoEstupefacienteDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes, RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes, RolesEnum.JuridicaEstupefacientes,
+            RolesEnum.ConsultasEstupefacientes)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceEstado.GetAll(dto != null ? dto.Activo : null);
@@ -72,18 +72,17 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-
+        [ResponseType(typeof(ResponseTypeSwagger<EstadoEstupefacienteDTO>))]
         [HttpGet]
         [Route("{id}")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
         public async Task<IHttpActionResult> GetestadoEstupefaciente(int id)
         {
             var estadoEstupefaciente = await _serviceEstado.GetByIdAsync(id);
-            if (estadoEstupefaciente.Estado)
-            {
-                var obj = Mapear<GENTEMAR_ESTADO_ANTECEDENTE, EstadoEstupefacienteDTO>((GENTEMAR_ESTADO_ANTECEDENTE)estadoEstupefaciente.Data);
-                estadoEstupefaciente.Data = obj;
-            }
+
+            var obj = Mapear<GENTEMAR_ESTADO_ANTECEDENTE, EstadoEstupefacienteDTO>((GENTEMAR_ESTADO_ANTECEDENTE)estadoEstupefaciente.Data);
+            estadoEstupefaciente.Data = obj;
+
             return ResultadoStatus(estadoEstupefaciente);
         }
 
@@ -102,6 +101,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
@@ -127,6 +127,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
@@ -150,6 +151,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
         [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]

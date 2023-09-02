@@ -191,8 +191,5 @@ namespace DIMARCore.Api.Core
             idAplicacion = request.Headers.GetValues(AutenticacionConfig.HEADERS_ID_APLICACION).First();
             return String.IsNullOrEmpty(idAplicacion);
         }
-
-        
-
     }
 }

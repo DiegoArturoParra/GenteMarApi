@@ -1,16 +1,12 @@
 ﻿using AutoMapper;
 using DIMARCore.Api.Core;
-using DIMARCore.UIEntities.Models;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
-using DIMARCore.Utilities.Seguridad;
+using DIMARCore.Utilities.Middleware;
 using log4net;
-using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.ModelBinding;
@@ -78,7 +74,7 @@ namespace DIMARCore.Api.Controllers
         protected IHttpActionResult ResultadoStatus(Respuesta response)
         {
 
-            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
                 _logger.Error(response.MensajeExcepcion);
             }
@@ -112,36 +108,12 @@ namespace DIMARCore.Api.Controllers
             return queryable.Paginar(paginacionDTO).ToList();
         }
 
-        /// <summary>
-        /// Valida el dto del titulo
-        /// </summary>
-        /// <param name="objeto"></param>
-        /// <returns></returns>
-        protected Respuesta ValidarObjeto(object objeto)
-        {
-            Respuesta res = new Respuesta();
-            this.Validate(objeto);
-            if (!ModelState.IsValid)
-            {
-                var errores = GetErrorListFromModelState(ModelState);
-                res.Estado = false;
-                res.StatusCode = HttpStatusCode.BadRequest;
-                res.Mensaje = string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray());
-            }
-            else
-            {
-                res.Estado = true;
-            }
-
-            return res;
-        }
-
         #region Claims
+
         /// <summary>
-        /// 
+        /// retorna si esta autenticado el usuario
         /// </summary>
         /// <returns></returns>
-        [Authorize]
         protected bool GetUsuarioEstaAutenticado()
         {
             return User.Identity.IsAuthenticated;
@@ -152,41 +124,25 @@ namespace DIMARCore.Api.Controllers
         /// Retorna el id de la aplicacion
         /// </summary>
         /// <returns>Retorna el id de la aplicacion</returns>
-        [Authorize]
         protected int GetIdAplicacion()
         {
-            string sIdAplicacion = string.Empty;
-
             if (GetUsuarioEstaAutenticado())
             {
-                var identity = User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    List<Claim> claims = identity.Claims.ToList();
-                    sIdAplicacion = claims.Where(p => p.Type == ClaimsConfig.ID_APLICACION).FirstOrDefault()?.Value;
-                }
+                return ClaimsHelper.GetAplicacionId();
             }
-            return !string.IsNullOrWhiteSpace(sIdAplicacion) ? Convert.ToInt32(sIdAplicacion) : 0;
+            return 0;
         }
         /// <summary>
         /// Retorna el id de la capitania
         /// </summary>
         /// <returns>Retorna el id de la capitania</returns>
-        [Authorize]
         protected int GetIdCapitania()
         {
-            string SidCapitania = string.Empty;
-
             if (GetUsuarioEstaAutenticado())
             {
-                var identity = User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    List<Claim> claims = identity.Claims.ToList();
-                    SidCapitania = claims.Where(p => p.Type == ClaimsConfig.ID_CAPITANIA).FirstOrDefault()?.Value;
-                }
+                return ClaimsHelper.GetCapitaniaUsuario();
             }
-            return !string.IsNullOrWhiteSpace(SidCapitania) ? Convert.ToInt32(SidCapitania) : 0;
+            return 0;
         }
         /// <summary>
         /// Retorna el login name del usuario autenticado
@@ -195,22 +151,13 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>2020/05/06</Fecha>
         /// <UltimaActualizacion>2020/05/06 - Diego Parra - Creación del servicio</UltimaActualizacion>
-        [Authorize]
         protected string GetLoginName()
         {
-            string sLoginName = "";
-
             if (GetUsuarioEstaAutenticado())
             {
-                var identity = User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    List<Claim> claims = identity.Claims.ToList();
-                    sLoginName = claims.Where(p => p.Type == ClaimTypes.NameIdentifier).FirstOrDefault()?.Value;
-                    sLoginName = string.IsNullOrEmpty(sLoginName) ? "" : sLoginName;
-                }
+                return ClaimsHelper.GetLoginName();
             }
-            return sLoginName;
+            return "Anonimo";
         }
 
         /// <summary>
@@ -220,115 +167,31 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>2020/05/06</Fecha>
         /// <UltimaActualizacion>2020/05/06 - Diego Parra - Creación del servicio</UltimaActualizacion>
-        [Authorize]
+
         protected string GetEmail()
         {
-            string Email = "";
-
             if (GetUsuarioEstaAutenticado())
             {
-                var identity = User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    List<Claim> claims = identity.Claims.ToList();
-                    Email = claims.Where(p => p.Type == ClaimTypes.Email).FirstOrDefault()?.Value;
-                    Email = string.IsNullOrEmpty(Email) ? "" : SecurityEncrypt.Decrypt(ConfigurationManager.AppSettings["KeyPassword"].ToString(), Email);
-                }
+                return ClaimsHelper.GetEmail();
             }
-            return Email;
+            return "Anonimo";
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [Authorize]
-        protected UserSesion GetUserSession()
-        {
-            var userSesion = new UserSesion();
-            if (GetUsuarioEstaAutenticado())
-            {
-                var identity = User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    // obtiene el id de la aplicación
-                    string sAplicacionId = identity.Claims.Where(c => c.Type == ClaimsConfig.ID_APLICACION).Select(c => c.Value).SingleOrDefault();
-                    sAplicacionId = string.IsNullOrEmpty(sAplicacionId) ? string.Empty : sAplicacionId;
-                    if (int.TryParse(sAplicacionId, out int idAplicacion))
-                    {
-                        userSesion.Aplicacion = new AplicacionSession()
-                        {
-                            Id = idAplicacion
-                        };
-                    }
-                    // obtiene el nombre del usuario
-                    string sNombresUsuario = identity.Claims.Where(c => c.Type == ClaimsConfig.NOMBRES_USUARIO).Select(c => c.Value).SingleOrDefault();
-                    sNombresUsuario = string.IsNullOrEmpty(sNombresUsuario) ? string.Empty : sNombresUsuario;
-                    userSesion.NombresUsuario = sNombresUsuario;
-                    // obtiene el apellido del usuario
-                    string sApellidosUsuario = identity.Claims.Where(c => c.Type == ClaimsConfig.APELLIDOS_USUARIO).Select(c => c.Value).SingleOrDefault();
-                    sApellidosUsuario = string.IsNullOrEmpty(sApellidosUsuario) ? string.Empty : sApellidosUsuario;
-                    userSesion.ApellidosUsuario = sApellidosUsuario;
-
-                    // obtiene el email del usuario
-                    string sEmail = identity.Claims.Where(c => c.Type == ClaimTypes.Email).Select(c => c.Value).SingleOrDefault();
-                    sEmail = string.IsNullOrEmpty(sEmail) ? string.Empty : sEmail;
-                    userSesion.Email = sEmail;
-
-                    // obtiene el id de la categoria
-                    string sIdCategoria = identity.Claims.Where(c => c.Type == ClaimsConfig.ID_CATEGORIA).Select(c => c.Value).SingleOrDefault();
-                    sIdCategoria = string.IsNullOrEmpty(sIdCategoria) ? string.Empty : sIdCategoria;
-
-
-                    // obtiene la capitanía del usuario
-                    string sCapitania = identity.Claims.Where(c => c.Type == ClaimsConfig.CAPITANIA).Select(c => c.Value).SingleOrDefault();
-                    sCapitania = string.IsNullOrEmpty(sCapitania) ? string.Empty : sCapitania;
-                    userSesion.Capitania = new CapitaniaSession()
-                    {
-                        Descripcion = sCapitania,
-                        Categoria = Convert.ToInt32(sIdCategoria)
-                    };
-
-                    // obtiene el estado del usuario
-                    string sIdEstado = identity.Claims.Where(c => c.Type == ClaimsConfig.ID_ESTADO).Select(c => c.Value).SingleOrDefault();
-                    sIdEstado = string.IsNullOrEmpty(sIdEstado) ? string.Empty : sIdEstado;
-                    if (int.TryParse(sIdEstado, out int idEstado))
-                    {
-                        userSesion.EstadoId = idEstado;
-                    }
-                }
-            }
-            return userSesion;
-        }
-
-
-
-
-        /// <summary>
-        /// Retorna el nombre del usuario si esta autenticado
-        /// </summary>
-        /// <returns>Nombre del usuario</returns>
-        /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2020/05/06</Fecha>
-        /// <UltimaActualizacion>2020/05/06 - Diego Parra - Creación del servicio</UltimaActualizacion>
-        [Authorize]
-        protected string GetNombreCompletoUsuario()
-        {
-            string sNombreCompletoUsuario = "";
-
-            if (GetUsuarioEstaAutenticado())
-            {
-                var identity = User.Identity as ClaimsIdentity;
-                if (identity != null)
-                {
-                    List<Claim> claims = identity.Claims.ToList();
-                    sNombreCompletoUsuario = claims.Where(p => p.Type == ClaimsConfig.NOMBRE_COMPLETO_USUARIO).FirstOrDefault()?.Value;
-                    sNombreCompletoUsuario = string.IsNullOrEmpty(sNombreCompletoUsuario) ? "" : sNombreCompletoUsuario;
-                }
-            }
-            return sNombreCompletoUsuario;
-        }
-
         #endregion
+
+        /// <summary>
+        /// Valida el dto de un parametro de request del servicio
+        /// </summary>
+        /// <param name="request">parametro del body de la petición</param>
+        /// <returns></returns>
+        protected Respuesta ValidateModelAndThrowIfInvalid<T>(T request)
+        {
+            Validate(request);
+            if (!ModelState.IsValid)
+            {
+                var errores = GetErrorListFromModelState(ModelState);
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, string.Join(";", errores.Select(x => x.Key + "=" + x.Value).ToArray()));
+            }
+            return Responses.SetOkResponse();
+        }
     }
 }

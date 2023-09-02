@@ -141,7 +141,7 @@ namespace DIMARCore.Repositories.Repository
                 Seccion = m.Select(x => x.seccionTitulo.actividad_a_bordo).FirstOrDefault(),
                 CargoTitulo = m.Select(x => x.cargoTitulo.cargo).FirstOrDefault(),
                 Nivel = m.Select(x => x.nivel.nivel).FirstOrDefault(),
-                Regla = m.Select(x => x.reglas.Regla).FirstOrDefault(),
+                Regla = m.Select(x => x.reglas.nombre_regla).FirstOrDefault(),
                 Capacidad = m.Select(x => x.capacidad.capacidad).FirstOrDefault(),
                 Funciones = (from reglaFuncion in _context.GENTEMAR_REGLA_FUNCION
                              join funciones in _context.GENTEMAR_FUNCIONES on reglaFuncion.id_funcion equals funciones.id_funcion

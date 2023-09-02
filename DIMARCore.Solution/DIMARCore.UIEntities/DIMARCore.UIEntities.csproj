@@ -56,7 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DTOs\AclaracionEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\ArchivoBaseDTO.cs" />
+    <Compile Include="DTOs\HistorialAclaracionDTO.cs" />
+    <Compile Include="DTOs\ObservacionEntidadEstupefacienteDTO.cs" />
     <Compile Include="DTOs\ActividadDTO.cs" />
     <Compile Include="DTOs\ActivoDTO.cs" />
     <Compile Include="DTOs\CapacidadDTO.cs" />
@@ -67,13 +69,21 @@
     <Compile Include="DTOs\CargoTituloDTO.cs" />
     <Compile Include="DTOs\CategoriaDTO.cs" />
     <Compile Include="DTOs\ClaseDTO.cs" />
+    <Compile Include="DTOs\ConsolidadoDTO.cs" />
+    <Compile Include="DTOs\CrearConsolidadoExcelDTO.cs" />
     <Compile Include="DTOs\DatosBasicosUsuarioDTO.cs" />
+    <Compile Include="DTOs\DesactivateCargoDTO.cs" />
+    <Compile Include="DTOs\EditBulkEstupefacientesDTO.cs" />
     <Compile Include="DTOs\EditInfoEstupefacienteDTO.cs" />
     <Compile Include="DTOs\EstadoLicenciaDTO.cs" />
     <Compile Include="DTOs\EstadoTituloDTO.cs" />
     <Compile Include="DTOs\EstupefacienteCrearDTO.cs" />
+    <Compile Include="DTOs\ExpedienteDTO.cs" />
+    <Compile Include="DTOs\ExpedienteEntidadDTO.cs" />
     <Compile Include="DTOs\HistorialDocumentoDTO.cs" />
     <Compile Include="DTOs\DetalleEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\ImpresionDocumentoDTO.cs" />
+    <Compile Include="DTOs\InfoUsuarioDTO.cs" />
     <Compile Include="DTOs\LicenciaDTO.cs" />
     <Compile Include="DTOs\EntidadDTO.cs" />
     <Compile Include="DTOs\EstadoEstupefacienteDTO.cs" />
@@ -82,6 +92,11 @@
     <Compile Include="DTOs\LimitanteDTO.cs" />
     <Compile Include="DTOs\ListadoEstupefacientesDTO.cs" />
     <Compile Include="DTOs\MenuDTO.cs" />
+    <Compile Include="DTOs\MultaDTO.cs" />
+    <Compile Include="DTOs\NavesDTO.cs" />
+    <Compile Include="DTOs\NavesImpDocDTO.cs" />
+    <Compile Include="DTOs\PlantillaLicenciaDTO.cs" />
+    <Compile Include="DTOs\PlantillaTituloDTO.cs" />
     <Compile Include="DTOs\RegistrosActualizadosDTO.cs" />
     <Compile Include="DTOs\ReglaFuncionDTO.cs" />
     <Compile Include="DTOs\DatosBasicosDTO.cs" />
@@ -95,7 +110,6 @@
     <Compile Include="DTOs\GradoDTO.cs" />
     <Compile Include="DTOs\HabilitacionDTO.cs" />
     <Compile Include="DTOs\IdsTablasForaneasDTO.cs" />
-    <Compile Include="DTOs\InfoDTO.cs" />
     <Compile Include="DTOs\InfoReglaFuncionDTO.cs" />
     <Compile Include="DTOs\InfoTituloDTO.cs" />
     <Compile Include="DTOs\LimitacionDTO.cs" />
@@ -113,18 +127,20 @@
     <Compile Include="DTOs\TerritorioDTO.cs" />
     <Compile Include="DTOs\TipoDocumentoDTO.cs" />
     <Compile Include="DTOs\TipoLicenciaDTO.cs" />
+    <Compile Include="DTOs\TipoRefrendoDTO.cs" />
     <Compile Include="DTOs\TipoSolicitudDTO.cs" />
     <Compile Include="DTOs\TituloDTO.cs" />
     <Compile Include="DTOs\TramiteEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\UserTokenDTO.cs" />
     <Compile Include="DTOs\UsuarioGenteMarDTO.cs" />
     <Compile Include="DTOs\ListadoTituloDTO.cs" />
-    <Compile Include="Models\UserSesion.cs" />
+    <Compile Include="DTOs\UserSesionDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryFilters\CargoTituloFilter.cs" />
     <Compile Include="QueryFilters\DatosBasicosQueryFilter.cs" />
     <Compile Include="QueryFilters\DetalleReglaFilter.cs" />
     <Compile Include="QueryFilters\EstupefacientesFilter.cs" />
-    <Compile Include="QueryFilters\FiltroPaginacion.cs" />
+    <Compile Include="QueryFilters\FiltroByIdentificacion.cs" />
     <Compile Include="Requests\LoginRequest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +154,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

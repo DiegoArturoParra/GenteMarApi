@@ -2,6 +2,7 @@
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,14 @@ namespace DIMARCore.Business.Logica
     public class CargoLicenciaBO
     {
 
+        private CargoLicenciaRepository _repository;
+
+        public CargoLicenciaBO()
+        {
+            _repository = new CargoLicenciaRepository();
+        }
+
+
         /// <summary>
         /// Lista de Cargo 
         /// </summary>
@@ -22,7 +31,7 @@ namespace DIMARCore.Business.Logica
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
         public IEnumerable<GENTEMAR_CARGO_LICENCIA> GetCargoLicencia(CargoLicenciaDTO filtro)
         {
-            var data = new CargoLicenciaRepository().GetAllAsQueryable();
+            var data = _repository.GetAllAsQueryable();
             // Obtiene la lista
             if (filtro.CargoLicencia != null)
             {
@@ -45,8 +54,8 @@ namespace DIMARCore.Business.Logica
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
         public IEnumerable<CargoLicenciaDTO> CargoLicenciaActivo()
         {
-            var claimIdCategoria = ClaimsHelper.ObtenerCategoriaUsuario();
-            var data = new CargoLicenciaRepository().GetAllCargoLicenciaActivo(claimIdCategoria);
+            var claimIdCategoria = ClaimsHelper.GetCategoriaUsuario();
+            var data = _repository.GetAllCargoLicenciaActivo(claimIdCategoria);
             // Obtiene la lista          
 
             return data;
@@ -64,7 +73,7 @@ namespace DIMARCore.Business.Logica
             Respuesta respuesta = new Respuesta();
             try
             {
-                using (var repo = new CargoLicenciaRepository())
+                using (var repo = _repository)
                 {
                     var data = await repo.GetWithCondition(x => x.id_cargo_licencia == entidad.id_cargo_licencia);
                     if (data != null)
@@ -74,12 +83,19 @@ namespace DIMARCore.Business.Logica
                         if (actividadSeccion != null)
                         {
                             if (seccionClase != null)
-                            {
-                                entidad.id_actividad_seccion_licencia = actividadSeccion.id_actividad_seccion_licencia;
-                                entidad.id_seccion_clase = seccionClase.id_seccion_clase;
-                                entidad.codigo_licencia = data.codigo_licencia;
-                                entidad.activo = data.activo;
-                                await new CargoLicenciaRepository().ModificarCargoLimitacion(entidad);
+                            {   
+                                data.cargo_licencia = entidad.cargo_licencia;
+                                data.vigencia = entidad.vigencia;
+                                data.IdTipoLicencia = entidad.IdTipoLicencia;
+                                data.IdActividad = entidad.IdActividad;
+                                data.IdSeccion = entidad.IdSeccion;
+                                data.IdClase = entidad.IdClase;
+                                data.id_actividad_seccion_licencia = actividadSeccion.id_actividad_seccion_licencia;
+                                data.id_seccion_clase = seccionClase.id_seccion_clase;
+                                data.IdCategoria = entidad.IdCategoria;
+                                data.IdLimitacion = entidad.IdLimitacion;
+                                data.IdLimitante = entidad.IdLimitante;
+                                await _repository.ModificarCargoLimitacion(data);
                                 respuesta.StatusCode = HttpStatusCode.OK;
                                 respuesta.Mensaje = ConstantesBO.EDITADO_OK;
                                 respuesta.Estado = true;
@@ -131,7 +147,7 @@ namespace DIMARCore.Business.Logica
             Respuesta respuesta = new Respuesta();
             try
             {
-                using (var repo = new CargoLicenciaRepository())
+                using (var repo = _repository)
                 {
                     var data = await repo.GetWithCondition(x => x.cargo_licencia == entidad.cargo_licencia);
                     if (data == null)
@@ -146,7 +162,7 @@ namespace DIMARCore.Business.Logica
                                 entidad.id_seccion_clase = seccionClase.id_seccion_clase;
                                 await repo.CrearCargoLimitacion(entidad);
                                 entidad.codigo_licencia = await codigoLicenciaAsync(entidad, 0);
-                                await new CargoLicenciaRepository().Update(entidad);
+                                await _repository.Update(entidad);
                                 respuesta.StatusCode = HttpStatusCode.Created;
                                 respuesta.Mensaje = ConstantesBO.CREADO_OK;
                                 respuesta.Estado = true;
@@ -202,7 +218,7 @@ namespace DIMARCore.Business.Logica
                 fecha = fecha + 1;
             }
             codigo = $"{licencia.cargo_licencia.Substring(0, 1)}{fecha}{licencia.id_cargo_licencia}";
-            var data = await new CargoLicenciaRepository().AnyWithCondition(x => x.codigo_licencia == codigo);
+            var data = await _repository.AnyWithCondition(x => x.codigo_licencia == codigo);
             if (data)
             {
                 codigo = await codigoLicenciaAsync(licencia, fecha);
@@ -219,11 +235,8 @@ namespace DIMARCore.Business.Logica
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
         public CargoLicenciaDTO GetCargoLicenciaId(long id)
         {
-            var data = new CargoLicenciaRepository().GetCargoLicenciaId(id);
-            if (data == null)
-            {
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la licencia solicitada");
-            }
+            var data = _repository.GetCargoLicenciaId(id)
+                ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la licencia solicitada");
             // Obtiene la lista
             return data;
         }
@@ -235,7 +248,7 @@ namespace DIMARCore.Business.Logica
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
         public CargoLicenciaDTO GetCargoLicenciaIdDetalle(long id)
         {
-            var data = new CargoLicenciaRepository().GetCargoLicenciaIdDetalle(id);
+            var data = _repository.GetCargoLicenciaIdDetalle(id);
             // Obtiene la lista
             return data;
         }
@@ -248,26 +261,27 @@ namespace DIMARCore.Business.Logica
         /// <returns></returns>
         public async Task<Respuesta> cambiarCargoLicencia(int id)
         {
-            Respuesta respuesta = new Respuesta();
-            using (var repo = new CargoLicenciaRepository())
+            using (var repo = _repository)
             {
-                var validate = await repo.GetWithCondition(x => x.id_cargo_licencia == id);
-                if (validate != null)
-                {
-                    validate.activo = !validate.activo;
-                    await repo.Update(validate);
-                    respuesta.StatusCode = HttpStatusCode.Created;
-                    respuesta.Mensaje = ConstantesBO.EDITADO_OK;
-                    return respuesta;
-                }
-                respuesta.StatusCode = HttpStatusCode.Conflict;
-                respuesta.Mensaje = "El tipo de cargo licencia no existe";
-                respuesta.Estado = false;
-                return respuesta;
+                var validate = await repo.GetWithCondition(x => x.id_cargo_licencia == id)
+                    ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la licencia solicitada");
+                validate.activo = !validate.activo;
+                await repo.Update(validate);
+                return Responses.SetUpdatedResponse(validate);
             }
         }
 
+        /// <summary>
+        /// metodo para obtener los datos del usuario y de la licencia para la plantilla
+        /// por id de la licencia.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<PlantillaLicenciaDTO> GetPlantillaLicencias(long id)
+        {
+            var data = await _repository.GetPlantillaLicencias(id);
 
-
+            return data;
+        }
     }
 }

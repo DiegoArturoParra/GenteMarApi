@@ -12,7 +12,7 @@ using System.IO;
 namespace DIMARCore.Api
 {
     /// <summary>
-    /// 
+    /// Clase para configurar Swagger y generar documentación de API
     /// </summary>
     public class SwaggerConfig
     {

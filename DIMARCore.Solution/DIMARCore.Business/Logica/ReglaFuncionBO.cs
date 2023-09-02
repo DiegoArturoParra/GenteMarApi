@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
-
 namespace DIMARCore.Business.Logica
 {
     public class ReglaFuncionBO

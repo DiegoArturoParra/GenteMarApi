@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace DIMARCore.UIEntities.DTOs
 {
@@ -8,9 +9,7 @@ namespace DIMARCore.UIEntities.DTOs
         public long Id { get; set; }
         public string CapitaniaFirma { get; set; }
         public string CapitaniaFirmante { get; set; }
-        public string Regla { get; set; }
-        public string CargoTitulo { get; set; }
-        public string Nivel { get; set; }
+        public List<InfoCargosDTO> Cargos { get; set; }
         public string Solicitud { get; set; }
         public string NombreUsuario { get; set; }
         public string DocumentoIdentificacion { get; set; }
@@ -35,5 +34,12 @@ namespace DIMARCore.UIEntities.DTOs
                 return this.FechaVencimiento.HasValue ? string.Format("{0:dd/MM/yyyy}", this.FechaVencimiento.Value) : "";
             }
         }
+    }
+
+    public class InfoCargosDTO
+    {
+        public string Regla { get; set; }
+        public string CargoTitulo { get; set; }
+        public string Nivel { get; set; }
     }
 }

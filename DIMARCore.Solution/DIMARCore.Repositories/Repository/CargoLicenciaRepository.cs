@@ -3,6 +3,7 @@ using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace DIMARCore.Repositories.Repository
                              Activo = cargolicencia.activo,
                              CodigoLicencia = cargolicencia.codigo_licencia,
                              CargoLicencia = cargolicencia.cargo_licencia,
+                             Nave = cargolicencia.nave
 
                          }).ToList();
             return query;
@@ -146,6 +148,7 @@ namespace DIMARCore.Repositories.Repository
                              IdActividadSeccion = data.actividadSeccion.id_actividad_seccion_licencia,
                              IdSeccionClase = data.seccionClase.id_seccion_clase,
                              IdTipoLicencia = data.actividad.id_tipo_licencia,
+                             Nave = data.cargoLicencia.nave,
                              IdCategoria = (from categoria in _context.APLICACIONES_CATEGORIA
                                             join cargoCategoria in _context.GENTEMAR_CARGO_LICENCIA_CATEGORIA
                                             on categoria.ID_CATEGORIA equals cargoCategoria.id_categoria
@@ -198,7 +201,7 @@ namespace DIMARCore.Repositories.Repository
                             cargoLicencia,
                             actividadSeccion,
                             seccionClase,
-                            actividad
+                            actividad                           
 
                         });
 
@@ -216,7 +219,7 @@ namespace DIMARCore.Repositories.Repository
                              IdActividadSeccion = data.actividadSeccion.id_actividad_seccion_licencia,
                              IdSeccionClase = data.seccionClase.id_seccion_clase,
                              IdTipoLicencia = data.actividad.id_tipo_licencia,
-                             
+
                              Categoria = (from categoria in _context.APLICACIONES_CATEGORIA
                                           join cargoCategoria in _context.GENTEMAR_CARGO_LICENCIA_CATEGORIA
                                           on categoria.ID_CATEGORIA equals cargoCategoria.id_categoria
@@ -278,13 +281,19 @@ namespace DIMARCore.Repositories.Repository
                                               Activo = limitante.activo,
 
                                           }).ToList(),
+                             Nave = data.cargoLicencia.nave,
                          }
                          ).FirstOrDefault();
 
             return query;
         }
 
-
+        /// <summary>
+        /// Crea las limitaciones del cargo licencia  
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private async Task CrateInCascadeLimitacion(IList<int> data, int id)
         {
             foreach (int item in data)
@@ -300,6 +309,12 @@ namespace DIMARCore.Repositories.Repository
             }
             await SaveAllAsync();
         }
+        /// <summary>
+        /// crea las limitantes 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private async Task CrateInCascadeLimitante(IList<int> data, int id)
         {
             foreach (int item in data)
@@ -315,7 +330,12 @@ namespace DIMARCore.Repositories.Repository
             }
             await SaveAllAsync();
         }
-
+        /// <summary>
+        /// Crea las Categorias del cargo licencia 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private async Task CrateInCascadeCategoria(IList<int> data, int id)
         {
             foreach (int item in data)
@@ -331,6 +351,75 @@ namespace DIMARCore.Repositories.Repository
             }
             await SaveAllAsync();
         }
+
+        /// <summary>
+        /// metodo para obtener los datos del usuario y de la licencia para la plantilla
+        /// por id de la licencia.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<PlantillaLicenciaDTO> GetPlantillaLicencias(long id)
+        {
+            var query = await (from licencia in _context.GENTEMAR_LICENCIAS
+                               join datosBasicos in _context.GENTEMAR_DATOSBASICOS on licencia.id_gentemar equals datosBasicos.id_gentemar
+                               join archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS on datosBasicos.id_gentemar.ToString() equals archivo.IdModulo
+                                into fo
+                               from subFoto in fo.DefaultIfEmpty()
+                               join ciuExpDoc in _context.TABLA_NAV_BAND on datosBasicos.cod_pais equals ciuExpDoc.cod_pais
+                               join munExpDoc in _context.APLICACIONES_MUNICIPIO on datosBasicos.id_municipio_expedicion equals munExpDoc.ID_MUNICIPIO
+                               join cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA on licencia.id_cargo_licencia equals cargoLicencia.id_cargo_licencia
+                               join actSecLicen in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA on cargoLicencia.id_actividad_seccion_licencia equals actSecLicen.id_actividad_seccion_licencia
+                               join actividad in _context.GENTEMAR_ACTIVIDAD on actSecLicen.id_actividad equals actividad.id_actividad
+                               join tipoLicencia in _context.GENTEMAR_TIPO_LICENCIA on actividad.id_tipo_licencia equals tipoLicencia.id_tipo_licencia
+                               where licencia.id_licencia == id
+                               select new PlantillaLicenciaDTO
+                               {
+                                   TipoLicencia = tipoLicencia,
+                                   Foto = subFoto.RutaArchivo,
+                                   NombreCompleto = datosBasicos.nombres + " " + datosBasicos.apellidos,
+                                   Documento = datosBasicos.documento_identificacion,
+                                   FechaNacimiento = datosBasicos.fecha_nacimiento,
+                                   CiudadExpedicion = munExpDoc.NOMBRE_MUNICIPIO + " " + ciuExpDoc.des_pais,
+                                   FechaExpedicion = licencia.fecha_expedicion,
+                                   FechaVencimiento = licencia.fecha_vencimiento,
+                                   NumeroLicencia = licencia.id_licencia,
+                                   NombreLicencia = cargoLicencia.cargo_licencia,
+                                   Radicado = licencia.radicado,
+                                   Limitantes = (from limitantes in _context.GENTEMAR_LIMITANTE
+                                                 join cargoLimit in _context.GENTEMAR_CARGO_LICENCIA_LIMITANTE on limitantes.id_limitante equals cargoLimit.id_limitante
+                                                 where cargoLimit.id_cargo_licencia == cargoLicencia.id_cargo_licencia
+                                                 select new
+                                                 {
+                                                     limitantes
+                                                 }).Select(x => x.limitantes.descripcion).ToList(),
+                                   Limitacion = (from limitacion in _context.GENTEMAR_LIMITACION
+                                                 join cargolimta in _context.GENTEMAR_CARGO_LIMITACION on limitacion.id_limitacion equals cargolimta.id_limitacion
+                                                 where cargolimta.id_cargo_licencia == cargoLicencia.id_cargo_licencia
+                                                 select new
+                                                 {
+                                                     limitacion
+                                                 }).Select(x => x.limitacion.limitaciones).ToList(),
+                                   CapitaniaFirmante = (from capitanias in _context.APLICACIONES_CAPITANIAS
+                                                        where capitanias.ID_CAPITANIA == licencia.id_capitania_firmante
+                                                        select new
+                                                        {
+                                                            capitanias
+                                                        }).Select(x => x.capitanias.DESCRIPCION).FirstOrDefault(),
+                                   ActividadLicencia = actividad,
+                                   Naves = (from licNav in _context.GENTEMAR_LICENCIA_NAVES
+                                            join naves in _context.TABLA_NAVES_BASE on licNav.identi equals naves.identi
+                                            where licNav.id_licencia == licencia.id_licencia
+                                            select new NavesImpDocDTO
+                                            {
+                                                NombreNave = naves.nom_naves,
+                                                MatriculaNave = naves.identi
+                                            }).ToList()
+
+                               }).FirstOrDefaultAsync();
+
+            return query;
+        }
+
 
     }
 }

@@ -41,7 +41,7 @@ namespace DIMARCore.Repositories.Repository
             }
         }
         /// <summary>
-        /// Metodo para obtener datos basicos filtados por id 
+        /// Metodo para obtener las observaciones datos basicos filtrados por id gente de mar
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -55,7 +55,7 @@ namespace DIMARCore.Repositories.Repository
                                    IdTablaRelacion = observaciones.id_gentemar,
                                    Observacion = observaciones.observacion,
                                    FechaHoraCreacion = observaciones.fecha_hora_creacion,
-                                   ArchivoBase = new ArchivoBase()
+                                   ArchivoBase = new ArchivoBaseDTO()
                                    {
                                        RutaArchivo = observaciones.ruta_archivo != string.Empty || observaciones.ruta_archivo != null
                                        ? (from archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS

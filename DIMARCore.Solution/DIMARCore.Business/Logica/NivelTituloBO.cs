@@ -3,10 +3,9 @@ using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
     public class NivelTituloBO : IGenericCRUD<GENTEMAR_NIVEL, int>

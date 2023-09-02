@@ -22,6 +22,22 @@ namespace DIMARCore.Utilities.Helpers
             return pResponse;
         }
 
+        public static Respuesta SetBadRequestResponse(string Mensaje, Object pData = null)
+        {
+            Respuesta pResponse = new Respuesta();
+            pResponse.StatusCode = HttpStatusCode.BadRequest;
+            pResponse.Mensaje = Mensaje;
+            pResponse.MensajeIngles = "Bad Request.";
+            if (pData != null && !String.IsNullOrEmpty(pData.ToString()))
+            {
+                pResponse.Data = pData;
+            }
+            pResponse.Estado = false;
+            string json = JsonConvert.SerializeObject(pResponse);
+            _logger.Error(json);
+            return pResponse;
+        }
+
         public static Respuesta SetInternalServerErrorResponse(Exception exception, string mensaje = "Internal Server Error")
         {
             Respuesta pResponse = new Respuesta();
@@ -36,11 +52,11 @@ namespace DIMARCore.Utilities.Helpers
             return pResponse;
         }
 
-        public static Respuesta SetCreatedResponse(Object pData = null)
+        public static Respuesta SetCreatedResponse(Object pData = null, string mensaje = "Se ha creado satisfactoriamente.")
         {
             Respuesta pResponse = new Respuesta();
             pResponse.StatusCode = HttpStatusCode.Accepted;
-            pResponse.Mensaje = "Se ha creado satisfactoriamente.";
+            pResponse.Mensaje = mensaje;
             pResponse.MensajeIngles = "Successfully created.";
             if (pData != null && !String.IsNullOrEmpty(pData.ToString()))
             {

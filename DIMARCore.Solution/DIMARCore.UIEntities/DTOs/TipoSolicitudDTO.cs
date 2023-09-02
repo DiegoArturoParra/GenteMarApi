@@ -1,11 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DIMARCore.UIEntities.DTOs
+﻿namespace DIMARCore.UIEntities.DTOs
 {
-    public class TipoSolicitudDTO
+    public class TipoSolicitudDTO : CamposTablasMaestrasDTO
     {
-        public int Id { get; set; }
-        [Required(ErrorMessage = "Descripcion Requerida.")]
-        public string Descripcion { get; set; }
+
     }
 }

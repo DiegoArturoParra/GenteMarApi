@@ -2,6 +2,7 @@
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
+using DIMARCore.Utilities.Middleware;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

@@ -17,7 +17,6 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// <summary>
     /// servicios para los cargos de titulos
     /// <Autor>Diego Parra</Autor>  
-    /// 
     /// <Fecha>2022/02/26</Fecha>
     /// </summary>
     [EnableCors("*", "*", "*")]

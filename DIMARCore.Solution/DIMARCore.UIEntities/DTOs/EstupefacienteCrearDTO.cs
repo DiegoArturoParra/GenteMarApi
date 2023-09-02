@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DIMARCore.Utilities.Core.ValidAttributes;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace DIMARCore.UIEntities.DTOs
@@ -26,6 +27,8 @@ namespace DIMARCore.UIEntities.DTOs
         public string Nombres { get; set; }
         public string Apellidos { get; set; }
         public string Identificacion { get; set; }
+        [DataType(DataType.Date)]
+        [MinAge(15)]
         public DateTime FechaNacimiento { get; set; }
         public int TipoDocumentoId { get; set; }
     }

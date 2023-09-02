@@ -7,12 +7,14 @@ namespace DIMARCore.Utilities.Seguridad
 {
     public class SecurityEncrypt
     {
+
+        #region Encriptacion con un saltHash
         /// <summary>
         /// Encrypt a string.
         /// </summary>
         /// <param name="plainText">String to be encrypted</param>
         /// <param name="password">Password</param>
-        public static string Encrypt(string plainText, string password)
+        public static string EncryptWithSaltHash(string plainText, string password)
         {
             if (plainText == null)
             {
@@ -31,7 +33,7 @@ namespace DIMARCore.Utilities.Seguridad
             // Hash the password with SHA256
             passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
 
-            var bytesEncrypted = SecurityEncrypt.Encrypt(bytesToBeEncrypted, passwordBytes);
+            var bytesEncrypted = EncryptWithSaltHash(bytesToBeEncrypted, passwordBytes);
 
             return Convert.ToBase64String(bytesEncrypted);
         }
@@ -41,8 +43,8 @@ namespace DIMARCore.Utilities.Seguridad
         /// </summary>
         /// <param name="encryptedText">String to be decrypted</param>
         /// <param name="password">Password used during encryption</param>
-        /// <exception cref="FormatException"></exception>
-        public static string Decrypt(string encryptedText, string password)
+        /// <returns></returns>
+        public static string DecryptWithSaltHash(string encryptedText, string password)
         {
             if (encryptedText == null)
             {
@@ -63,12 +65,12 @@ namespace DIMARCore.Utilities.Seguridad
 
             passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
 
-            var bytesDecrypted = SecurityEncrypt.Decrypt(bytesToBeDecrypted, passwordBytes);
+            var bytesDecrypted = DecryptWithSaltHash(bytesToBeDecrypted, passwordBytes);
 
             return Encoding.UTF8.GetString(bytesDecrypted);
         }
 
-        private static byte[] Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
+        private static byte[] EncryptWithSaltHash(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
             byte[] encryptedBytes = null;
 
@@ -102,7 +104,7 @@ namespace DIMARCore.Utilities.Seguridad
             return encryptedBytes;
         }
 
-        private static byte[] Decrypt(byte[] bytesToBeDecrypted, byte[] passwordBytes)
+        private static byte[] DecryptWithSaltHash(byte[] bytesToBeDecrypted, byte[] passwordBytes)
         {
             byte[] decryptedBytes = null;
 
@@ -134,6 +136,18 @@ namespace DIMARCore.Utilities.Seguridad
 
             return decryptedBytes;
         }
+        #endregion
 
+        #region Encriptacion
+        public static string GenerateEncrypt(string plainText)
+        {
+            return Encryption.EncryptDecrypt.Encrypt(plainText);
+        }
+
+        public static string GenerateDecrypt(string plainText)
+        {
+            return Encryption.EncryptDecrypt.Decrypt(plainText);
+        }
+        #endregion
     }
 }

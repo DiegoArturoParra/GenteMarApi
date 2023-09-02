@@ -1,5 +1,6 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using GenteMarCore.Entities.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,28 +15,22 @@ namespace DIMARCore.Repositories.Repository
         {
             var query = (from titulo in _context.GENTEMAR_TITULOS
                          join usuario in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals usuario.id_gentemar
-                         join cargoRegla in _context.GENTEMAR_REGLAS_CARGO on titulo.id_cargo_regla equals cargoRegla.id_cargo_regla
-                         join reglas in _context.GENTEMAR_REGLAS on cargoRegla.id_regla equals reglas.id_regla
-                         join cargoTitulo in _context.GENTEMAR_CARGO_TITULO on cargoRegla.id_cargo_titulo equals cargoTitulo.id_cargo_titulo
                          join capitaniaFirma in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania equals capitaniaFirma.ID_CAPITANIA
                          join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania_firmante equals capitaniaFirmante.ID_CAPITANIA
                          join pais in _context.TABLA_NAV_BAND on titulo.cod_pais equals pais.cod_pais
                          join tramite in _context.APLICACIONES_ESTADO_TRAMITE on titulo.id_estado_tramite equals tramite.id_estado_tramite
                          join solicitud in _context.APLICACIONES_TIPO_SOLICITUD on titulo.id_tipo_solicitud equals solicitud.ID_TIPO_SOLICITUD
-                         join nivel in _context.GENTEMAR_NIVEL on cargoRegla.id_nivel equals nivel.id_nivel
+
                          select new
                          {
                              titulo,
                              usuario,
-                             cargoRegla,
-                             cargoTitulo,
                              pais,
                              tramite,
                              capitaniaFirma,
                              capitaniaFirmante,
                              solicitud,
-                             reglas,
-                             nivel,
+
                          });
 
             if (!string.IsNullOrWhiteSpace(Identificacion))
@@ -51,16 +46,32 @@ namespace DIMARCore.Repositories.Repository
                 FechaExpedicion = m.titulo.fecha_expedicion,
                 NombreUsuario = m.usuario.nombres + " " + m.usuario.apellidos,
                 DocumentoIdentificacion = m.usuario.documento_identificacion,
-                CargoTitulo = m.cargoTitulo.cargo,
                 CapitaniaFirma = m.capitaniaFirma.SIGLA_CAPITANIA + " " + m.capitaniaFirma.DESCRIPCION,
                 CapitaniaFirmante = m.capitaniaFirmante.SIGLA_CAPITANIA + " " + m.capitaniaFirmante.DESCRIPCION,
                 Solicitud = m.solicitud.DESCRIPCION,
-                Nivel = m.nivel.nivel,
-                Regla = m.reglas.Regla,
                 EstadoTramite = m.tramite.descripcion_tramite,
                 FechaVencimiento = m.titulo.fecha_vencimiento,
                 Id = m.titulo.id_titulo,
-                Radicado = m.titulo.radicado
+                Radicado = m.titulo.radicado,
+                Cargos = (from tituloCargoRegla in _context.GENTEMAR_TITULO_REGLA_CARGOS
+                          join reglaCargo in _context.GENTEMAR_REGLAS_CARGO on tituloCargoRegla.id_cargo_regla equals reglaCargo.id_cargo_regla
+                          join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla equals regla.id_regla
+                          join cargo in _context.GENTEMAR_CARGO_TITULO on reglaCargo.id_cargo_titulo equals cargo.id_cargo_titulo
+                          join nivel in _context.GENTEMAR_NIVEL on reglaCargo.id_nivel equals nivel.id_nivel
+                          where tituloCargoRegla.id_titulo == m.titulo.id_titulo && tituloCargoRegla.es_eliminado == false
+                          select new
+                          {
+                              tituloCargoRegla,
+                              reglaCargo,
+                              regla,
+                              cargo,
+                              nivel
+                          }).Select(c => new InfoCargosDTO
+                          {
+                              Nivel = c.nivel.nivel,
+                              CargoTitulo = c.cargo.cargo,
+                              Regla = c.regla.nombre_regla
+                          }).ToList()
             });
             return listado;
         }
@@ -69,7 +80,7 @@ namespace DIMARCore.Repositories.Repository
         {
             using (_context)
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                using (var transaction = _context.Database.BeginTransaction())
                 {
                     try
                     {
@@ -87,76 +98,94 @@ namespace DIMARCore.Repositories.Repository
                                 _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                             }
                         }
-                        if (datos.HabilitacionesId.Count > 0)
+
+                        foreach (var cargo in datos.Cargos)
                         {
-                            foreach (var item in datos.HabilitacionesId)
+                            var jsons = GetJsonHabilitacionesyFuncionesDeUnCargo(cargo.FuncionesId, cargo.HabilitacionesId);
+
+                            GENTEMAR_TITULO_REGLA_CARGOS tituloCargoRegla = new GENTEMAR_TITULO_REGLA_CARGOS
                             {
-                                GENTEMAR_TITULO_HABILITACION habiltacionByTitulo = new GENTEMAR_TITULO_HABILITACION
-                                {
-                                    id_habilitacion = item,
-                                    id_titulo = datos.id_titulo
-                                };
-                                _context.GENTEMAR_TITULO_HABILITACION.Add(habiltacionByTitulo);
-                            }
-                        }
-                        if (datos.FuncionesId.Count > 0)
-                        {
-                            foreach (var item in datos.FuncionesId)
-                            {
-                                GENTEMAR_TITULO_FUNCION funcionByTitulo = new GENTEMAR_TITULO_FUNCION
-                                {
-                                    id_funcion = item,
-                                    id_titulo = datos.id_titulo
-                                };
-                                _context.GENTEMAR_TITULO_FUNCION.Add(funcionByTitulo);
-                            }
+                                id_titulo = datos.id_titulo,
+                                es_eliminado = false,
+                                id_cargo_regla = cargo.CargoReglaId,
+                                habilitaciones_json = jsons.jsonHabilitaciones,
+                                funciones_json = jsons.jsonFunciones,
+                            };
+                            _context.GENTEMAR_TITULO_REGLA_CARGOS.Add(tituloCargoRegla);
+                            await SaveAllAsync();
+                            await AgregarHabiltacionesyFuncionesDeUnCargo(tituloCargoRegla.id_titulo_cargo_regla, cargo.HabilitacionesId, cargo.FuncionesId);
                         }
                         await SaveAllAsync();
-                        trassaction.Commit();
+                        transaction.Commit();
                     }
                     catch (Exception ex)
                     {
-                        trassaction.Rollback();
+                        transaction.Rollback();
                         ObtenerException(ex, datos);
                     }
                 }
             }
         }
+
+        private (string jsonHabilitaciones, string jsonFunciones) GetJsonHabilitacionesyFuncionesDeUnCargo(List<int> funcionesId, List<int> habilitacionesId)
+        {
+            var dataHabilitaciones = (from habilitacion in _context.GENTEMAR_HABILITACION
+                                      join habilitacionId in habilitacionesId on habilitacion.id_habilitacion equals habilitacionId
+                                      select new HabilitacionCargoDTO
+                                      {
+                                          HabilitacionId = habilitacion.id_habilitacion,
+                                          Descripcion = habilitacion.habilitacion
+                                      }).ToList();
+            var dataFunciones = (from funcion in _context.GENTEMAR_FUNCIONES
+                                 join funcionId in funcionesId on funcion.id_funcion equals funcionId
+                                 select new FuncionCargoDTO
+                                 {
+                                     FuncionId = funcion.id_funcion,
+                                     Descripcion = funcion.funcion,
+                                     Limitacion = funcion.limitacion_funcion
+                                 }).ToList();
+
+            return (JsonConvert.SerializeObject(dataHabilitaciones), JsonConvert.SerializeObject(dataFunciones));
+        }
+
         public async Task ActualizarTitulo(GENTEMAR_TITULOS datos, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
             using (_context)
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                using (var transaction = _context.Database.BeginTransaction())
                 {
                     try
                     {
                         datos.Observacion.id_titulo = datos.id_titulo;
                         _context.GENTEMAR_OBSERVACIONES_TITULOS.Add(datos.Observacion);
                         await SaveAllAsync();
-                        _context.GENTEMAR_TITULO_HABILITACION.RemoveRange(_context.GENTEMAR_TITULO_HABILITACION.Where(x => x.id_titulo == datos.id_titulo));
-                        _context.GENTEMAR_TITULO_FUNCION.RemoveRange(_context.GENTEMAR_TITULO_FUNCION.Where(x => x.id_titulo == datos.id_titulo));
-                        if (datos.HabilitacionesId.Count > 0)
+                        var cargos = await _context.GENTEMAR_TITULO_REGLA_CARGOS.Where(x => x.id_titulo == datos.id_titulo && x.es_eliminado == false).ToListAsync();
+                        foreach (var cargo in datos.Cargos)
                         {
-                            foreach (var item in datos.HabilitacionesId)
+                            if (!cargos.Any(y => y.id_cargo_regla == cargo.CargoReglaId) && cargo.TituloCargoReglaId == 0)
                             {
-                                GENTEMAR_TITULO_HABILITACION habiltacionByTitulo = new GENTEMAR_TITULO_HABILITACION
+                                var jsons = GetJsonHabilitacionesyFuncionesDeUnCargo(cargo.FuncionesId, cargo.HabilitacionesId);
+                                GENTEMAR_TITULO_REGLA_CARGOS tituloCargoRegla = new GENTEMAR_TITULO_REGLA_CARGOS
                                 {
-                                    id_habilitacion = item,
-                                    id_titulo = datos.id_titulo
+                                    id_titulo = datos.id_titulo,
+                                    es_eliminado = false,
+                                    id_cargo_regla = cargo.CargoReglaId,
+                                    habilitaciones_json = jsons.jsonHabilitaciones,
+                                    funciones_json = jsons.jsonFunciones,
                                 };
-                                _context.GENTEMAR_TITULO_HABILITACION.Add(habiltacionByTitulo);
+                                _context.GENTEMAR_TITULO_REGLA_CARGOS.Add(tituloCargoRegla);
+                                await SaveAllAsync();
+                                await AgregarHabiltacionesyFuncionesDeUnCargo(tituloCargoRegla.id_titulo_cargo_regla, cargo.HabilitacionesId, cargo.FuncionesId);
                             }
-                        }
-                        if (datos.FuncionesId.Count > 0)
-                        {
-                            foreach (var item in datos.FuncionesId)
+                            else
                             {
-                                GENTEMAR_TITULO_FUNCION funcionByTitulo = new GENTEMAR_TITULO_FUNCION
-                                {
-                                    id_funcion = item,
-                                    id_titulo = datos.id_titulo
-                                };
-                                _context.GENTEMAR_TITULO_FUNCION.Add(funcionByTitulo);
+                                var TitulocargoRegla = cargos.FirstOrDefault(x => x.id_titulo_cargo_regla == cargo.TituloCargoReglaId);
+                                var jsons = GetJsonHabilitacionesyFuncionesDeUnCargo(cargo.FuncionesId, cargo.HabilitacionesId);
+                                TitulocargoRegla.habilitaciones_json = jsons.jsonHabilitaciones;
+                                TitulocargoRegla.funciones_json = jsons.jsonFunciones;
+                                TitulocargoRegla.id_cargo_regla = cargo.CargoReglaId;
+                                await SaveAllAsync();
+                                await AgregarHabiltacionesyFuncionesDeUnCargo(TitulocargoRegla.id_titulo_cargo_regla, cargo.HabilitacionesId, cargo.FuncionesId, true);
                             }
                         }
                         if (repositorio != null)
@@ -168,97 +197,159 @@ namespace DIMARCore.Repositories.Repository
                         }
 
                         await Update(datos);
-                        trassaction.Commit();
+                        transaction.Commit();
                     }
                     catch (Exception ex)
                     {
-                        trassaction.Rollback();
+                        transaction.Rollback();
                         ObtenerException(ex, datos);
                     }
                 }
             }
         }
+
+        private async Task AgregarHabiltacionesyFuncionesDeUnCargo(long tituloCargoReglaId, List<int> habilitacionesId, List<int> funcionesId, bool IsEdit = false)
+        {
+            if (IsEdit)
+            {
+                var dataHabilitaciones = await _context.GENTEMAR_TITULO_CARGO_HABILITACION
+                    .Where(x => x.id_titulo_cargo_regla == tituloCargoReglaId).ToListAsync();
+
+                var dataFunciones = await _context.GENTEMAR_TITULO_CARGO_FUNCION
+                    .Where(x => x.id_titulo_cargo_regla == tituloCargoReglaId).ToListAsync();
+
+                if (dataHabilitaciones.Any())
+                {
+                    _context.GENTEMAR_TITULO_CARGO_HABILITACION.RemoveRange(dataHabilitaciones);
+                }
+                if (dataFunciones.Any())
+                {
+                    _context.GENTEMAR_TITULO_CARGO_FUNCION.RemoveRange(dataFunciones);
+                }
+            }
+            if (habilitacionesId.Any())
+            {
+                foreach (var habilitacion in habilitacionesId)
+                {
+                    GENTEMAR_TITULO_CARGO_HABILITACION tituloCargoHabilitacion = new GENTEMAR_TITULO_CARGO_HABILITACION
+                    {
+                        id_habilitacion = habilitacion,
+                        id_titulo_cargo_regla = tituloCargoReglaId
+                    };
+                    _context.GENTEMAR_TITULO_CARGO_HABILITACION.Add(tituloCargoHabilitacion);
+                }
+
+            }
+            if (funcionesId.Any())
+            {
+                foreach (var funcion in funcionesId)
+                {
+                    GENTEMAR_TITULO_CARGO_FUNCION tituloCargoFuncion = new GENTEMAR_TITULO_CARGO_FUNCION
+                    {
+                        id_funcion = funcion,
+                        id_titulo_cargo_regla = tituloCargoReglaId
+                    };
+                    _context.GENTEMAR_TITULO_CARGO_FUNCION.Add(tituloCargoFuncion);
+                }
+            }
+        }
+
         public async Task<InfoTituloDTO> GetTituloById(long id)
         {
             var query = (from titulo in _context.GENTEMAR_TITULOS
                          join usuario in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals usuario.id_gentemar
-                         join cargoRegla in _context.GENTEMAR_REGLAS_CARGO on titulo.id_cargo_regla equals cargoRegla.id_cargo_regla
-                         join regla in _context.GENTEMAR_REGLAS on cargoRegla.id_regla equals regla.id_regla
-                         join capacidad in _context.GENTEMAR_CAPACIDAD on cargoRegla.id_capacidad equals capacidad.id_capacidad
-                         join cargoTitulo in _context.GENTEMAR_CARGO_TITULO on cargoRegla.id_cargo_titulo equals cargoTitulo.id_cargo_titulo
-                         join seccion in _context.GENTEMAR_SECCION_TITULOS on cargoTitulo.id_seccion equals seccion.id_seccion
                          join capitaniaFirma in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania equals capitaniaFirma.ID_CAPITANIA
                          join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania_firmante equals capitaniaFirmante.ID_CAPITANIA
                          join pais in _context.TABLA_NAV_BAND on titulo.cod_pais equals pais.cod_pais
                          join tramite in _context.APLICACIONES_ESTADO_TRAMITE on titulo.id_estado_tramite equals tramite.id_estado_tramite
                          join solicitud in _context.APLICACIONES_TIPO_SOLICITUD on titulo.id_tipo_solicitud equals solicitud.ID_TIPO_SOLICITUD
-                         join nivel in _context.GENTEMAR_NIVEL on cargoRegla.id_nivel equals nivel.id_nivel
+                         join refrendo in _context.APLICACIONES_TIPO_REFRENDO on titulo.id_tipo_refrendo equals refrendo.ID_TIPO_CERTIFICADO
                          where titulo.id_titulo == id
                          select new
                          {
                              titulo,
                              usuario,
-                             cargoRegla,
-                             cargoTitulo,
-                             seccion,
                              pais,
                              tramite,
                              capitaniaFirma,
                              capitaniaFirmante,
                              solicitud,
-                             regla,
-                             nivel,
-                             capacidad
+                             refrendo
                          });
 
 
-            var listado = await query.OrderBy(x => x.titulo.id_titulo).Select(m => new InfoTituloDTO
+            var tituloNavegacion = await query.OrderBy(x => x.titulo.id_titulo).Select(m => new InfoTituloDTO
             {
                 TituloId = m.titulo.id_titulo,
                 FechaExpedicion = m.titulo.fecha_expedicion,
                 NombreUsuario = m.usuario.nombres + " " + m.usuario.apellidos,
                 DocumentoIdentificacion = m.usuario.documento_identificacion,
-                CargoTitulo = m.cargoTitulo.cargo,
-                CargoId = m.cargoTitulo.id_cargo_titulo,
                 CapitaniaFirmanteId = m.capitaniaFirmante.ID_CAPITANIA,
                 EstadoTramiteId = m.tramite.id_estado_tramite,
-                ReglaId = m.regla.id_regla,
-                SeccionId = m.seccion.id_seccion,
                 TipoSolicitudId = m.solicitud.ID_TIPO_SOLICITUD,
                 CapitaniaFirma = m.capitaniaFirma.SIGLA_CAPITANIA + " " + m.capitaniaFirma.DESCRIPCION,
                 CapitaniaFirmante = m.capitaniaFirmante.SIGLA_CAPITANIA + " " + m.capitaniaFirmante.DESCRIPCION,
                 Solicitud = m.solicitud.DESCRIPCION,
-                Nivel = m.nivel.nivel,
                 Pais = m.pais.cod_pais + " " + m.pais.des_pais,
                 Tramite = m.tramite.descripcion_tramite,
                 FechaVencimiento = m.titulo.fecha_vencimiento,
                 Radicado = m.titulo.radicado,
-                Seccion = m.seccion.actividad_a_bordo,
-                Habilitaciones = (from tituloHabilitacion in _context.GENTEMAR_TITULO_HABILITACION
-                                  join habilitacion in _context.GENTEMAR_HABILITACION on tituloHabilitacion.id_habilitacion
-                                  equals habilitacion.id_habilitacion
-                                  where tituloHabilitacion.id_titulo == id
-                                  select new HabilitacionInfoDTO
-                                  {
-                                      Id = habilitacion.id_habilitacion,
-                                      Descripcion = habilitacion.habilitacion
-                                  }).ToList(),
-                Regla = m.regla.Regla,
-                Capacidad = m.capacidad.capacidad,
-                CapacidadId = m.capacidad.id_capacidad,
-                Funciones = (from tituloFuncion in _context.GENTEMAR_TITULO_FUNCION
-                             join funcion in _context.GENTEMAR_FUNCIONES on tituloFuncion.id_funcion equals funcion.id_funcion
-                             where tituloFuncion.id_titulo == m.titulo.id_titulo
-                             select new FuncionesTituloDTO
-                             {
-                                 Id = funcion.id_funcion,
-                                 Descripcion = funcion.funcion,
-                                 Limitacion = funcion.limitacion_funcion == string.Empty ? "Ninguna" : funcion.limitacion_funcion
-                             }).ToList(),
+                TipoRefrendoId = m.refrendo.ID_TIPO_CERTIFICADO,
+                Cargos = (from tituloCargoRegla in _context.GENTEMAR_TITULO_REGLA_CARGOS
+                          join reglaCargo in _context.GENTEMAR_REGLAS_CARGO on tituloCargoRegla.id_cargo_regla equals reglaCargo.id_cargo_regla
+                          join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla equals regla.id_regla
+                          join cargo in _context.GENTEMAR_CARGO_TITULO on reglaCargo.id_cargo_titulo equals cargo.id_cargo_titulo
+                          join seccion in _context.GENTEMAR_SECCION_TITULOS on cargo.id_seccion equals seccion.id_seccion
+                          join capacidad in _context.GENTEMAR_CAPACIDAD on reglaCargo.id_capacidad equals capacidad.id_capacidad
+                          join nivel in _context.GENTEMAR_NIVEL on reglaCargo.id_nivel equals nivel.id_nivel
+                          where tituloCargoRegla.id_titulo == id && tituloCargoRegla.es_eliminado == false
+                          select new
+                          {
+                              tituloCargoRegla,
+                              reglaCargo,
+                              regla,
+                              cargo,
+                              seccion,
+                              capacidad,
+                              nivel
 
+                          }).Select(c => new ListarCargosTituloDTO
+                          {
+                              TituloCargoReglaId = c.tituloCargoRegla.id_titulo_cargo_regla,
+                              ReglaCargoId = c.tituloCargoRegla.id_cargo_regla,
+                              CapacidadId = c.capacidad.id_capacidad,
+                              Capacidad = c.capacidad.capacidad,
+                              Nivel = c.nivel.nivel,
+                              NivelId = c.nivel.id_nivel,
+                              CargoId = c.cargo.id_cargo_titulo,
+                              CargoTitulo = c.cargo.cargo,
+                              SeccionId = c.seccion.id_seccion,
+                              Seccion = c.seccion.actividad_a_bordo,
+                              ReglaId = c.regla.id_regla,
+                              Regla = c.regla.nombre_regla,
+                              HabilitacionesJson = c.tituloCargoRegla.habilitaciones_json,
+                              FuncionesJson = c.tituloCargoRegla.funciones_json,
+                              Habilitaciones = (from tituloHabilitacion in _context.GENTEMAR_TITULO_CARGO_HABILITACION
+                                                join habilitacion in _context.GENTEMAR_HABILITACION on tituloHabilitacion.id_habilitacion
+                                                equals habilitacion.id_habilitacion
+                                                where tituloHabilitacion.id_titulo_cargo_regla == c.tituloCargoRegla.id_titulo_cargo_regla
+                                                select new HabilitacionCargoDTO
+                                                {
+                                                    HabilitacionId = habilitacion.id_habilitacion,
+                                                    Descripcion = habilitacion.habilitacion
+                                                }).ToList(),
+                              Funciones = (from tituloFuncion in _context.GENTEMAR_TITULO_CARGO_FUNCION
+                                           join funcion in _context.GENTEMAR_FUNCIONES on tituloFuncion.id_funcion equals funcion.id_funcion
+                                           where tituloFuncion.id_titulo_cargo_regla == c.tituloCargoRegla.id_titulo_cargo_regla
+                                           select new FuncionCargoDTO
+                                           {
+                                               FuncionId = funcion.id_funcion,
+                                               Descripcion = funcion.funcion,
+                                               Limitacion = funcion.limitacion_funcion
+                                           }).ToList()
+                          }).ToList()
             }).FirstOrDefaultAsync();
-
-            return listado;
+            return tituloNavegacion;
         }
 
         public async Task<(FechasDTO fechas, bool HayTitulosPorSeccionPuente)> GetFechasRadioOperadores(long idGenteMar)
@@ -271,7 +362,8 @@ namespace DIMARCore.Repositories.Repository
             if (idSeccionPuente > 0)
             {
                 fechas = await (from titulo in _context.GENTEMAR_TITULOS
-                                join cargoRegla in _context.GENTEMAR_REGLAS_CARGO on titulo.id_cargo_regla equals cargoRegla.id_cargo_regla
+                                join tituloReglaCargo in _context.GENTEMAR_TITULO_REGLA_CARGOS on titulo.id_titulo equals tituloReglaCargo.id_titulo
+                                join cargoRegla in _context.GENTEMAR_REGLAS_CARGO on tituloReglaCargo.id_cargo_regla equals cargoRegla.id_cargo_regla
                                 join cargoTitulo in _context.GENTEMAR_CARGO_TITULO on cargoRegla.id_cargo_titulo equals cargoTitulo.id_cargo_titulo
                                 join seccion in _context.GENTEMAR_SECCION_TITULOS on cargoTitulo.id_seccion equals seccion.id_seccion
                                 where titulo.id_gentemar == idGenteMar && seccion.id_seccion == idSeccionPuente
@@ -299,5 +391,79 @@ namespace DIMARCore.Repositories.Repository
         {
             return await FiltroTitulos(identificacion, id).ToListAsync();
         }
+
+
+        /// <summary>
+        /// metodo para obtener los datos del usuario y del titulo para la plantilla
+        /// por id de la licencia.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<PlantillaTituloDTO> GetPlantillaTitulo(long id)
+        {
+            var query = await (from titulo in _context.GENTEMAR_TITULOS
+                               join datosBasicos in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals datosBasicos.id_gentemar
+                               join archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS on datosBasicos.id_gentemar.ToString() equals archivo.IdModulo
+                                into fo
+                               from subFoto in fo.DefaultIfEmpty()
+                               join ciuExpDoc in _context.TABLA_NAV_BAND on datosBasicos.cod_pais equals ciuExpDoc.cod_pais
+                               join munExpDoc in _context.APLICACIONES_MUNICIPIO on datosBasicos.id_municipio_expedicion equals munExpDoc.ID_MUNICIPIO
+                               join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania_firmante equals capitaniaFirmante.ID_CAPITANIA
+
+
+                               select new PlantillaTituloDTO
+                               {
+                                   Foto = subFoto.RutaArchivo,
+                                   NombreCompleto = datosBasicos.nombres + " " + datosBasicos.apellidos,
+                                   Documento = datosBasicos.documento_identificacion,
+                                   FechaNacimiento = datosBasicos.fecha_nacimiento,
+                                   CiudadExpedicion = munExpDoc.NOMBRE_MUNICIPIO + " " + ciuExpDoc.des_pais,
+                                   FechaExpedicion = titulo.fecha_expedicion,
+                                   FechaVencimiento = titulo.fecha_vencimiento,
+                                   NumeroTitulo = titulo.id_titulo,
+                                   Radicado = titulo.radicado,
+                                   CapitaniaFirmante = capitaniaFirmante.DESCRIPCION,
+                                   Reglas = (from tituloReglaCargos in _context.GENTEMAR_TITULO_REGLA_CARGOS
+                                             join reglaCargo in _context.GENTEMAR_REGLAS_CARGO on tituloReglaCargos.id_cargo_regla equals reglaCargo.id_cargo_regla
+                                             join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla equals regla.id_regla
+                                             where tituloReglaCargos.id_titulo == titulo.id_titulo && tituloReglaCargos.es_eliminado == false
+                                             select new
+                                             {
+                                                 regla
+                                             }).Select(x => x.regla.nombre_regla).ToList(),
+                                   Funcion = (from funciones in _context.GENTEMAR_FUNCIONES
+                                              join reglaFuncion in _context.GENTEMAR_REGLA_FUNCION on funciones.id_funcion equals reglaFuncion.id_funcion
+                                              join regla in _context.GENTEMAR_REGLAS on reglaFuncion.id_regla equals regla.id_regla
+                                              join reglaCargo in _context.GENTEMAR_REGLAS_CARGO on regla.id_regla equals reglaCargo.id_regla
+                                              join tituloReglaCargo in _context.GENTEMAR_TITULO_REGLA_CARGOS on reglaCargo.id_cargo_regla equals tituloReglaCargo.id_cargo_regla
+                                              where tituloReglaCargo.id_titulo == titulo.id_titulo && tituloReglaCargo.es_eliminado == false
+                                              group new { funciones, reglaCargo } by new { funciones.id_funcion, reglaCargo.id_nivel } into grupo
+                                              select new
+                                              {
+                                                  Descripcion = grupo.FirstOrDefault().funciones.funcion,
+                                                  Nivel = (from nivel in _context.GENTEMAR_NIVEL
+                                                           where nivel.id_nivel == grupo.FirstOrDefault().reglaCargo.id_nivel
+                                                           select nivel.nivel).FirstOrDefault(),
+                                                  Limitacion = grupo.FirstOrDefault().funciones.limitacion_funcion
+                                              }).ToList(),
+                                   Cargo = (from cargo in _context.GENTEMAR_CARGO_TITULO
+                                            join reglaCargo in _context.GENTEMAR_REGLAS_CARGO on cargo.id_cargo_titulo equals reglaCargo.id_cargo_titulo
+                                            join tituloReglaCargo in _context.GENTEMAR_TITULO_REGLA_CARGOS on reglaCargo.id_cargo_regla equals tituloReglaCargo.id_cargo_regla
+                                            where tituloReglaCargo.id_titulo == titulo.id_titulo && tituloReglaCargo.es_eliminado == false
+                                            select new
+                                            {
+                                                Cargo = cargo.cargo,
+                                                Capacidad = (from capacidad in _context.GENTEMAR_CAPACIDAD
+                                                             where capacidad.id_capacidad == reglaCargo.id_capacidad
+                                                             select new
+                                                             {
+                                                                 capacidad
+                                                             }).Select(x => x.capacidad.capacidad).FirstOrDefault()
+                                            }).ToList(),
+                               }).FirstOrDefaultAsync();
+
+            return query;
+        }
+
     }
 }

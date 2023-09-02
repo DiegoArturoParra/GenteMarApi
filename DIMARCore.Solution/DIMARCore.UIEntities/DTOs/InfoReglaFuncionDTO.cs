@@ -6,6 +6,13 @@ namespace DIMARCore.UIEntities.DTOs
     {
         public int ReglaId { get; set; }
         public string Regla { get; set; }
-        public List<InfoDTO> Funciones { get; set; }
+        public List<InfoFuncionDTO> Funciones { get; set; }
+    }
+    public class InfoFuncionDTO
+    {
+        public int TablaIntermediaId { get; set; }
+        public string Descripcion { get; set; }
+        public bool IsActive { get; set; }
+        public int Id { get; set; }
     }
 }

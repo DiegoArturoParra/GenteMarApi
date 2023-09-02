@@ -25,9 +25,9 @@ namespace GenteMarCore.Entities.Models
 
         [StringLength(3)]
         public string cod_pais { get; set; }
-        [Column(TypeName = "Date")]
+
         public DateTime? fecha_expedicion { get; set; }
-        [Column(TypeName = "Date")]
+
         public DateTime? fecha_vencimiento { get; set; }
 
         public string nombres { get; set; }
@@ -35,10 +35,11 @@ namespace GenteMarCore.Entities.Models
         public string apellidos { get; set; }
 
         public int id_genero { get; set; }
-        [Column(TypeName = "Date")]
+
         public DateTime fecha_nacimiento { get; set; }
 
-        public int? id_municipio_nacimiento { get; set; }
+        public int? id_pais_nacimiento { get; set; }
+        public int? id_pais_residencia { get; set; }
 
         [StringLength(100)]
         public string direccion { get; set; }

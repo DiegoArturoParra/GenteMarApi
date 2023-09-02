@@ -1,17 +1,11 @@
-﻿using GenteMarCore.Entities;
-using GenteMarCore.Entities.Models;
-using System;
+﻿using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DIMARCore.Repositories.Repository
 {
     public class LimitanteRepository : GenericRepository<GENTEMAR_LIMITANTE>
     {
-        GenteDeMarCoreContext contexto = new GenteDeMarCoreContext();
-
         /// <summary>
         /// Lista de Limitante
         /// </summary>
@@ -19,20 +13,12 @@ namespace DIMARCore.Repositories.Repository
         /// <tabla>GENTEMAR_LIMITACION</tabla>
         public IList<GENTEMAR_LIMITANTE> GetLimitantes()
         {
-            try
-            {
-                var resultado = (from a in this.contexto.GENTEMAR_LIMITANTE
-                                 select a
-                                 ).OrderBy(p => p.descripcion).ToList();
 
-                //var resultado = contexto.GENTEMAR_LIMITACION.OrderBy(e => e.limitaciones).ToList();
+            var resultado = (from a in this.Table
+                             select a
+                             ).OrderBy(p => p.descripcion).ToList();
+            return resultado;
 
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
 
 
@@ -44,19 +30,13 @@ namespace DIMARCore.Repositories.Repository
         /// <tabla>GENTEMAR_LIMITACION</tabla>
         public GENTEMAR_LIMITANTE GetLimitante(int id)
         {
-            try
-            {
-                var resultado = (from c in this.contexto.GENTEMAR_LIMITANTE
-                                 where c.id_limitante == id
-                                 select c
-                                ).FirstOrDefault();
 
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            var resultado = (from c in this.Table
+                             where c.id_limitante == id
+                             select c
+                            ).FirstOrDefault();
+
+            return resultado;
         }
     }
 }

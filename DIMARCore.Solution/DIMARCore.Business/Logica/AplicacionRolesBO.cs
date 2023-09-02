@@ -1,8 +1,10 @@
 ﻿using DIMARCore.Repositories.Repository;
+using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
     public class AplicacionRolesBO
@@ -20,5 +22,13 @@ namespace DIMARCore.Business.Logica
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay roles asignados a la aplicación de gente de mar."));
             return Responses.SetOkResponse();
         }
+        public async Task<IEnumerable<RolSession>> GetRoles()
+        {
+            using (var repositorio = new AplicacionRolesRepository())
+            {
+                return await repositorio.GetRoles();
+            }
+        }
+
     }
 }

@@ -1,5 +1,4 @@
 ﻿using DIMARCore.UIEntities.DTOs;
-using GenteMarCore.Entities;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -159,7 +158,7 @@ namespace DIMARCore.Repositories.Repository
                     id_seccion = id,
                     id_actividad = item.id_actividad
                 };
-                _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.Add(ActividadSeccion);   
+                _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.Add(ActividadSeccion);
             }
             await SaveAllAsync();
         }

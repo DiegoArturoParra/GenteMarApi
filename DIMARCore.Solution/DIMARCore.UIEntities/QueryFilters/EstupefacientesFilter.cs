@@ -1,11 +1,7 @@
 ﻿using DIMARCore.Utilities.Helpers;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DIMARCore.UIEntities.QueryFilters
 {
@@ -33,6 +29,8 @@ namespace DIMARCore.UIEntities.QueryFilters
         public string Radicado { get; set; }
         public int EstadoId { get; set; }
         public int TramiteId { get; set; }
+        public int ConsolidadoId { get; set; }
+        public int ExpedienteId { get; set; }
         public DateTime? FechaInicial { get; set; }
         public DateTime? FechaFinal { get; set; }
     }

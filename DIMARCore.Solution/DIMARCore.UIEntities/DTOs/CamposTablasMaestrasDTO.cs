@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DIMARCore.UIEntities.DTOs
+﻿namespace DIMARCore.UIEntities.DTOs
 {
     public class CamposTablasMaestrasDTO
     {

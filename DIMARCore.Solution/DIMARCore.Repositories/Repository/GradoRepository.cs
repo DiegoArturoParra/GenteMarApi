@@ -1,5 +1,4 @@
 ﻿using DIMARCore.UIEntities.DTOs;
-using GenteMarCore.Entities;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -107,12 +106,7 @@ namespace DIMARCore.Repositories.Repository
             }
         }
 
-        /// <summary>
-        /// Metodo para crear los grados asociandolo a su formacion
-        /// </summary>
-        /// <param name="entidad"></param>
-        /// <param name="fotografia"></param>
-        /// <returns></returns>
+      
         public async Task actualizarGrados(GradoDTO data)
         {
             var grado = new APLICACIONES_GRADO();

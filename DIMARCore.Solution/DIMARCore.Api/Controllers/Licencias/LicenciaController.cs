@@ -5,8 +5,6 @@ using GenteMarCore.Entities.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -51,7 +49,6 @@ namespace DIMARCore.Api.Controllers.Licencias
         public IHttpActionResult GetlicenciaIdUsuario(int id)
         {
             var licencias = _service.GetlicenciaIdUsuario(id);
-            //var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<LicenciaDTO>>(actividades);
             return Ok(licencias);
         }
 
@@ -75,7 +72,6 @@ namespace DIMARCore.Api.Controllers.Licencias
         public IHttpActionResult GetlicenciaIdView(int id)
         {
             var licencias = _service.GetlicenciaIdView(id);
-            //var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<LicenciaDTO>>(actividades);
             return Ok(licencias);
         }
 
@@ -98,11 +94,8 @@ namespace DIMARCore.Api.Controllers.Licencias
         public IHttpActionResult GetlicenciaId(int id)
         {
             var licencias = _service.GetlicenciaId(id);
-            //var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<LicenciaDTO>>(actividades);
             return Ok(licencias);
         }
-
-
 
         /// <summary>
         /// Servicio para crear una licencia
@@ -111,12 +104,12 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>28/04/2022</Fecha>
         /// </remarks>
-        /// <param name="licencia">objeto para crear una licencia.</param>
+        /// <param>objeto para crear una licencia.</param>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
-        /// <response code="500">In
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
@@ -129,30 +122,17 @@ namespace DIMARCore.Api.Controllers.Licencias
             var format = "dd/MM/yyyy"; // your datetime format
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
             var datos = req["Data"];
-            if (datos != null)
-            {
-                LicenciaDTO Licencia = JsonConvert.DeserializeObject<LicenciaDTO>(datos, dateTimeConverter);
-                if (archivo != null)
-                    Licencia.Observacion.Archivo = archivo;
-                respuesta = ValidarObjeto(Licencia);
-                if (respuesta.Estado)
-                {
-                    var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
-                    respuesta = await new LicenciaBO().CrearLicencia(data, PathActual);
-                }
-            }
-            else
-            {
-                respuesta.StatusCode = HttpStatusCode.BadRequest;
-                respuesta.Mensaje = "Objeto invalido";
-                respuesta.Estado = false;
-            }
+            if (datos == null)
+                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(LicenciaDTO)}, debe enviar los datos correctos."));
 
+            LicenciaDTO Licencia = JsonConvert.DeserializeObject<LicenciaDTO>(datos, dateTimeConverter);
+            if (archivo != null)
+                Licencia.Observacion.Archivo = archivo;
+            ValidateModelAndThrowIfInvalid(datos);
+            var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
+            respuesta = await new LicenciaBO().CrearLicencia(data, PathActual);
             return Ok(respuesta);
         }
-
-
-
 
         /// <summary>
         /// Servicio para crear una licencia
@@ -161,17 +141,16 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>09/08/2022</Fecha>
         /// </remarks>
-        /// <param name="licencia">objeto para modificar una licencia.</param>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
-        /// <response code="500">In
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("modificar")]
-        public async Task<IHttpActionResult> modificarLicencia()
+        public async Task<IHttpActionResult> Editar()
         {
             Respuesta respuesta = new Respuesta();
             var req = HttpContext.Current.Request;
@@ -179,25 +158,15 @@ namespace DIMARCore.Api.Controllers.Licencias
             var format = "dd/MM/yyyy"; // your datetime format
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
             var datos = req["Data"];
-            if (datos != null)
-            {
-                LicenciaDTO Licencia = JsonConvert.DeserializeObject<LicenciaDTO>(datos, dateTimeConverter);
-                if (archivo != null)
-                    Licencia.Observacion.Archivo = archivo;
-                respuesta = ValidarObjeto(Licencia);
-                if (respuesta.Estado)
-                {
-                    var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
-                    respuesta = await _service.ModificarLicencia(data, PathActual);
-                    //respuesta = await new LicenciaBO().CrearLicencia(data, PathActual);
-                }
-            }
-            else
-            {
-                respuesta.StatusCode = HttpStatusCode.BadRequest;
-                respuesta.Mensaje = "Objeto invalido";
-                respuesta.Estado = false;
-            }
+            if (datos == null)
+                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(LicenciaDTO)}, debe enviar los datos correctos."));
+
+            LicenciaDTO Licencia = JsonConvert.DeserializeObject<LicenciaDTO>(datos, dateTimeConverter);
+            if (archivo != null)
+                Licencia.Observacion.Archivo = archivo;
+            ValidateModelAndThrowIfInvalid(datos);
+            var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
+            respuesta = await _service.ModificarLicencia(data, PathActual);
             return Ok(respuesta);
         }
 
@@ -213,7 +182,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
-        /// <response code="500">In
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns>Lista de los id de las licencias actualizadas y el total de registros </returns>
         [ResponseType(typeof(Respuesta))]
         [HttpGet]
@@ -224,7 +193,5 @@ namespace DIMARCore.Api.Controllers.Licencias
 
             return Ok(resultado);
         }
-
-
     }
 }

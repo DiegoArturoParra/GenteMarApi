@@ -93,19 +93,6 @@ namespace DIMARCore.Api.Controllers
         }
     
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("aplicacion/{id}")]
-        [AllowAnonymous]
-        public IHttpActionResult GetAplicacion(int id)
-        {
-            var actividades = new AplicacionBO().GetAplicacion(id);
-            return Ok(actividades);
-        }
-        /// <summary>
         /// Retorna una Actividad dado un Id
         /// </summary>   
         /// <Autor>Camilo Vargas</Autor>
@@ -119,7 +106,6 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(GENTEMAR_ACTIVIDAD))]
         [HttpGet]
         [Route("id")]
-        [AllowAnonymous]
         public async Task<IHttpActionResult> GetActividadAsync(int id)
         {
             var actividad = await new ActividadBO().GetActividad(id);

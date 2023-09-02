@@ -3,6 +3,7 @@ using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web.UI;
 
 namespace DIMARCore.Business.Logica
 {
@@ -54,68 +54,64 @@ namespace DIMARCore.Business.Logica
 
             using (var repo = new LicenciaRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.radicado == data.radicado);
-                if (validate == null)
-                {
-                    //completa la informacion de la licencia
-                    var claimCapitania = ClaimsHelper.ObtenerCapitaniaUsuario();
-                    data.id_capitania = claimCapitania;
-                    data.id_estado_licencia = (int)EnumEstados.PROCESO;
-                    data.activo = Constantes.ACTIVO;
+                var validate = await repo.AnyWithCondition(x => x.radicado == data.radicado);
+                if (validate)
+                    throw new HttpStatusCodeException(HttpStatusCode.Conflict, "Ya se encuentra registrado el radicado.");
+                //completa la informacion de la licencia
+                var claimCapitania = ClaimsHelper.GetCapitaniaUsuario();
+                data.id_capitania = claimCapitania;
+                data.id_estado_licencia = (int)EstadosTituloLicenciaEnum.PROCESO;
+                data.activo = Constantes.ACTIVO;
 
-                    if (data.Observacion != null)
+                if (data.Observacion == null && !data.ListaNaves.Any())
+                {
+                    await repo.Create(data);
+                    return Responses.SetCreatedResponse(data);
+                }
+
+                if (data.Observacion == null && data.ListaNaves.Any())
+                {
+                    await repo.CrearLicencia(data);
+                    return Responses.SetCreatedResponse(data);
+                }
+                if (data.Observacion != null && data.Observacion.Archivo != null)
+                {
+                    string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
+                    respuesta = Reutilizables.GuardarArchivo(data.Observacion.Archivo, rutaInicial, path);
+
+                    if (!respuesta.Estado)
+                        throw new HttpStatusCodeException(respuesta);
+
+                    var archivo = (Archivo)respuesta.Data;
+                    if (archivo != null)
                     {
-                        if (data.Observacion.Archivo != null)
+                        try
                         {
-                            string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
-                            respuesta = Reutilizables.GuardarArchivo(data.Observacion.Archivo, rutaInicial, path);
-                            if (respuesta.Estado)
+                            data.Observacion.ruta_archivo = archivo.PathArchivo;
+                            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
                             {
-                                var archivo = (Archivo)respuesta.Data;
-                                if (archivo != null)
-                                {
-                                    data.Observacion.ruta_archivo = archivo.PathArchivo;
-
-                                    GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                                    {
-                                        IdAplicacion = Constantes.ID_APLICACION,
-                                        NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
-                                        TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                        FechaCargue = DateTime.Now,
-                                        NombreArchivo = data.Observacion.Archivo.FileName,
-                                        RutaArchivo = data.Observacion.ruta_archivo,
-                                        Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                        DescripcionDocumento = "observación de Licencia.",
-                                    };
-                                    await repo.CrearLicencia(data, repositorio);
-                                }
-                            }
+                                IdAplicacion = Constantes.ID_APLICACION,
+                                NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
+                                TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
+                                FechaCargue = DateTime.Now,
+                                NombreArchivo = data.Observacion.Archivo.FileName,
+                                RutaArchivo = data.Observacion.ruta_archivo,
+                                Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                                DescripcionDocumento = "observación de Licencia.",
+                            };
+                            await repo.CrearLicencia(data, repositorio);
+                            return Responses.SetCreatedResponse(data);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            await repo.CrearLicencia(data);
+                            Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
+                            return Responses.SetInternalServerErrorResponse(ex);
                         }
-
                     }
-                    else
-                    {
-                        await repo.Create(data);
-                    }
-
-                    respuesta.StatusCode = HttpStatusCode.Created;
-                    respuesta.Mensaje = "Creado satisfactoriamente.";
-                    respuesta.Estado = true;
-
                 }
-                else
-                {
-                    respuesta.StatusCode = HttpStatusCode.Conflict;
-                    respuesta.Mensaje = "la licencia con el radicado ya se encuentra creado.";
-                    respuesta.Estado = false;
-                }
-                return respuesta;
+                await repo.CrearLicencia(data);
+                return Responses.SetCreatedResponse(data);
             }
-
         }
         /// <summary>
         /// Obtener la licencia dado el id de la licencia.
@@ -140,98 +136,75 @@ namespace DIMARCore.Business.Logica
 
             using (var repo = new LicenciaRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_licencia == data.id_licencia);
-                if (validate != null)
+                var licenciaActual = await repo.GetWithCondition(x => x.id_licencia == data.id_licencia)
+                    ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la licencia.");
+
+                var claimCapitania = ClaimsHelper.GetCapitaniaUsuario();
+                licenciaActual.id_capitania = claimCapitania;
+                licenciaActual.id_estado_licencia = data.id_estado_licencia != null ? data.id_estado_licencia : licenciaActual.id_estado_licencia;
+                licenciaActual.id_cargo_licencia = data.id_cargo_licencia != null ? data.id_cargo_licencia : licenciaActual.id_cargo_licencia;
+                licenciaActual.fecha_expedicion = data.fecha_expedicion != null ? data.fecha_expedicion : licenciaActual.fecha_expedicion;
+                licenciaActual.fecha_vencimiento = data.fecha_vencimiento != null ? data.fecha_vencimiento : licenciaActual.fecha_vencimiento;
+                licenciaActual.id_capitania_firmante = data.id_capitania_firmante != null ? data.id_capitania_firmante : licenciaActual.id_capitania_firmante;
+                licenciaActual.activo = data.activo == null ? licenciaActual.activo : data.activo;
+                licenciaActual.ListaNaves = data.ListaNaves;
+
+                if (data.Observacion == null && !data.ListaNaves.Any())
                 {
+                    await repo.Update(licenciaActual);
+                    return Responses.SetCreatedResponse(data);
+                }
 
-                    var claimCapitania = ClaimsHelper.ObtenerCapitaniaUsuario();
-                    validate.id_capitania = claimCapitania;
-                    validate.id_estado_licencia = data.id_estado_licencia != null ? data.id_estado_licencia : validate.id_estado_licencia;
-                    validate.id_cargo_licencia = data.id_cargo_licencia != null ? data.id_cargo_licencia : validate.id_cargo_licencia;
-                    validate.fecha_expedicion = data.fecha_expedicion != null ? data.fecha_expedicion : validate.fecha_expedicion;
-                    validate.fecha_vencimiento = data.fecha_vencimiento != null ? data.fecha_vencimiento : validate.fecha_vencimiento;
-                    validate.id_capitania_firmante = data.id_capitania_firmante != null ? data.id_capitania_firmante : validate.id_capitania_firmante;
-                    validate.activo = data.activo == null ? validate.activo : data.activo;
+                if (data.Observacion == null && data.ListaNaves.Any())
+                {
+                    await new LicenciaRepository().ActualizarLicencia(licenciaActual);
+                    return Responses.SetUpdatedResponse(licenciaActual);
+                }
 
-                    if (data.Observacion != null)
+                if (data.Observacion != null && data.Observacion.Archivo != null)
+
+                {
+                    licenciaActual.Observacion = data.Observacion;
+
+                    string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
+                    respuesta = Reutilizables.GuardarArchivo(data.Observacion.Archivo, rutaInicial, path);
+                    if (!respuesta.Estado)
+                        throw new HttpStatusCodeException(respuesta);
+
+                    var archivo = (Archivo)respuesta.Data;
+                    if (archivo != null)
                     {
-                        validate.Observacion = data.Observacion;
-                        if (data.Observacion.Archivo != null)
+                        try
                         {
-                            string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
-                            respuesta = Reutilizables.GuardarArchivo(data.Observacion.Archivo, rutaInicial, path);
-                            if (respuesta.Estado)
+                            data.Observacion.ruta_archivo = archivo.PathArchivo;
+
+                            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
                             {
-                                var archivo = (Archivo)respuesta.Data;
-                                if (archivo != null)
-                                {
-                                    data.Observacion.ruta_archivo = archivo.PathArchivo;
-
-                                    GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                                    {
-                                        IdAplicacion = Constantes.ID_APLICACION,
-                                        NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
-                                        TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                        FechaCargue = DateTime.Now,
-                                        NombreArchivo = data.Observacion.Archivo.FileName,
-                                        RutaArchivo = data.Observacion.ruta_archivo,
-                                        Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                        DescripcionDocumento = "observación de Licencia.",
-                                    };
-                                    await new LicenciaRepository().ActualizarLicencia(validate, repositorio);
-                                }
-                            }
+                                IdAplicacion = Constantes.ID_APLICACION,
+                                NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
+                                TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
+                                FechaCargue = DateTime.Now,
+                                NombreArchivo = data.Observacion.Archivo.FileName,
+                                RutaArchivo = data.Observacion.ruta_archivo,
+                                Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                                DescripcionDocumento = "observación de Licencia.",
+                            };
+                            await new LicenciaRepository().ActualizarLicencia(licenciaActual, repositorio);
+                            return Responses.SetUpdatedResponse(licenciaActual);
                         }
-                        else
+
+                        catch (Exception ex)
                         {
-                            await new LicenciaRepository().ActualizarLicencia(validate);
+                            Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
+                            return Responses.SetInternalServerErrorResponse(ex);
                         }
-
                     }
-                    else
-                    {
-                        await repo.Update(validate);
-                    }
-
-                    ValidarEstadoUsuarioLicenciaTitulo(validate.id_gentemar);
-
-
-                    respuesta.StatusCode = HttpStatusCode.Created;
-                    respuesta.Mensaje = "Licencia actualizada";
-                    respuesta.Estado = true;
                 }
-                else
-                {
-                    respuesta.StatusCode = HttpStatusCode.Conflict;
-                    respuesta.Mensaje = "la licencia ha modificar no se encontro.";
-                    respuesta.Estado = false;
-                }
-                return respuesta;
+                await repo.ActualizarLicencia(licenciaActual);
+                return Responses.SetUpdatedResponse(licenciaActual);
             }
 
         }
-        /// <summary>
-        /// Cambio de estado de las licencias de una pesona en especifico
-        /// </summary>
-        /// <param name="idUsuario"></param>
-        /// <param name="estado"></param>
-        /// <returns></returns>
-        public async Task CambiarEstadoLicencia(long idUsuario, int estado)
-        {
-            using (var repo = new LicenciaRepository())
-            {
-                var validate = await repo.GetAllWithConditionAsync(x => x.id_gentemar == idUsuario);
-                if (validate.Count() > 0)
-                {
-                    foreach (GENTEMAR_LICENCIAS item in validate)
-                    {
-                        item.id_estado_licencia = estado;
-                        await new LicenciaRepository().ActualizarLicencia(item);
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// cambia el estado del usuario dependiendo el estado de las licencias.
         /// </summary>
@@ -244,25 +217,25 @@ namespace DIMARCore.Business.Logica
             var data = GetlicenciaIdUsuario(idUsuario).Where(x => x.Activo == Constantes.ACTIVO).ToList();
             if (data != null)
             {
-                if (data.Where(x => x.IdEstadoLicencia == (int)EnumEstados.VIGENTE).ToList().Count > 0)
+                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.VIGENTE).ToList().Count > 0)
                 {
                     await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ACTIVO);
                     return;
 
                 }
-                if (data.Where(x => x.IdEstadoLicencia == (int)EnumEstados.PROCESO).ToList().Count > 0)
+                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.PROCESO).ToList().Count > 0)
                 {
                     await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ENPROCESO);
                     return;
 
                 }
-                if (data.Where(x => x.IdEstadoLicencia == (int)EnumEstados.NOVIGENTE).ToList().Count > 0)
+                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.NOVIGENTE).ToList().Count > 0)
                 {
                     await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
                     return;
 
                 }
-                if (data.Where(x => x.IdEstadoLicencia == (int)EnumEstados.CANCELADO).ToList().Count > 0)
+                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.CANCELADO).ToList().Count > 0)
                 {
                     await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
                     return;
@@ -284,12 +257,13 @@ namespace DIMARCore.Business.Logica
                 using (var repoDatos = new DatosBasicosRepository())
                 {
 
-                    var validate = await repo.GetAllWithConditionAsync(x => x.fecha_vencimiento <= DateTime.Now && x.id_estado_licencia != (int)EnumEstados.NOVIGENTE && x.id_estado_licencia != (int)EnumEstados.CANCELADO);
+                    var validate = await repo.GetAllWithConditionAsync(x => x.fecha_vencimiento <= DateTime.Now
+                    && x.id_estado_licencia != (int)EstadosTituloLicenciaEnum.NOVIGENTE && x.id_estado_licencia != (int)EstadosTituloLicenciaEnum.CANCELADO);
                     if (validate.Count() > 0)
                     {
                         foreach (GENTEMAR_LICENCIAS item in validate)
                         {
-                            item.id_estado_licencia = (int)EnumEstados.NOVIGENTE;
+                            item.id_estado_licencia = (int)EstadosTituloLicenciaEnum.NOVIGENTE;
                             await new LicenciaRepository().ActualizarLicencia(item);
                             //valida en el estado en que debe quedar el usuario
                             ValidarEstadoUsuarioLicenciaTitulo(item.id_gentemar);

@@ -4,6 +4,7 @@ using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers
 {
@@ -23,13 +24,20 @@ namespace DIMARCore.Api.Controllers
         {
             _serviciosBO = new ServiciosAplicacionesBO();
         }
-     
+
         /// <summary>
         /// servicio para los tipos de solicitud
         /// </summary>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>05/03/2022</Fecha>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado data.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
+        [ResponseType(typeof(IEnumerable<TipoSolicitudDTO>))]
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         [Route("tipos-solicitud")]
         public IHttpActionResult GetTiposSolicitud()
         {
@@ -38,12 +46,45 @@ namespace DIMARCore.Api.Controllers
             return Ok(listado);
         }
 
+
+        /// <summary>
+        /// Servicio para listar los tipos de refrendo.
+        /// </summary>
+        /// <remarks>
+        /// Tipo de refrendo.
+        /// </remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>05/05/2023</Fecha>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado data.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        /// <returns></returns>
+        [ResponseType(typeof(IEnumerable<TipoRefrendoDTO>))]
+        [HttpGet]
+        [Authorize]
+        [Route("tipos-refrendo")]
+        public IHttpActionResult ListarRefrendos()
+        {
+            var response = _serviciosBO.GetTipoRefrendos();
+            var listado = Mapear<IEnumerable<APLICACIONES_TIPO_REFRENDO>, IEnumerable<TipoRefrendoDTO>>(response);
+            return Ok(listado);
+        }
+
         /// <summary>
         /// servicio para las capitanias 
         /// </summary>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>05/03/2022</Fecha>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado data.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
+
+        [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         [Route("capitanias")]
         public IHttpActionResult GetCapitaniasFirma()
         {
@@ -54,9 +95,16 @@ namespace DIMARCore.Api.Controllers
         /// <summary>
         /// servicio para las capitanias firmante
         /// </summary>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>05/03/2022</Fecha>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado data.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
+        [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         [Route("capitanias-firmante")]
         public IHttpActionResult GetCapitaniasFirmante()
         {

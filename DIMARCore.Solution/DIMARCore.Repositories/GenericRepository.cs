@@ -1,6 +1,10 @@
-﻿using GenteMarCore.Entities;
+﻿using DIMARCore.Utilities.Enums;
+using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Seguridad;
+using GenteMarCore.Entities;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
@@ -10,21 +14,80 @@ using System.Threading.Tasks;
 
 namespace DIMARCore.Repositories
 {
-    public class GenericRepository<T> : IDisposable, IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T>, IDisposable where T : class
     {
         protected readonly GenteDeMarCoreContext _context;
         private DbSet<T> _entities;
+        private bool _isDisposed;
+        private readonly string _isEnvironment;
 
         public GenericRepository()
         {
-            _context = new GenteDeMarCoreContext();
-            _entities = _context.Set<T>();
+            _isEnvironment = ConfigurationManager.AppSettings[Constantes.KEY_ENVIRONMENT];
+            _context = GetContext(_isEnvironment);
+            IsDisposed = false;
+        }
+        public bool IsDisposed { get => _isDisposed; set => _isDisposed = value; }
+        
+        #region Obtener la cadena de conexión dependiendo el entorno (Production=2,Testing=1,Development=0)
+        private GenteDeMarCoreContext GetContext(string _isEnvironment)
+        {
+            string connectionString;
+            if (string.IsNullOrWhiteSpace(_isEnvironment))
+                return new GenteDeMarCoreContext();
+
+            int enviroment = Convert.ToInt32(_isEnvironment);
+            if ((int)EnvironmentEnum.Production == enviroment)
+            {
+                connectionString = ConfigurationManager.ConnectionStrings[EnumConfig.GetDescription(EnvironmentEnum.Production)].ConnectionString;
+                var desencryptConnection = SecurityEncrypt.GenerateDecrypt(connectionString);
+                return new GenteDeMarCoreContext(desencryptConnection);
+            }
+            else if ((int)EnvironmentEnum.Testing == enviroment)
+            {
+                connectionString = ConfigurationManager.ConnectionStrings[EnumConfig.GetDescription(EnvironmentEnum.Testing)].ConnectionString;
+                var desencryptConnection = SecurityEncrypt.GenerateDecrypt(connectionString);
+                return new GenteDeMarCoreContext(desencryptConnection);
+            }
+            else if ((int)EnvironmentEnum.Development == enviroment)
+            {
+                return new GenteDeMarCoreContext();
+            }
+
+            throw new Exception("No se ha definido el ambiente de trabajo.");
+
+        }
+        #endregion
+        private DbSet<T> Entities
+        {
+            get
+            {
+                if (_entities == null)
+                {
+                    _entities = _context.Set<T>();
+                }
+                return _entities;
+            }
+        }
+        public virtual IQueryable<T> Table
+        {
+            get
+            {
+                return this.Entities;
+            }
         }
 
         #region Listado IEnumerable In BD
         public IEnumerable<T> GetAll()
         {
-            return _entities.ToList();
+            return Entities.ToList();
+        }
+        #endregion
+
+        #region Listado IEnumerable In BD  Async
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await Entities.ToListAsync();
         }
 
         #endregion
@@ -32,35 +95,35 @@ namespace DIMARCore.Repositories
         #region get de un objeto con condiciones 
         public async Task<T> GetWithCondition(Expression<Func<T, bool>> whereCondition)
         {
-            return await _entities.Where(whereCondition).FirstOrDefaultAsync();
+            return await Entities.Where(whereCondition).FirstOrDefaultAsync();
         }
         #endregion
 
         #region existe por condiciones 
         public async Task<bool> AnyWithCondition(Expression<Func<T, bool>> whereCondition)
         {
-            return await _entities.AnyAsync(whereCondition);
+            return await Entities.AnyAsync(whereCondition);
         }
         #endregion
 
         #region listado de un objeto con condiciones async
-        public async Task<IEnumerable<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition)
+        public async Task<IList<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition)
         {
-            return await _entities.Where(whereCondition).ToListAsync();
+            return await Entities.Where(whereCondition).ToListAsync();
         }
         #endregion
 
         #region listado de un objeto con condiciones 
         public IEnumerable<T> GetAllWithCondition(Expression<Func<T, bool>> whereCondition)
         {
-            return _entities.Where(whereCondition).ToList();
+            return Entities.Where(whereCondition).ToList();
         }
         #endregion
 
         #region Listado IQueryable para hacer consultas al servidor optimizado
         public IQueryable<T> GetAllAsQueryable()
         {
-            return _entities.AsNoTracking();
+            return Entities.AsNoTracking();
         }
 
         #endregion
@@ -68,7 +131,7 @@ namespace DIMARCore.Repositories
         #region Get by Id In BD
         public async Task<T> GetById(object id)
         {
-            return await _entities.FindAsync(id);
+            return await Entities.FindAsync(id);
         }
         #endregion
 
@@ -93,7 +156,7 @@ namespace DIMARCore.Repositories
         {
             if (entidad == null) throw new ArgumentNullException($"{nameof(entidad)} no debe ser nula");
             try
-            {             
+            {
                 _context.Entry(entidad).State = EntityState.Modified;
                 await SaveAllAsync();
             }
@@ -130,15 +193,15 @@ namespace DIMARCore.Repositories
 
         public void ObtenerException(Exception ex, T entidad)
         {
-            string Mensaje = string.Empty;
             var udpateException = GetInnerException<DbUpdateException>(ex);
             var DbEntityException = GetInnerException<DbEntityValidationException>(ex);
 
+            string Mensaje;
             if (udpateException != null)
             {
                 if (DbEntityException != null)
                 {
-                    Mensaje = obtenerErroresDeAtributos(DbEntityException);
+                    Mensaje = ObtenerErroresDeAtributos(DbEntityException);
                     throw new Exception($"{entidad.GetType().FullName} no se ha podido crear/actualizar: {udpateException.InnerException.Message}\n, {Mensaje}");
                 }
                 else
@@ -148,7 +211,7 @@ namespace DIMARCore.Repositories
             }
             else if (DbEntityException != null)
             {
-                Mensaje = obtenerErroresDeAtributos(DbEntityException);
+                Mensaje = ObtenerErroresDeAtributos(DbEntityException);
                 throw new Exception($"{Mensaje}");
             }
             else
@@ -156,7 +219,7 @@ namespace DIMARCore.Repositories
                 throw new Exception($"{entidad}: {ex.Message}");
             }
         }
-        private string obtenerErroresDeAtributos(DbEntityValidationException dbEntityException)
+        private string ObtenerErroresDeAtributos(DbEntityValidationException dbEntityException)
         {
             string mensaje = string.Empty;
             foreach (var eve in dbEntityException.EntityValidationErrors)
@@ -178,7 +241,9 @@ namespace DIMARCore.Repositories
         #region Limpiar objetos
         public void Dispose()
         {
-            _context?.Dispose();
+            if (_context != null)
+                _context.Dispose();
+            IsDisposed = true;
         }
         #endregion
     }

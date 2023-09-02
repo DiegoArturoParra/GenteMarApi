@@ -5,7 +5,7 @@ using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
     public class ReglaBO : IGenericCRUD<GENTEMAR_REGLAS, int>
@@ -37,9 +37,9 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> CrearAsync(GENTEMAR_REGLAS entidad)
         {
-            await ExisteByNombreAsync(entidad.Regla.Trim().ToUpper());
+            await ExisteByNombreAsync(entidad.nombre_regla.Trim().ToUpper());
 
-            entidad.Regla = entidad.Regla.Trim().ToUpper();
+            entidad.nombre_regla = entidad.nombre_regla.Trim().ToUpper();
             await new ReglaRepository().Create(entidad);
 
             return Responses.SetCreatedResponse(entidad);
@@ -47,12 +47,12 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_REGLAS entidad)
         {
-            await ExisteByNombreAsync(entidad.Regla.Trim().ToUpper(), entidad.id_regla);
+            await ExisteByNombreAsync(entidad.nombre_regla.Trim().ToUpper(), entidad.id_regla);
 
             var respuesta = await GetByIdAsync(entidad.id_regla);
 
             var objeto = (GENTEMAR_REGLAS)respuesta.Data;
-            objeto.Regla = entidad.Regla.Trim().ToUpper();
+            objeto.nombre_regla = entidad.nombre_regla.Trim().ToUpper();
 
             await new ReglaRepository().Actualizar(objeto);
 
@@ -68,11 +68,11 @@ namespace DIMARCore.Business.Logica
             await new ReglaRepository().Actualizar(entidad);
             if (entidad.activo)
             {
-                mensaje = $"Se activo {entidad.Regla}";
+                mensaje = $"Se activo {entidad.nombre_regla}";
             }
             else
             {
-                mensaje = $"Se anulo {entidad.Regla}";
+                mensaje = $"Se anulo {entidad.nombre_regla}";
             }
             return Responses.SetOkResponse(entidad, mensaje);
         }
@@ -112,11 +112,11 @@ namespace DIMARCore.Business.Logica
             bool existe;
             if (Id == 0)
             {
-                existe = await new ReglaRepository().AnyWithCondition(x => x.Regla.Equals(nombre));
+                existe = await new ReglaRepository().AnyWithCondition(x => x.nombre_regla.Equals(nombre));
             }
             else
             {
-                existe = await new ReglaRepository().AnyWithCondition(x => x.Regla.Equals(nombre) && x.id_regla != Id);
+                existe = await new ReglaRepository().AnyWithCondition(x => x.nombre_regla.Equals(nombre) && x.id_regla != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse( $"Ya se encuentra registrada la clase {nombre}"));
