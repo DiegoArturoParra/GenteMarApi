@@ -1,15 +1,18 @@
-﻿using DIMARCore.Business.Logica;
+﻿using DIMARCore.Api.Core.Models;
+using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers
 {
     /// <summary>
-    /// Api Clases
+    /// servicios clases de titulos y licencias
     /// </summary>
     [Authorize]
     [EnableCors("*", "*", "*")]
@@ -34,17 +37,17 @@ namespace DIMARCore.Api.Controllers
         /// </summary>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/05/2022</Fecha>
         /// </remarks>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-por-titulos")]
         public IHttpActionResult GetClasesTitulos([FromUri] ActivoDTO dto)
         {
-
             var clases = _serviceClaseTitulos.GetAll(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_CLASE_TITULOS>, IEnumerable<ClaseDTO>>(clases);
             return Ok(listado);
@@ -56,26 +59,22 @@ namespace DIMARCore.Api.Controllers
         /// </summary>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/05/2022</Fecha>
         /// </remarks>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseTypeSwagger<ClaseDTO>))]
         [HttpGet]
         [Route("por-titulo/{id}")]
         public async Task<IHttpActionResult> GetClaseitulo(int id)
         {
             var clase = await _serviceClaseTitulos.GetByIdAsync(id);
-            if (clase.Estado)
-            {
-                var obj = Mapear<GENTEMAR_CLASE_TITULOS, ClaseDTO>((GENTEMAR_CLASE_TITULOS)clase.Data);
-                clase.Data = obj;
-            }
-            return ResultadoStatus(clase);
+            var obj = Mapear<GENTEMAR_CLASE_TITULOS, ClaseDTO>((GENTEMAR_CLASE_TITULOS)clase.Data);
+            clase.Data = obj;
+            return Ok(clase);
         }
-
-
 
         /// <summary>
         /// Servicio para crear una clase de un titulo
@@ -85,18 +84,19 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
+        /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la clase del titulo.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. Ya existe el nombre de la clase del titulo de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-por-titulo")]
         public async Task<IHttpActionResult> CrearSeccionTitulo([FromBody] ClaseDTO clase)
         {
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_TITULOS>(clase);
             var response = await _serviceClaseTitulos.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
 
@@ -109,10 +109,11 @@ namespace DIMARCore.Api.Controllers
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="200">OK. Devuelve el mensaje de edición.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. Ya existe el nombre de la clase del titulo de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-titulo")]
         public async Task<IHttpActionResult> EditarSeccionTitulo([FromBody] ClaseDTO clase)
@@ -130,10 +131,11 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa-por-titulo/{id}")]
         public async Task<IHttpActionResult> InactivarClaseTitulo(int id)
@@ -141,6 +143,8 @@ namespace DIMARCore.Api.Controllers
             var obj = await _serviceClaseTitulos.AnulaOrActivaAsync(id);
             return ResultadoStatus(obj);
         }
+
+
         /// <summary>
         /// Servicio para Inactivar una clase de una licencia
         /// </summary>
@@ -175,14 +179,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-por-licencias")]
         public IHttpActionResult GetClasesLicencias()
         {
             var clases = _serviceClaseLicencias.GetAllClaseLicencias();
-            //var listado = Mapear<IEnumerable<GENTEMAR_CLASE_LICENCIAS>, IEnumerable<ClaseDTO>>(clases);
             return Ok(clases);
-
         }
 
         /// <summary>
@@ -193,18 +196,17 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>2022/02/26</Fecha>
         /// <returns></returns>
-        /// <response code="200">OK. Devuelve la información del estado.</response>
-        /// <response code="204">No Content. No hay estado.</response>
+        /// <response code="200">OK. Devuelve Listado de clases por id de sección.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-clase-seccion-licencias/{id}")]
-        public IHttpActionResult GetSeccionesActividadId(int id)
+        public async Task<IHttpActionResult> GetSeccionesActividadId(int id)
         {
-            var secciones = _serviceClaseLicencias.GetClaseSecciones(id);
-            //var listado = Mapear<IEnumerable<GENTEMAR_SECCION_LICENCIAS>, IEnumerable<SeccionDTO>>(id);
-            return Ok(secciones);
+            var clases = await _serviceClaseLicencias.GetClaseSecciones(id);
+            return Ok(clases);
         }
 
         /// <summary>
@@ -214,15 +216,16 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
+        /// <response code="200">OK. Devuelve el listado de las clases activas.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-por-licencias-activas")]
-        public IHttpActionResult GetClasesLicenciasActivas()
+        public async Task<IHttpActionResult> GetClasesLicenciasActivas()
         {
-            var clases = _serviceClaseLicencias.GetAllClaseLicenciasActivas();
+            var clases = await _serviceClaseLicencias.GetAllClaseLicenciasActivas();
             var listado = Mapear<IEnumerable<GENTEMAR_CLASE_LICENCIAS>, IEnumerable<ClaseDTO>>(clases);
             return Ok(listado);
 
@@ -232,40 +235,37 @@ namespace DIMARCore.Api.Controllers
         /// </summary>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseTypeSwagger<ClaseDTO>))]
         [HttpGet]
         [Route("por-licencia/{id}")]
         public async Task<IHttpActionResult> GetClaseLicencia(int id)
         {
-            var clase = await _serviceClaseTitulos.GetByIdAsync(id);
-            if (clase.Estado)
-            {
-                var obj = Mapear<GENTEMAR_CLASE_LICENCIAS, ClaseDTO>((GENTEMAR_CLASE_LICENCIAS)clase.Data);
-                clase.Data = obj;
-            }
-            return ResultadoStatus(clase);
+            var clase = await _serviceClaseLicencias.GetByIdAsync(id);
+            var obj = Mapear<GENTEMAR_CLASE_LICENCIAS, ClaseDTO>((GENTEMAR_CLASE_LICENCIAS)clase.Data);
+            clase.Data = obj;
+            return Ok(clase);
         }
 
-
-
         /// <summary>
-        /// Servicio para crear una clase de un titulo
+        /// Servicio para crear una clase de una licencia de navegación
         /// </summary>
         /// <param name="clase"></param>
         /// <remarks>
-        /// <Autor>Diego Parra</Autor>
+        /// <Autor>Juan Camilo</Autor>
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
+        /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la clase de una licencia.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. Ya existe el nombre de la clase de la licencia de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-por-licencia")]
         public async Task<IHttpActionResult> CrearClaseLicencia([FromBody] ClaseDTO clase)
@@ -273,7 +273,7 @@ namespace DIMARCore.Api.Controllers
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_LICENCIAS>(clase);
             var sec = Mapear<IList<SeccionDTO>, IList<GENTEMAR_SECCION_LICENCIAS>>(clase.Seccion);
             var response = await _serviceClaseLicencias.CrearAsync(data, sec);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
 
@@ -283,13 +283,14 @@ namespace DIMARCore.Api.Controllers
         /// <param name="clase"></param>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
         /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de actualización.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. Ya existe el nombre de la clase de la licencia de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-licencia")]
         public async Task<IHttpActionResult> EditarClaseLicencia([FromBody] ClaseDTO clase)
@@ -297,7 +298,7 @@ namespace DIMARCore.Api.Controllers
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_LICENCIAS>(clase);
             var sec = Mapear<IList<SeccionDTO>, IList<GENTEMAR_SECCION_LICENCIAS>>(clase.Seccion);
             var response = await _serviceClaseLicencias.ActualizarAsync(data, sec);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
         /// <summary>
         /// Servicio para Inactivar una clase de una licencia
@@ -305,21 +306,20 @@ namespace DIMARCore.Api.Controllers
         /// <param name="id"></param>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
         /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de actualización.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa-por-licencia/{id}")]
         public async Task<IHttpActionResult> InactivarLicencia(int id)
         {
             var obj = await _serviceClaseLicencias.AnulaOrActivaAsync(id);
-            return ResultadoStatus(obj);
+            return Ok(obj);
         }
-
-
         #endregion
     }
 }

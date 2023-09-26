@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DIMARCore.Utilities.Helpers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -44,7 +45,7 @@ namespace DIMARCore.UIEntities.DTOs
         {
             get
             {
-                return this.FechaVigencia.HasValue ? string.Format("{0:dd/MM/yyyy}", this.FechaAprobacion.Value) : "Ninguna";
+                return this.FechaVigencia.HasValue ? string.Format("{0:dd/MM/yyyy}", this.FechaVigencia.Value) : "Ninguna";
             }
         }
     }
@@ -57,7 +58,14 @@ namespace DIMARCore.UIEntities.DTOs
         public string NombreCompleto { get; set; }
         public string Estado { get; set; }
         public int CountObservaciones { get; set; }
-        public int MyProperty { get; set; }
+        public List<ExpedienteEntidadObservacionDTO> ObservacionExpedientePorEntidad { get; set; }
+    }
+
+    public class ExpedienteEntidadObservacionDTO : ExpedienteEntidadDTO
+    {
+        public string Observacion { get; set; }
+        public string TextInDataTable => string.IsNullOrWhiteSpace(Observacion)
+            ? Constantes.OBSERVACION_PENDIENTE : Observacion.Equals(Constantes.SIN_OBSERVACION) ? Constantes.OBSERVACION_REGISTRADA : Observacion;
     }
 
     public class EstupefacientesExcelDTO

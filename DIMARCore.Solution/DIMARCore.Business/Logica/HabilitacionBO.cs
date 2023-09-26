@@ -17,21 +17,17 @@ namespace DIMARCore.Business.Logica
                 {
                     return repo.GetAll();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return repo.GetAllWithCondition(x => x.activo == activo);
             }
         }
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
             var habilitacion = await new HabilitacionRepository().GetById(Id);
-            if (habilitacion == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la habilitación."));
-            return Responses.SetOkResponse(habilitacion);
+            return habilitacion == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la habilitación."))
+                : Responses.SetOkResponse(habilitacion);
         }
-
 
         public async Task<Respuesta> CrearAsync(GENTEMAR_HABILITACION entidad)
         {
@@ -73,9 +69,9 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, mensaje);
         }
 
-        public IEnumerable<GENTEMAR_CARGO_HABILITACION> GetHabilitacionesByReglaCargoId(int CargoReglaId)
+        public async Task<IEnumerable<GENTEMAR_CARGO_HABILITACION>> GetHabilitacionesByReglaCargoId(int CargoReglaId)
         {
-            return new HabilitacionRepository().GetHabilitacionesByReglaCargoId(CargoReglaId);
+            return await new HabilitacionRepository().GetHabilitacionesByReglaCargoId(CargoReglaId);
         }
 
         public async Task ExisteByNombreAsync(string nombre, int Id = 0)

@@ -42,8 +42,8 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(Respuesta))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE,
+            RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("estupefacientes-por-persona")]
         public async Task<IHttpActionResult> GetHistoricoEstupefacientesPorPersona([FromUri] CedulaDTO obj)
         {

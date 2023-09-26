@@ -5,6 +5,7 @@ using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -21,9 +22,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// <summary>
     /// servicios para los titulos de navegación
     /// <Autor>Diego Parra</Autor>
-    /// <Fecha>2022/02/26</Fecha>
     /// </summary>
-
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/titulos")]
     public class TituloController : BaseApiController
@@ -43,7 +42,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// </summary>
         /// <param name="paginacion"> paginacion (ParametrosPaginacion) objeto que contiene los datos para paginar.</param>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2022/02/26</Fecha>
+        /// <Fecha>/26/02/2022</Fecha>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve la información del titulo.</response>
         /// <response code="204">No Content. No hay titulos.</response>
@@ -53,19 +52,16 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Paginador<ListadoTituloDTO>))]
         [HttpGet]
         [Route("pagination")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
         public IHttpActionResult Paginar([FromUri] ParametrosPaginacion paginacion)
         {
             if (paginacion == null)
-            {
                 paginacion = new ParametrosPaginacion();
-            }
 
             var queryable = _serviceTitulo.GetTitulosQueryable();
-            if (queryable.Count() == 0)
-            {
+            if (!queryable.Any())
                 return Ok(Responses.SetOkResponse(null, "No hay titulos"));
-            }
+
             var listado = GetPaginacion(paginacion, queryable);
             var paginador = Paginador<ListadoTituloDTO>.CrearPaginador(queryable.Count(), listado, paginacion);
             return Ok(paginador);
@@ -76,18 +72,18 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// Servicio que retorna toda la información de un titulo en especifico por Id
         /// </summary>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2022/02/26</Fecha>
+        /// <Fecha>/26/02/2022</Fecha>
         /// <param name="id">Id (long) del titulo de navegación de gente de mar.</param>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve la información del titulo.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>     
-        /// <response code="404">NotFound. No se ha el titulo solicitado.</response>
+        /// <response code="404">NotFound. No existe el título solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(ResponseTypeSwagger<InfoTituloDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
         public async Task<IHttpActionResult> GetTituloPorId(long id)
         {
             var response = await _serviceTitulo.GetTituloById(id);
@@ -99,7 +95,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// Servicio que hace la paginacion de titulos por identificacion de la persona
         /// </summary>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2022/02/26</Fecha>
+        /// <Fecha>/26/02/2022</Fecha>
         /// <param name="filtro"></param>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve el listado de titulos de la persona de gente de mar..</response>        
@@ -111,8 +107,8 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Paginador<ListadoTituloDTO>))]
         [HttpPost]
         [Route("filter-by-identification")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
-        public async Task<IHttpActionResult> GetTitulosByIdentificacion(FiltroByIdentificacion filtro)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
+        public async Task<IHttpActionResult> GetTitulosByIdentificacion(DocumentFilter filtro)
         {
             await _serviceTitulo.ExistePersonaByIdentificacion(filtro.IdentificacionConPuntos);
             var query = await _serviceTitulo.GetTitulosFiltro(filtro.IdentificacionConPuntos);
@@ -123,7 +119,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// Servicio que hace la paginacion de titulos por identificacion de la persona
         /// </summary>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2022/02/26</Fecha>
+        /// <Fecha>/26/02/2022</Fecha>
         /// <param name="filtro">parametro para el fitro de paginación con Id de gente de mar.</param>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve el listado de titulos de la persona de gente de mar..</response>        
@@ -135,8 +131,8 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Paginador<ListadoTituloDTO>))]
         [HttpPost]
         [Route("filter-by-id")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
-        public async Task<IHttpActionResult> GetTitulosById(FiltroById filtro)
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetTitulosById(IdentificatorFilter filtro)
         {
             await new DatosBasicosBO().ExisteById(Convert.ToInt64(filtro.Id));
             var query = await _serviceTitulo.GetTitulosFiltro(string.Empty, Convert.ToInt64(filtro.Id));
@@ -175,16 +171,16 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         ///    file = archivo
         /// </remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2022/02/26</Fecha>
+        /// <Fecha>/26/02/2022</Fecha>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> Crear()
         {
             Respuesta respuesta = new Respuesta();
@@ -192,17 +188,17 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var archivo = req.Files["File"];
             var format = "dd/MM/yyyy"; // your datetime format
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
-            var datos = req["Data"];
-            if (datos == null)
-                return ResultadoStatus(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(TituloDTO)}, debe enviar los datos correctos."));
+            var datos = req["Data"] ??
+                throw new HttpStatusCodeException(Responses.SetBadRequestResponse($"Objeto invalido de {nameof(TituloDTO)}, debe enviar los datos correctos."));
 
             TituloDTO titulo = JsonConvert.DeserializeObject<TituloDTO>(datos, dateTimeConverter);
             if (archivo != null)
                 titulo.Observacion.Archivo = archivo;
+
             ValidateModelAndThrowIfInvalid(titulo);
             titulo.CapitaniaId = GetIdCapitania();
             var data = Mapear<TituloDTO, GENTEMAR_TITULOS>(titulo);
-            respuesta = await new TituloBO().CrearAsync(data, PathActual);
+            respuesta = await _serviceTitulo.CrearAsync(data, PathActual);
             return ResultadoStatus(respuesta);
         }
 
@@ -221,10 +217,10 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> Editar()
         {
             Respuesta respuesta;
@@ -238,7 +234,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             ValidateModelAndThrowIfInvalid(titulo);
             titulo.CapitaniaId = GetIdCapitania();
             var data = Mapear<TituloDTO, GENTEMAR_TITULOS>(titulo);
-            respuesta = await new TituloBO().ActualizarAsync(data, PathActual);
+            respuesta = await _serviceTitulo.ActualizarAsync(data, PathActual);
             return ResultadoStatus(respuesta);
         }
 
@@ -256,10 +252,10 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("desactivar-cargo")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> DesactivarCargoDelTitulo(DesactivateCargoDTO desactivateCargo)
         {
             Respuesta respuesta = await _serviceTitulo.DesactivarCargoDelTitulo(desactivateCargo);
@@ -279,16 +275,14 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<FechasRadioOperadoresDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("fechas-radio-operadores/{idGenteMar}")]
         public async Task<IHttpActionResult> GetFechasRadioOperadores(long idGenteMar)
         {
-            var response = await new TituloBO().GetFechasRadioOperadores(idGenteMar);
-            return ResultadoStatus(response);
+            var response = await _serviceTitulo.GetFechasRadioOperadores(idGenteMar);
+            return Ok(response);
         }
-
-        
     }
 }

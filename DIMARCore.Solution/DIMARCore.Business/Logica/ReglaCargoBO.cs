@@ -20,7 +20,6 @@ namespace DIMARCore.Business.Logica
                 : Responses.SetOkResponse(CargoReglaId);
         }
 
-
         public async Task<Respuesta> ExisteCargoTituloInDetalleRegla(int cargoId)
         {
             var HayCargoTituloInDetalleReglas = await new ReglaCargoRepository().ExisteCargoTituloInDetalleRegla(cargoId);
@@ -98,10 +97,10 @@ namespace DIMARCore.Business.Logica
             {
                 var existeRelacion = await new ReglaCargoRepository().AnyWithCondition(x => x.id_regla == entidad.id_regla && x.id_nivel == entidad.id_nivel
                                 && x.id_cargo_titulo == entidad.id_cargo_titulo && x.id_capacidad == entidad.id_capacidad);
+
                 if (existeRelacion)
-                {
                     throw new HttpStatusCodeException(Responses.SetConflictResponse($"La relación ya existe no se puede insertar."));
-                }
+                
             }
         }
 

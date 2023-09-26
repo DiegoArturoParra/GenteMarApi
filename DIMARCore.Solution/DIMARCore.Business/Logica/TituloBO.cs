@@ -180,7 +180,7 @@ namespace DIMARCore.Business.Logica
             if (!existeTipoRefrendo)
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No existe el tipo de refrendo.");
 
-            await new DatosBasicosBO().GetPersonaByIdentificacionOrId(new ParametrosGenteMarDTO { Id = entidad.id_gentemar });
+            await new DatosBasicosBO().ValidationsStatusPersona(new ParametrosGenteMarDTO { Id = entidad.id_gentemar });
         }
 
         public IQueryable<ListadoTituloDTO> GetTitulosQueryable()

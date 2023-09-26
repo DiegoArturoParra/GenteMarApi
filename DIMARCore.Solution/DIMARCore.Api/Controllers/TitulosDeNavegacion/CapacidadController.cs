@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -19,6 +20,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/capacidades")]
+
     public class CapacidadController : BaseApiController
     {
         private readonly CapacidadBO _serviceCapacidad;
@@ -33,8 +35,9 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <summary>
         ///  Se obtiene el listado de capacidades por Id regla.
         /// </summary>
+        /// <param name="items"> parametros que contiene los ids de regla y cargo</param>
+        /// <response code="200">OK. Devuelve la lista de capacidades por regla cargo solicitada.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
@@ -42,21 +45,15 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>23/03/2022</Fecha>
         /// </remarks>
-
         [ResponseType(typeof(List<CapacidadDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista-by-regla-cargo")]
         public async Task<IHttpActionResult> CapacidadByReglaCargo([FromUri] IdsLlaveCompuestaDTO items)
         {
-            var existe = await _serviceCapacidad.Validaciones(items);
-            if (existe.Estado)
-            {
-                var query = await _serviceCapacidad.CapacidadByReglaCargo(items);
-                var listado = Mapear<IEnumerable<GENTEMAR_REGLAS_CARGO>, IEnumerable<CapacidadDTO>>(query);
-                return Ok(listado);
-            }
-            return ResultadoStatus(existe);
+            var query = await _serviceCapacidad.CapacidadByReglaCargo(items);
+            var listado = Mapear<IEnumerable<GENTEMAR_REGLAS_CARGO>, IEnumerable<CapacidadDTO>>(query);
+            return Ok(listado);
         }
 
 
@@ -76,6 +73,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<CapacidadDTO>))]
         [HttpGet]
         [Route("lista")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceCapacidad.GetAll(dto != null ? dto.Activo : null);
@@ -83,11 +81,10 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             return Ok(listado);
         }
 
-
         /// <summary>
         /// servicio get capacidad
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">parametro que filtra por id</param>
         /// <returns></returns>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
@@ -97,21 +94,17 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<CapacidadDTO>))]
         [HttpGet]
         [Route("{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetCapacidad(int id)
         {
             var entidad = await _serviceCapacidad.GetByIdAsync(id);
-            if (entidad.Estado)
-            {
-                var obj = Mapear<GENTEMAR_CAPACIDAD, CapacidadDTO>((GENTEMAR_CAPACIDAD)entidad.Data);
-                entidad.Data = obj;
-            }
-            return ResultadoStatus(entidad);
+            var obj = Mapear<GENTEMAR_CAPACIDAD, CapacidadDTO>((GENTEMAR_CAPACIDAD)entidad.Data);
+            entidad.Data = obj;
+            return Ok(entidad);
         }
-
-
 
         /// <summary>
         /// Servicio para crear una capacidad
@@ -121,22 +114,22 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Fecha>28/04/2022</Fecha>
         /// </remarks>
         /// <param name="capacidad">objeto para crear una capacidad.</param>
+        /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la capacidad.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la entidad de estupefaciente.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud ya existe la capacidad.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] CapacidadDTO capacidad)
         {
             var data = Mapear<CapacidadDTO, GENTEMAR_CAPACIDAD>(capacidad);
             var response = await _serviceCapacidad.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
-
 
         /// <summary>
         /// Servicio para editar una capacidad
@@ -146,20 +139,21 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. se ha actualizado el recurso (capacidad).</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud ya existe la capacidad.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] CapacidadDTO capacidad)
         {
             var data = Mapear<CapacidadDTO, GENTEMAR_CAPACIDAD>(capacidad);
             var response = await _serviceCapacidad.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -171,17 +165,18 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
         /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceCapacidad.AnulaOrActivaAsync(id);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
     }
 }

@@ -19,8 +19,7 @@ namespace DIMARCore.Repositories.Repository
                 using (var trassaction = _context.Database.BeginTransaction())
                     try
                     {
-                        _context.GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES.Add(dataAclaracion);
-                        await SaveAllAsync();
+                        await Create(dataAclaracion);
                         if (repositorio != null)
                         {
                             repositorio.IdModulo = dataAclaracion.id_aclaracion.ToString();
@@ -32,6 +31,7 @@ namespace DIMARCore.Repositories.Repository
                         }
                         _context.Entry(expedienteObservacion).State = EntityState.Modified;
                         await SaveAllAsync();
+                        await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(expedienteObservacion.id_antecedente);
                         trassaction.Commit();
 
                     }

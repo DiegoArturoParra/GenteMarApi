@@ -29,6 +29,13 @@ namespace DIMARCore.Business.Logica
             }
         }
 
+        public async Task<Respuesta> GetByIdAsync(int Id)
+        {
+            var entidad = await new ClaseLicenciasRepository().GetById(Id);
+            return entidad == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No encuentra registrada la clase de la clase."))
+                : Responses.SetOkResponse(entidad);
+        }
 
         public async Task<Respuesta> AnulaOrActivaAsync(int id)
         {
@@ -63,14 +70,14 @@ namespace DIMARCore.Business.Logica
             return new ClaseLicenciasRepository().GetTableClase();
         }
 
-        public IEnumerable<ClaseDTO> GetClaseSecciones(int id)
+        public async Task<IEnumerable<ClaseDTO>> GetClaseSecciones(int id)
         {
-            return new ClaseLicenciasRepository().GetClaseSeccion(id);
+            return await new ClaseLicenciasRepository().GetClaseSeccion(id);
         }
 
-        public IEnumerable<GENTEMAR_CLASE_LICENCIAS> GetAllClaseLicenciasActivas()
+        public async Task<IEnumerable<GENTEMAR_CLASE_LICENCIAS>> GetAllClaseLicenciasActivas()
         {
-            return new ClaseLicenciasRepository().GetAllWithCondition(x => x.activo == true);
+            return await new ClaseLicenciasRepository().GetAllWithConditionAsync(x => x.activo == true);
         }
 
     }

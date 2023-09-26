@@ -47,7 +47,7 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(List<FormacionDTO>))]
         [HttpGet]
         [Route("lista/{estado}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetRango(bool estado)
         {
             var rango = _service.GetFormacion(estado);
@@ -71,7 +71,7 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearRangoAsync(RangoDTO rango)
         {
             var data = Mapear<RangoDTO, APLICACIONES_RANGO>(rango);
@@ -95,7 +95,7 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> actualizarRangoAsync(RangoDTO rango)
         {
             var data = Mapear<RangoDTO, APLICACIONES_RANGO>(rango);
@@ -118,7 +118,7 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarRangoAsync(int id)
         {
             var respuesta = await _service.cambiarRango(id);

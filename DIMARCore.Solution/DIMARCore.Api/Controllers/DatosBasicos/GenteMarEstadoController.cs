@@ -42,7 +42,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GENTEMAR_ESTADO>))]
         [HttpGet]
         [Route("listaActivo")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetEstadoActivo()
         {
             var ListaEstado = _service.GetEstadoActivo();
@@ -67,7 +67,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GENTEMAR_ESTADO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetEstado()
         {
             var ListaEstado = _service.GetEstado();
@@ -92,7 +92,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearEstado(EstadoDTO estado)
         {
             var data = Mapear<EstadoDTO, GENTEMAR_ESTADO>(estado);
@@ -116,7 +116,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> actualizarEstado(EstadoDTO estado)
         {
             var data = Mapear<EstadoDTO, GENTEMAR_ESTADO>(estado);
@@ -140,7 +140,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarEstado(int id)
         {
             var respuesta = await new GenteDeMarEstadoBO().cambiarEstado(id);

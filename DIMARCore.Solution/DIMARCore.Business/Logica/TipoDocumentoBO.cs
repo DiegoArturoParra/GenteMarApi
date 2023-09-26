@@ -1,22 +1,16 @@
 ﻿using DIMARCore.Repositories.Repository;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DIMARCore.Business
 {
     public class TipoDocumentoBO
     {
-        /// <summary>
-        /// Lista de Tipo Licencias
-        /// </summary>
-        /// <returns>Lista de Tipo Licenciass</returns>
-        /// <entidad>GENTEMAR_TIPO_LICENCIA</entidad>
-        /// <tabla>GENTEMAR_TIPO_LICENCIA</tabla>
-        public IList<APLICACIONES_TIPO_DOCUMENTO> GetTipoDocumento()
+        public async Task<IList<APLICACIONES_TIPO_DOCUMENTO>> GetTiposDocumento()
         {
             // Obtiene la lista
-            var lista = new TipoDocumentoRepository().GetTipoDocumento();
-            return lista;
+            return await new TipoDocumentoRepository().GetTiposDocumento();
         }
     }
 }

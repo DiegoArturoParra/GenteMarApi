@@ -1,16 +1,19 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Middleware;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DIMARCore.Business.Logica
 {
     public class DimRegistroEmbarqueBO
     {
-        public List<DimRegistroEmbarqueDTO> GetDimRegistroEmbarque(string id)
+        public async Task<IEnumerable<DimRegistroEmbarqueDTO>> GetDimRegistroEmbarqueAsync(long usuarioId)
         {
-
-            return new DimRegistroEmbarqueRepository().GetDimRegistroEmbarque(id);
-
+            var data = await new DatosBasicosRepository().GetWithCondition(y => y.id_gentemar == usuarioId);
+            return data == null
+                ? throw new HttpStatusCodeException(System.Net.HttpStatusCode.NotFound, "No se encontraron datos del usuario.")
+                : await new DimRegistroEmbarqueRepository().GetDimRegistroEmbarque(data.documento_identificacion);
         }
     }
 }

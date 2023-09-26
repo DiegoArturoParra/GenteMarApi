@@ -352,10 +352,10 @@ namespace DIMARCore.Repositories.Repository
             return tituloNavegacion;
         }
 
-        public async Task<(FechasDTO fechas, bool HayTitulosPorSeccionPuente)> GetFechasRadioOperadores(long idGenteMar)
+        public async Task<(FechasRadioOperadoresDTO fechas, bool HayTitulosPorSeccionPuente)> GetFechasRadioOperadores(long idGenteMar)
         {
             bool hay = false;
-            FechasDTO fechas = new FechasDTO();
+            FechasRadioOperadoresDTO fechas = new FechasRadioOperadoresDTO();
             string seccionPuente = "SECCIÓN DE PUENTE";
             var idSeccionPuente = await _context.GENTEMAR_SECCION_TITULOS.Where(x => x.actividad_a_bordo.ToUpper().Equals(seccionPuente.ToUpper())).
                 Select(x => x.id_seccion).FirstOrDefaultAsync();
@@ -368,7 +368,7 @@ namespace DIMARCore.Repositories.Repository
                                 join seccion in _context.GENTEMAR_SECCION_TITULOS on cargoTitulo.id_seccion equals seccion.id_seccion
                                 where titulo.id_gentemar == idGenteMar && seccion.id_seccion == idSeccionPuente
                                 orderby titulo.fecha_vencimiento descending
-                                select new FechasDTO
+                                select new FechasRadioOperadoresDTO
                                 {
                                     FechaExpedicion = titulo.fecha_expedicion,
                                     FechaVencimiento = titulo.fecha_vencimiento
@@ -409,8 +409,7 @@ namespace DIMARCore.Repositories.Repository
                                join ciuExpDoc in _context.TABLA_NAV_BAND on datosBasicos.cod_pais equals ciuExpDoc.cod_pais
                                join munExpDoc in _context.APLICACIONES_MUNICIPIO on datosBasicos.id_municipio_expedicion equals munExpDoc.ID_MUNICIPIO
                                join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania_firmante equals capitaniaFirmante.ID_CAPITANIA
-
-
+                               where titulo.id_titulo == id
                                select new PlantillaTituloDTO
                                {
                                    Foto = subFoto.RutaArchivo,

@@ -73,7 +73,7 @@ namespace DIMARCore.Repositories.Repository
 
         }
 
-        public LicenciaDTO GetlicenciaId(int id)
+        public async Task<LicenciaDTO> GetlicenciaId(int id)
         {
 
             var resultado = (from licencia in _context.GENTEMAR_LICENCIAS
@@ -101,7 +101,7 @@ namespace DIMARCore.Repositories.Repository
                                      FechaNacimiento = usuario.fecha_vencimiento
                                  },
                                  ListaNaves = (from licenciaNave in _context.GENTEMAR_LICENCIA_NAVES
-                                               join naves in _context.TABLA_NAVES_BASE on licenciaNave.identi equals naves.identi
+                                               join naves in _context.NAVES_BASE on licenciaNave.identi equals naves.identi
                                                where licenciaNave.id_licencia == licencia.id_licencia
                                                select new
                                                {
@@ -109,9 +109,9 @@ namespace DIMARCore.Repositories.Repository
                                                }).Select(x => x.naves.identi).ToList()
 
 
-                             }).FirstOrDefault();
+                             }).FirstOrDefaultAsync();
 
-            return resultado;
+            return await resultado;
         }
 
         /// <summary>

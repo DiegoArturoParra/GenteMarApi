@@ -12,8 +12,8 @@ namespace DIMARCore.UIEntities.DTOs
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFinal { get; set; }
         public DateTime FechaRegistro { get; set; }
-        public decimal DifDias { get; set; }
-        public decimal TotMes { get; set; }
+        public int? DifDias { get; set; }
+        public int? TotMes { get; set; }
         public decimal trb { get; set; }
         public string potencia { get; set; }
         public string nombreArchivo { get; set; }

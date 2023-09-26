@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -45,7 +46,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <returns></returns>
         [ResponseType(typeof(NivelDTO))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("nivel-by-regla-cargo")]
         public async Task<IHttpActionResult> NivelPorCargoRegla([FromUri] IdsTablasForaneasDTO ids)
         {
@@ -57,7 +58,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// Servicio que lista los niveles de un titulo.
         /// </summary>
         /// <remarks>
-        /// Nivel del titulo.
+        /// Servicio que lista los niveles.
         /// </remarks>
         /// <response code="200">OK. Devuelve el listado de niveles.</response>        
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
@@ -69,7 +70,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<NivelDTO>))]
         [HttpGet]
         [Route("niveles/lista")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _service.GetAll(dto != null ? dto.Activo : null);
@@ -92,19 +93,16 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <returns></returns>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<NivelDTO>))]
         [HttpGet]
         [Route("niveles/{id}")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetNivel(int id)
         {
             var entidad = await _service.GetByIdAsync(id);
-            if (entidad.Estado)
-            {
-                var obj = Mapear<GENTEMAR_NIVEL, NivelDTO>((GENTEMAR_NIVEL)entidad.Data);
-                entidad.Data = obj;
-            }
-            return ResultadoStatus(entidad);
+            var obj = Mapear<GENTEMAR_NIVEL, NivelDTO>((GENTEMAR_NIVEL)entidad.Data);
+            entidad.Data = obj;
+            return Ok(entidad);
         }
 
 
@@ -118,18 +116,19 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Fecha>05/03/2022</Fecha>
         /// <param name="nivel">objeto para crear un nivel</param>
         /// <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>    
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud ya existe el nivel.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("niveles/crear")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] NivelDTO nivel)
         {
             var data = Mapear<NivelDTO, GENTEMAR_NIVEL>(nivel);
             var response = await _service.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
 
@@ -145,17 +144,17 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. Ya existe el nombre del nivel.</response>       
+        /// <response code="409">Conflict. conflicto de solicitud ya existe el nivel.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("niveles/editar")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] NivelDTO nivel)
         {
             var data = Mapear<NivelDTO, GENTEMAR_NIVEL>(nivel);
             var response = await _service.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
 
@@ -173,13 +172,13 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("niveles/anula-or-activa/{id}")]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _service.AnulaOrActivaAsync(id);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
     }
 }

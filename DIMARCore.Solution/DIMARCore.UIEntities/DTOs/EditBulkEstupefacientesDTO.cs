@@ -24,8 +24,10 @@ namespace DIMARCore.UIEntities.DTOs
         [Required(ErrorMessage = "Observación requerida.")]
         [StringLength(5000, ErrorMessage = "Debe tener una longitud máxima de {1} caracteres.")]
         public string Observacion { get; set; }
-        [ValidFileInBytesType(".pdf", ".docx", MaxFileSizeMB = 10)]
+        [ValidFileInBytesType(MaxFileSizeMB = 10)]
         public byte[] Archivo { get; set; }
+        [ValidExtension("PDF", "DOCX")]
+        public string Extension { get; set; }
         [Required(ErrorMessage = "Fecha respuesta entidad requerida.")]
         public DateTime FechaRespuestaEntidad { get; set; }
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]

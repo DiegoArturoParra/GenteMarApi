@@ -1,4 +1,6 @@
-﻿namespace DIMARCore.Utilities.Helpers
+﻿using System.CodeDom;
+
+namespace DIMARCore.Utilities.Helpers
 {
     public class Constantes
     {
@@ -22,7 +24,7 @@
         public const string PASS_DEFAULT = "triton12345";
         public const string TRAMITE_LICENCIA = "LICENCIA";
         public const string PREVISTATRAMITE = "Tramite";
-        public const string PREVISTAGENERADA= "Prevista Generada";
+        public const string PREVISTAGENERADA = "Prevista Generada";
         public const string PREVISTAIMPRESA = "Documento Impreso";
         public const bool ACTIVO = true;
         public const bool INACTIVO = false;
@@ -40,8 +42,9 @@
         public const string PLANTILLAREFRENDO = "Templates/Titulos/REFRENDO.html";
         public const string KEY_ENVIRONMENT = "Environment";
         public const string KEY_EXPIRATION_CACHE = "ExpirationCache";
-
-
+        public const string SIN_OBSERVACION = "SIN OBSERVACIÓN";
+        public const string OBSERVACION_PENDIENTE = "Observación Pendiente";
+        public const string OBSERVACION_REGISTRADA = "Observación Registrada";
 
     }
 }

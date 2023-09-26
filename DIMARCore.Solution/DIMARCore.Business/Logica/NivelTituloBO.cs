@@ -18,21 +18,17 @@ namespace DIMARCore.Business.Logica
                 {
                     return repo.GetAll();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return repo.GetAllWithCondition(x => x.activo == activo);
             }
 
         }
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-
             var nivel = await new NivelTituloRepository().GetById(Id);
-            if (nivel == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrado el nivel."));
-            return Responses.SetOkResponse(nivel);
+            return nivel == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el nivel solicitado."))
+                : Responses.SetOkResponse(nivel);
         }
 
         public async Task<Respuesta> CrearAsync(GENTEMAR_NIVEL entidad)
@@ -96,10 +92,7 @@ namespace DIMARCore.Business.Logica
         public async Task<NivelDTO> GetNivelTituloByCargoReglaId(IdsTablasForaneasDTO ids)
         {
             var Nivel = await new ReglaCargoRepository().GetIdNivelForReglaCargo(ids);
-            if (Nivel == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el nivel"));
-
-            return Nivel;
+            return Nivel ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay ninguna relación con la regla, capacidad y cargo solicitado."));
         }
     }
 }

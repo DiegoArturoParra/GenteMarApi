@@ -15,6 +15,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
+using DIMARCore.Api.Core.Models;
 
 namespace DIMARCore.Api.Controllers.Estupefacientes
 {
@@ -41,31 +42,29 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <param name="filtro"></param>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve la información de estupefacientes mediante filtros.</response>
-        /// <response code="204">No Content. No hay titulos.</response>
+        /// <response code="204">No Content. No hay estupefacientes con los filtros correspondientes.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response> 
         [ResponseType(typeof(Paginador<ListadoEstupefacientesDTO>))]
         [HttpPost]
         [Route("filtro")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes,
-            RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes,
-            RolesEnum.ConsultasEstupefacientes)]
-
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
+            RolesEnum.ConsultasVCITE)]
         public IHttpActionResult Paginar([FromBody] EstupefacientesFilter filtro)
         {
-
             if (filtro == null)
             {
-                filtro = new EstupefacientesFilter();
+                filtro = new EstupefacientesFilter
+                {
+                    Paginacion = new ParametrosPaginacion()
+                };
             }
 
             var queryable = _serviceEstupefacientes.GetEstupefacientesByFiltro(filtro);
-            if (queryable == null)
+            if (!queryable.Any())
             {
-                return Content(HttpStatusCode.NoContent,
-                    new Respuesta() { Mensaje = "No hay datos de estupefacientes.", StatusCode = HttpStatusCode.NoContent });
+                return Content(HttpStatusCode.OK, Responses.SetOkResponse(null, "No no se encontraron resultados."));
             }
 
             var listado = GetPaginacion(filtro.Paginacion, queryable);
@@ -86,18 +85,15 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<UsuarioGenteMarDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("datos-gentemar-por-cedula")]
         public async Task<IHttpActionResult> GetGenteMarEstupefaciente([FromUri] CedulaDTO obj)
         {
             var respuesta = await _serviceEstupefacientes.GetDatosGenteMarEstupefaciente(obj.IdentificacionConPuntos);
             return Ok(respuesta);
         }
-
-
 
         // GET: Información completa de un registro de estupefaciente  
         /// <summary>
@@ -115,8 +111,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [ResponseType(typeof(Respuesta))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE, RolesEnum.ConsultasVCITE)]
         [Route("info/{id}")]
         public async Task<IHttpActionResult> GetDetallePersonaEstupefaciente(long id)
         {
@@ -125,9 +120,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         }
 
 
-
-
-        // GET: 
+        // POST: 
         /// <summary>
         ///  Get estupefacientes sin observaciones para edición masiva
         /// </summary>
@@ -135,19 +128,19 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/06/2023</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve y extrae la lista de estupefacientes que no tienen observaciones.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(List<EstupefacientesBulkDTO>))]
         [HttpPost]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
-        [Route("sin-observaciones-para-bulk")]
-        public async Task<IHttpActionResult> GetEstupefacientesSinObservaciones(List<long> ids)
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [Route("listar/sin-observaciones-para-edicion-masiva")]
+        public async Task<IHttpActionResult> GetEstupefacientesSinObservaciones([FromBody] List<long> ids)
         {
-            var respuesta = await _serviceEstupefacientes.GetEstupefacientesSinObservaciones(ids);
-            return Ok(respuesta);
+            var listado = await _serviceEstupefacientes.GetEstupefacientesSinObservaciones(ids);
+            return Ok(listado);
         }
 
 
@@ -159,15 +152,15 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>08/07/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la tramite de estupefaciente.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] EstupefacienteCrearDTO estupefaciente)
         {
             var dataEstupefaciente = Mapear<EstupefacienteCrearDTO, GENTEMAR_ANTECEDENTES>(estupefaciente);
@@ -186,16 +179,16 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>08/07/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. se ha actualizado el recurso (estupefaciente).</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Editar()
         {
             Respuesta respuesta = new Respuesta();
@@ -217,7 +210,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
 
             var dataEstupefaciente = Mapear<EditInfoEstupefacienteDTO, GENTEMAR_ANTECEDENTES>(estupefaciente);
             var datosBasicos = Mapear<EstupefacienteDatosBasicosDTO, GENTEMAR_ANTECEDENTES_DATOSBASICOS>(estupefaciente.DatosBasicos);
-          
+
 
             respuesta = await _serviceEstupefacientes.EditarAsync(dataEstupefaciente, datosBasicos, PathActual);
             return ResultadoStatus(respuesta);
@@ -230,15 +223,16 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>28/04/2023</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. se ha actualizado los recursos (estupefacientes).</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("edicion-masiva")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> EditarBulk([FromBody] EditBulkEstupefacientesDTO estupefacientes)
         {
             var response = await _serviceEstupefacientes.EditBulk(estupefacientes);
@@ -254,14 +248,13 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>28/04/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<string>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("radicados-sgdea-titulos")]
         public async Task<IHttpActionResult> GetRadicadosTitulos([FromUri] CedulaDTO obj)
         {
@@ -277,14 +270,13 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>28/04/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<string>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("radicados-sgdea-licencias")]
         public async Task<IHttpActionResult> GetRadicadosLicencias([FromUri] CedulaDTO obj)
         {

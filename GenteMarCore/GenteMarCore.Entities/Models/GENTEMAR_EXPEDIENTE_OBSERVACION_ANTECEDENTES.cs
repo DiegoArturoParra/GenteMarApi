@@ -18,7 +18,7 @@ namespace GenteMarCore.Entities.Models
         public int id_expediente { get; set; }
         [Required]
         public int id_consolidado { get; set; }
-        public string descripcion { get; set; }
+        public string descripcion_observacion { get; set; }
         public bool? verificacion_exitosa { get; set; }
         public DateTime? fecha_respuesta_entidad { get; set; }
     }

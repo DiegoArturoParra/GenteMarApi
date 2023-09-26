@@ -24,7 +24,7 @@ namespace DIMARCore.UIEntities.DTOs
     }
     public class UsuarioTritonDTO
     {
-        public long LoginId { get; set; }
+        public long? LoginId { get; set; }
         [Required(ErrorMessage = "El nombre es requerido.")]
         [StringLength(100, ErrorMessage = "Debe tener una longitud máxima de {1} caracteres.")]
         public string Nombres { get; set; }

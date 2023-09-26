@@ -1,7 +1,9 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,7 +17,6 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// servicios para las habilitaciones del titulo de navegación
     /// <Autor>Diego Parra</Autor>
     /// versión 1.0
-    /// 2022/02/26
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/habilitaciones")]
@@ -39,7 +40,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// listado de habilitaciones con filtro.
         /// </remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>2022/02/26</Fecha>
+        /// <Fecha>01/06/2022</Fecha>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado data.</response>
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
@@ -50,27 +51,36 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<HabilitacionDTO>))]
         [HttpGet]
         [Route("lista-by-regla-cargo")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> GetHabilitacionesByReglaId([FromUri] IdsTablasForaneasDTO items)
         {
             var existeRelacion = await new ReglaCargoBO().GetIdByTablasForaneas(items);
-            if (existeRelacion.Estado)
-            {
-                int Id = (int)existeRelacion.Data;
-                var query = _serviceHabilitacion.GetHabilitacionesByReglaCargoId(Id);
-                var listado = Mapear<IEnumerable<GENTEMAR_CARGO_HABILITACION>, IEnumerable<HabilitacionDTO>>(query);
-                return Ok(listado);
-            }
-            return ResultadoStatus(existeRelacion);
+            int CargoReglaId = (int)existeRelacion.Data;
+            var query = await _serviceHabilitacion.GetHabilitacionesByReglaCargoId(CargoReglaId);
+            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_HABILITACION>, IEnumerable<HabilitacionDTO>>(query);
+            return Ok(listado);
         }
 
 
         /// <summary>
-        /// Listado de habilitaciones
+        /// Servicio para el listado de habilitaciones.
         /// </summary>
+        /// <remarks>
+        /// listado de habilitaciones con filtro de activo.
+        /// </remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>01/06/2022</Fecha>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado data.</response>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        /// <param name="dto">(dto) objeto que tiene el filtro de activo</param>
         /// <returns></returns>
+
+        [ResponseType(typeof(List<HabilitacionDTO>))]
         [HttpGet]
         [Route("lista")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceHabilitacion.GetAll(dto != null ? dto.Activo : null);
@@ -80,69 +90,104 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
 
 
         /// <summary>
-        /// servicio get habilitacion
+        /// servicio que retorna la habilitación por id
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// Muestra objeto tipo respuesta con la habilitación.
+        /// </remarks>
+        /// <param name="id">parametro del id habilitación</param>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>    
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado data.</response>
+        /// <response code="500">Internal Server. Error En el servidor.</response>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>18/06/2022</Fecha>
+        /// <returns></returns>
+        [ResponseType(typeof(ResponseTypeSwagger<HabilitacionDTO>))]
         [HttpGet]
         [Route("{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetHabilitacion(int id)
         {
             var entidad = await _serviceHabilitacion.GetByIdAsync(id);
-            if (entidad.Estado)
-            {
-                var obj = Mapear<GENTEMAR_HABILITACION, HabilitacionDTO>((GENTEMAR_HABILITACION)entidad.Data);
-                entidad.Data = obj;
-            }
-            return ResultadoStatus(entidad);
+            var obj = Mapear<GENTEMAR_HABILITACION, HabilitacionDTO>((GENTEMAR_HABILITACION)entidad.Data);
+            entidad.Data = obj;
+            return Ok(entidad);
         }
 
-
-
         /// <summary>
-        /// Servicio para crear una habilitacion
+        /// Servicio para crear una habilitación
         /// </summary>
-        /// <param name="habilitacion"></param>
+        /// <remarks>
+        ///  Servicio para crear una habilitación
+        /// </remarks>
+        /// <param name="habilitacion">objeto para crear una habilitación</param>
+        /// <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud ya existe la habilitación.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>20/06/2022</Fecha>
         /// <returns></returns>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] HabilitacionDTO habilitacion)
         {
             var data = Mapear<HabilitacionDTO, GENTEMAR_HABILITACION>(habilitacion);
             var response = await _serviceHabilitacion.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
 
         /// <summary>
-        ///  Servicio para editar una habilitacion
+        /// Servicio para editar una habilitación.
         /// </summary>
-        /// <param name="habilitacion"></param>
-        /// <returns></returns>
+        /// <remarks>
+        ///  Servicio para editar una habilitación.
+        /// </remarks>
+        /// <param name="habilitacion">objeto para editar una habilitación </param>
+        /// <response code="200">OK. Devuelve el mensaje se ha editado.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. Ya existe el nombre de la habilitación.</response>       
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>20/06/2022</Fecha>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] HabilitacionDTO habilitacion)
         {
             var data = Mapear<HabilitacionDTO, GENTEMAR_HABILITACION>(habilitacion);
             var response = await _serviceHabilitacion.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
-        /// Servicio para Inactivar una habilitacion
+        /// Servicio para inactivar o activar una habilitación.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <remarks>
+        ///  Servicio para inactivar o activar una habilitación a partir del parametro id.
+        /// </remarks>
+        /// <param name="id">id de la habilitación</param>
+        /// <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>20/06/2022</Fecha>
+        [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceHabilitacion.AnulaOrActivaAsync(id);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
     }
 }

@@ -53,29 +53,19 @@ namespace DIMARCore.Repositories.Repository
         /// Lista de clase dependiendo el id de la seccion 
         /// </summary>
         /// <returns>Lista de las clases</returns>
-        public IList<ClaseDTO> GetClaseSeccion(int id)
+        public async Task<IEnumerable<ClaseDTO>> GetClaseSeccion(int id)
         {
-            try
-            {
-                var resultado = (from seccionClase in _context.GENTEMAR_SECCION_CLASE
-                                 join clase in _context.GENTEMAR_CLASE_LICENCIAS on
-                                 seccionClase.id_clase equals clase.id_clase
-                                 where seccionClase.id_seccion == id && clase.activo == true 
-                                 select new ClaseDTO
-                                 {
-                                     Id = clase.id_clase,
-                                     Descripcion = clase.descripcion_clase,
-                                     IsActive = clase.activo,
-                                     Sigla = clase.sigla,
-
-                                 }).ToList();
-
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return await (from seccionClase in _context.GENTEMAR_SECCION_CLASE
+                          join clase in _context.GENTEMAR_CLASE_LICENCIAS on
+                          seccionClase.id_clase equals clase.id_clase
+                          where seccionClase.id_seccion == id && clase.activo == true
+                          select new ClaseDTO
+                          {
+                              Id = clase.id_clase,
+                              Descripcion = clase.descripcion_clase,
+                              IsActive = clase.activo,
+                              Sigla = clase.sigla,
+                          }).ToListAsync();
         }
 
         /// <summary>

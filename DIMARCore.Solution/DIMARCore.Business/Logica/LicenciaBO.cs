@@ -36,9 +36,11 @@ namespace DIMARCore.Business.Logica
         /// <returns>Objeto licencia dado el id de la licencia </returns>
         /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public LicenciaDTO GetlicenciaId(int id)
+        public async Task<LicenciaDTO> GetlicenciaIdAsync(int id)
         {
-            return new LicenciaRepository().GetlicenciaId(id);
+            var entidad = await new LicenciaRepository().GetById(id);
+            await new DatosBasicosBO().ValidationsStatusPersona(new ParametrosGenteMarDTO { Id = entidad.id_gentemar });
+            return await new LicenciaRepository().GetlicenciaId(id);
         }
 
 
@@ -51,7 +53,6 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearLicencia(GENTEMAR_LICENCIAS data, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-
             using (var repo = new LicenciaRepository())
             {
                 var validate = await repo.AnyWithCondition(x => x.radicado == data.radicado);
@@ -133,6 +134,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> ModificarLicencia(GENTEMAR_LICENCIAS data, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
+            await ValidacionesDeNegocio(data, true);
 
             using (var repo = new LicenciaRepository())
             {
@@ -286,6 +288,24 @@ namespace DIMARCore.Business.Logica
 
                 }
             }
+        }
+
+        private async Task ValidacionesDeNegocio(GENTEMAR_LICENCIAS entidad, bool isEdit = false)
+        {
+
+            if (!isEdit)
+            {
+                var existeRadicadoSGDEA = await new SGDEARepository().AnyWithCondition(x => x.radicado.ToString().Equals(entidad.radicado));
+                if (!existeRadicadoSGDEA)
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el radicado: {entidad.radicado} en el SGDEA.");
+
+                var SeRepiteRadicado = await new LicenciaRepository().AnyWithCondition(x => x.radicado.Equals(entidad.radicado));
+                if (SeRepiteRadicado)
+                    throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"Ya se uso el radicado: {entidad.radicado}.");
+
+            }
+
+            await new DatosBasicosBO().ValidationsStatusPersona(new ParametrosGenteMarDTO { Id = entidad.id_gentemar });
         }
     }
 

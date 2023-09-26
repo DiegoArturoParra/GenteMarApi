@@ -43,30 +43,25 @@ namespace DIMARCore.Api.Controllers
         /// <Fecha>2022/02/26</Fecha>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve la información de datos basicos.</response>
-        /// <response code="204">No Content. No hay titulos.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(Paginador<ListadoDatosBasicosDTO>))]
         [HttpPost]
         [Route("paginar")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult PaginarDatosBasicos([FromBody] DatosBasicosQueryFilter filtro)
         {
             if (filtro == null)
             {
-                filtro = new DatosBasicosQueryFilter();
+                filtro = new DatosBasicosQueryFilter
+                {
+                    Paginacion = new ParametrosPaginacion()
+                };
             }
             var queryable = _service.GetDatosBasicosQueryable(filtro);
-            if (filtro.Paginacion.Page == 0 && filtro.Paginacion.PageSize == 0)
-            {
-                filtro.Paginacion.Page = 1;
-            }
-            filtro.Paginacion.PageSize = queryable.Count();
-
             var listado = GetPaginacion(filtro.Paginacion, queryable);
-            var paginador =
-                Paginador<ListadoDatosBasicosDTO>.CrearPaginador(queryable.Count(), listado, filtro.Paginacion);
+            var paginador = Paginador<ListadoDatosBasicosDTO>.CrearPaginador(queryable.Count(), listado, filtro.Paginacion);
             return Ok(paginador);
         }
 
@@ -110,7 +105,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -168,7 +163,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Actualizar()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -217,7 +212,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("cambiar-estado")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> ChangeStatus()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -253,7 +248,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [HttpGet]
         [Route("listar/{id}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetById(long id)
         {
             var DatosBasicos = _service.GetDatosBasicosId(id, PathActual);
@@ -274,11 +269,11 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [HttpPost]
         [Route("por-filtro")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador,
-            RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM,
+            RolesEnum.AdministradorVCITE,RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE)]
         public async Task<IHttpActionResult> GetPersonaByIdentificacionOrId(ParametrosGenteMarDTO parametrosGenteMar)
         {
-            var data = await _service.GetPersonaByIdentificacionOrId(parametrosGenteMar);
+            var data = await _service.ValidationsStatusPersona(parametrosGenteMar);
             return Ok(data);
         }
 

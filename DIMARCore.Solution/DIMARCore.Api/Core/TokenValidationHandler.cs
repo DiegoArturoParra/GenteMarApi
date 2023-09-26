@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Utilities.Config;
+using log4net;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace DIMARCore.Api.Core
     /// </summary>
     internal class TokenValidationHandler : DelegatingHandler
     {
+        private static ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         /// <summary>
         /// Validación del token en el encabezado de la solicitud
         /// </summary>
@@ -117,10 +119,12 @@ namespace DIMARCore.Api.Core
             {
                 // excepción al validar el CurrentPrincipal o el user
                 // token no valido
+                _logger.Warn(ex);
                 statusCode = HttpStatusCode.Unauthorized;
             }
             catch (Exception ex)
             {
+                _logger.Error(ex);
                 // excepción al validar el CurrentPrincipal o el user
                 // token no valiado
                 statusCode = HttpStatusCode.InternalServerError;
@@ -141,6 +145,7 @@ namespace DIMARCore.Api.Core
                 }
                 catch (Exception ex)
                 {
+                    _logger.Error(ex);
                     // throw;
                     // no se hace nada - se continua
                 }

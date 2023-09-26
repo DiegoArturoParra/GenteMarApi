@@ -1,10 +1,7 @@
 namespace GenteMarCore.Entities.Models
 {
-    using System;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("GENTEMAR_FORMACION_GRADO", Schema = "DBA")]
     public partial class GENTEMAR_FORMACION_GRADO

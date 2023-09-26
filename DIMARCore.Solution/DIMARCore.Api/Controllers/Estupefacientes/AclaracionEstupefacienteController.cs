@@ -42,7 +42,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<HistorialAclaracionDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         [Route("historico/{id}")]
         public async Task<IHttpActionResult> GetHistorialPorEstupefacienteId(long id)
         {
@@ -67,8 +67,8 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPost]
         [Route("agregar-al-expediente")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
-        public async Task<IHttpActionResult> AgregarAclaracionAlExpediente(AclaracionEditDTO aclaracionEdit)
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        public async Task<IHttpActionResult> AgregarAclaracionAlExpediente([FromBody] AclaracionEditDTO aclaracionEdit)
         {
             var response = await _Aclaracionservice.AgregarAclaracionEstupefaciente(aclaracionEdit, PathActual);
             return ResultadoStatus(response);

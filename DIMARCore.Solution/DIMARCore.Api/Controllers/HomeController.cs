@@ -1,5 +1,4 @@
 ﻿using System.Configuration;
-using System.Web.Http.Cors;
 using System.Web.Mvc;
 
 namespace DIMARCore.Api.Controllers

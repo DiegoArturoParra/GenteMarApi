@@ -11,7 +11,6 @@ namespace DIMARCore.Business.Logica
 {
     public class CapacidadBO : IGenericCRUD<GENTEMAR_CAPACIDAD, int>
     {
-
         public IEnumerable<GENTEMAR_CAPACIDAD> GetAll(bool? activo = true)
         {
             using (var repo = new CapacidadRepository())
@@ -20,23 +19,19 @@ namespace DIMARCore.Business.Logica
                 {
                     return repo.GetAll();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return repo.GetAllWithCondition(x => x.activo == activo);
             }
         }
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
             var entidad = await new CapacidadRepository().GetById(Id);
-            if (entidad == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la capacidad."));
-            return Responses.SetOkResponse(entidad);
+            return entidad == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la capacidad."))
+                : Responses.SetOkResponse(entidad);
         }
         public async Task<Respuesta> ExisteCapacidadById(int capacidadId)
         {
-
             var existe = await new CapacidadRepository().AnyWithCondition(x => x.id_capacidad == capacidadId);
             if (!existe)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la capacidad."));
@@ -45,14 +40,13 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> CrearAsync(GENTEMAR_CAPACIDAD entidad)
         {
-
             using (var repo = new CapacidadRepository())
             {
                 await ExisteByNombreAsync(entidad.capacidad);
                 entidad.capacidad = entidad.capacidad.Trim();
                 await repo.Create(entidad);
             }
-            return Responses.SetCreatedResponse(entidad);
+            return Responses.SetCreatedResponse();
         }
 
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_CAPACIDAD entidad)
@@ -63,7 +57,7 @@ namespace DIMARCore.Business.Logica
             var objeto = (GENTEMAR_CAPACIDAD)respuesta.Data;
             objeto.capacidad = entidad.capacidad.Trim();
             await new CapacidadRepository().Update(objeto);
-            return Responses.SetUpdatedResponse(objeto);
+            return Responses.SetUpdatedResponse();
         }
 
         public async Task<Respuesta> AnulaOrActivaAsync(int Id)
@@ -86,17 +80,14 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(obj, respuesta.Mensaje);
         }
 
-        public async Task<Respuesta> Validaciones(IdsLlaveCompuestaDTO itemsId)
+        public async Task IsExistItemsCargoAndRegla(IdsLlaveCompuestaDTO itemsId)
         {
-            var response = await new ReglaBO().ExisteReglaById(itemsId.ReglaId);
-            if (response.Estado)
-            {
-                response = await new CargoTituloBO().ExisteCargoTituloById(itemsId.CargoTituloId);
-            }
-            return response;
+            await new ReglaBO().ExisteReglaById(itemsId.ReglaId);
+            await new CargoTituloBO().ExisteCargoTituloById(itemsId.CargoTituloId);
         }
         public async Task<IEnumerable<GENTEMAR_REGLAS_CARGO>> CapacidadByReglaCargo(IdsLlaveCompuestaDTO items)
         {
+            await IsExistItemsCargoAndRegla(items);
             return await new CapacidadRepository().CapacidadByReglaCargo(items);
         }
         public async Task ExisteByNombreAsync(string nombre, int id = 0)

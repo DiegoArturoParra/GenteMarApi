@@ -11,8 +11,6 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task<IEnumerable<InfoReglaFuncionDTO>> GetDetalles()
         {
-
-
             var listaAgrupada = _context.GENTEMAR_REGLA_FUNCION.Include(x => x.GENTEMAR_FUNCIONES).Include(x => x.GENTEMAR_REGLAS)
                 .GroupBy(p => new { p.id_regla });
 
@@ -36,11 +34,9 @@ namespace DIMARCore.Repositories.Repository
                  { Funciones = x.Select(y => y.id_funcion).ToList(), ReglaId = x.Key })
                  .FirstOrDefaultAsync();
         }
-        private async Task<IEnumerable<int>> ReglasInDetalle()
-        {
-            return await _context.GENTEMAR_REGLA_FUNCION.GroupBy
-                   (x => x.id_regla).Select(y => y.Key).ToListAsync();
-        }
+        private async Task<IEnumerable<int>> ReglasInDetalle() =>
+                 await _context.GENTEMAR_REGLA_FUNCION.GroupBy(x => x.id_regla).Select(y => y.Key).ToListAsync();
+
         public async Task UpdateInCascade(List<GENTEMAR_REGLA_FUNCION> entidades, int reglaId)
         {
             _context.GENTEMAR_REGLA_FUNCION.RemoveRange(_context.GENTEMAR_REGLA_FUNCION.Where(x => x.id_regla == reglaId));
@@ -56,13 +52,12 @@ namespace DIMARCore.Repositories.Repository
         public async Task<IEnumerable<ReglaDTO>> GetReglasSinFunciones()
         {
             var listado = await ReglasInDetalle();
-            var reglas = await _context.GENTEMAR_REGLAS.Where(x => !listado.Contains(x.id_regla) && x.activo == true).Select(x => new ReglaDTO
+            return await _context.GENTEMAR_REGLAS.Where(x => !listado.Contains(x.id_regla) && x.activo == true).Select(x => new ReglaDTO
             {
                 Descripcion = x.nombre_regla,
                 Id = x.id_regla,
                 IsActive = x.activo
             }).ToListAsync();
-            return reglas;
         }
     }
 }

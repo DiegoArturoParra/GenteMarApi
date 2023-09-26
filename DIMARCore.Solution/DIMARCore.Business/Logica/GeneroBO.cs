@@ -2,6 +2,7 @@
 using DIMARCore.Repositories.Repository;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DIMARCore.Business
 {
@@ -13,10 +14,10 @@ namespace DIMARCore.Business
         /// <returns>Lista de Genero</returns>
         /// <entidad>APLICACIONES_GENERO</entidad>
         /// <tabla>APLICACIONES_GENERO</tabla>
-        public IList<APLICACIONES_GENERO> GetGenero()
+        public async Task<IList<APLICACIONES_GENERO>> GetGeneros()
         {
             // Obtiene la lista
-            return new GeneroRepository().GetGenero();
+            return await new GeneroRepository().GetGeneros();
         }
     }
 }

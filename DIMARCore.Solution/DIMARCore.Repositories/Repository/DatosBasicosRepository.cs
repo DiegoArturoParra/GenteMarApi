@@ -1,7 +1,6 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
-using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -136,7 +135,8 @@ namespace DIMARCore.Repositories.Repository
                             {
                                 documento_identificacion = entidadActual.documento_identificacion,
                                 id_gentemar = entidadActual.id_gentemar,
-                                id_tipo_documento = entidadActual.id_tipo_documento
+                                id_tipo_documento = entidadActual.id_tipo_documento,
+                                fecha_cambio = DateTime.Now
                             };
                             _context.GENTEMAR_HISTORIAL_DOCUMENTO.Add(historial);
                             await SaveAllAsync();
@@ -219,8 +219,8 @@ namespace DIMARCore.Repositories.Repository
                                                                       join estupefaciente in _context.GENTEMAR_ANTECEDENTES on datosBasicosEstupefaciente.id_gentemar_antecedente
                                                                       equals estupefaciente.id_gentemar_antecedente
                                                                       where datosBasicosEstupefaciente.identificacion == x.GenteMar.documento_identificacion
-                                                                      && estupefaciente.id_estado_antecedente == (int)EstadoEstupefacienteEnum.Negativa
-                                                                       && estupefaciente.fecha_vigencia < DateTime.Now
+                                                                      && estupefaciente.id_estado_antecedente != (int)EstadoEstupefacienteEnum.Exitosa
+                                                                      && estupefaciente.fecha_vigencia.HasValue ? estupefaciente.fecha_vigencia.Value >= DateTime.Now : false
                                                                       select estupefaciente).Any(vcite => vcite.id_antecedente > 0)
                                  }).FirstOrDefaultAsync();
             }
@@ -253,8 +253,8 @@ namespace DIMARCore.Repositories.Repository
                                                                       join estupefaciente in _context.GENTEMAR_ANTECEDENTES on datosBasicosEstupefaciente.id_gentemar_antecedente
                                                                       equals estupefaciente.id_gentemar_antecedente
                                                                       where datosBasicosEstupefaciente.identificacion == x.GenteMar.documento_identificacion
-                                                                      && estupefaciente.id_estado_antecedente == (int)EstadoEstupefacienteEnum.Negativa
-                                                                       && estupefaciente.fecha_vigencia < DateTime.Now
+                                                                      && estupefaciente.id_estado_antecedente != (int)EstadoEstupefacienteEnum.Exitosa
+                                                                      && estupefaciente.fecha_vigencia.HasValue ? estupefaciente.fecha_vigencia.Value >= DateTime.Now : false
                                                                       select estupefaciente).Any(vcite => vcite.id_antecedente > 0)
                                  }).FirstOrDefaultAsync();
             }

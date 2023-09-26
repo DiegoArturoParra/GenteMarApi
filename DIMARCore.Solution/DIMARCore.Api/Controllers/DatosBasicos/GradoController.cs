@@ -41,7 +41,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GradoDTO>))]
         [HttpGet]
         [Route("listaidformacion/{id}/{status}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetGradoIdFormacion(int id, bool status)
         {
             var grados = _service.GetGradoIdGrado(id, status);
@@ -65,7 +65,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GradoDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetFormacion()
         {
             var grado = _service.GetGrado();
@@ -87,7 +87,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GradoDTO>))]
         [HttpGet]
         [Route("listaActivo")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetFormacionActivos()
         {
             var grado = _service.GetGradoActivo();
@@ -111,7 +111,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearFormacion(GradoDTO grado)
         {
             //var data = Mapear<GradoDTO, APLICACIONES_GRADO>(grado);
@@ -135,7 +135,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> actualizarGrado(GradoDTO grado)
         {
             //var data = Mapear<GradoDTO, APLICACIONES_GRADO>(grado);
@@ -158,7 +158,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> cambiarGrado(int id)
         {
             var respuesta = await _service.cambiarGrado(id);

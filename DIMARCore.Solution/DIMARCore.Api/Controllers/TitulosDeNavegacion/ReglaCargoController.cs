@@ -1,10 +1,11 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
-using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -19,7 +20,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/regla-cargos")]
-    [AuthorizeRoles(RolesEnum.Administrador)]
+    [AuthorizeRoles(RolesEnum.AdministradorGDM)]
     public class ReglaCargoController : BaseApiController
     {
 
@@ -45,7 +46,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(ListadoDetalleCargoReglaDTO))]
+        [ResponseType(typeof(IEnumerable<ListadoDetalleCargoReglaDTO>))]
         [HttpGet]
         [Route("listado")]
         public IHttpActionResult GetDetalles([FromUri] DetalleReglaFilter filtro)
@@ -66,38 +67,36 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>23/03/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<CargoReglaDTO>))]
         [HttpGet]
         [Route("{id}")]
         public async Task<IHttpActionResult> GetDetallesById(int id)
         {
             var query = await _service.GetById(id);
-            if (query.Estado)
-            {
-                return Ok(query.Data);
-            }
             return Ok(query);
         }
 
         /// <summary>
-        ///  Creación cargo reglas
+        ///  Creación cargo regla
         /// </summary>
         /// <remarks>
+        ///  Servicio para crear la relación del cargo con regla
+        /// </remarks>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>28/04/2022</Fecha>
-        /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <param name="obj">Objeto dto para crear la relación cargo regla</param>
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
         public async Task<IHttpActionResult> CrearCargoRegla(CargoReglaDTO obj)
@@ -107,21 +106,22 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             return ResultadoStatus(respuesta);
         }
 
-
         /// <summary>
-        ///  Edición cargo reglas
+        ///  Edición cargo regla
         /// </summary>
         /// <remarks>
+        ///  Servicio para editar la relación del cargo con regla
+        /// </remarks>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>28/04/2022</Fecha>
-        /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <param name="obj">Objeto dto para editar la relación cargo regla</param>
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
         public async Task<IHttpActionResult> EditarCargoRegla(CargoReglaDTO obj)

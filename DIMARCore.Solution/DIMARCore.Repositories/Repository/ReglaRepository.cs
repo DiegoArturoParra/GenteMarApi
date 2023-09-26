@@ -1,5 +1,4 @@
 ﻿using DIMARCore.UIEntities.DTOs;
-using GenteMarCore.Entities;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -34,20 +33,11 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task Actualizar(GENTEMAR_REGLAS objeto)
         {
-            using (var db = new GenteDeMarCoreContext())
-            {
-                db.GENTEMAR_REGLAS.Attach(objeto);
-                db.Entry(objeto).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-            }
-        }
-
-        public async Task<GENTEMAR_REGLAS> GetByIdLazy(int id)
-        {
             using (_context)
             {
-                _context.Configuration.LazyLoadingEnabled = false;
-                return await GetById(id);
+                _context.GENTEMAR_REGLAS.Attach(objeto);
+                _context.Entry(objeto).State = EntityState.Modified;
+                await SaveAllAsync();
             }
         }
     }

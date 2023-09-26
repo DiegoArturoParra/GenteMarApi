@@ -16,8 +16,7 @@ namespace DIMARCore.Repositories.Repository
         /// <tabla>GENTEMAR_ESTADO</tabla>
         public IList<GENTEMAR_ESTADO_LICENCIA> GetEstado()
         {
-            var resultado = (from a in _context.GENTEMAR_ESTADO_LICENCIAS
-                             select a).OrderBy(p => p.descripcion_estado).ToList();
+            var resultado = (from a in Table select a).OrderBy(p => p.descripcion_estado).ToList();
             return resultado;
         }
     }

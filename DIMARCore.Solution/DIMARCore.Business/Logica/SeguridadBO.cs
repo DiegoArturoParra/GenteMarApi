@@ -42,7 +42,7 @@ namespace DIMARCore.Business
                 throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("La combinación usuario/contraseña es incorrecta."));
 
             else if (!usuario.Roles.Any())
-                throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("No cuenta con roles asignados al aplicativo de Gente De Mar, comuniquese con el administrador."));
+                throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("No cuenta con roles asignados en el aplicativo de Gente De Mar, comuniquese con el administrador."));
 
             else if (usuario.EstadoId == (int)EstadoUsuarioLoginEnum.RETIRO)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse("Su cuenta esta desactivada, comuniquese con el administrador."));

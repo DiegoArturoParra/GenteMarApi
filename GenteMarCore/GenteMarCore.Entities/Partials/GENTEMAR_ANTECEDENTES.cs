@@ -6,5 +6,7 @@ namespace GenteMarCore.Entities.Models
     {
         [NotMapped]
         public GENTEMAR_OBSERVACIONES_ANTECEDENTES Observacion { get; set; }
+        [NotMapped]
+        public GENTEMAR_ANTECEDENTES_DATOSBASICOS DatosBasicos { get; set; }
     }
 }

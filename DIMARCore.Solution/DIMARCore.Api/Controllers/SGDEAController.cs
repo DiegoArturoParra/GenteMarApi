@@ -13,7 +13,7 @@ namespace DIMARCore.Api.Controllers
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/sgdea")]
-    [AllowAnonymous]
+    [Authorize]
     public class SGDEAController : BaseApiController
     {
         private readonly SgdeaBO _SGDEAService;
@@ -61,7 +61,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
 
-        
+
         [ResponseType(typeof(List<RadicadoInfoDTO>))]
         [HttpGet]
         [Route("radicados-info-estupefacientes/{isTitulo}")]

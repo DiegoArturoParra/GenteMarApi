@@ -19,7 +19,6 @@ namespace GenteMarCore.Entities
             Database.SetInitializer<GenteDeMarCoreContext>(null);
             Configuration.ProxyCreationEnabled = false;
             Configuration.LazyLoadingEnabled = false;
-
         }
         /// <summary>
         /// constructor para obtener la cadena de conexion desde el archivo de configuracion desencriptada
@@ -104,14 +103,15 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES { get; set; }
         public virtual DbSet<GENTEMAR_HISTORIAL_DOCUMENTO> GENTEMAR_HISTORIAL_DOCUMENTO { get; set; }
         public virtual DbSet<GENTEMAR_LICENCIA_NAVES> GENTEMAR_LICENCIA_NAVES { get; set; }
-        public virtual DbSet<NAVES_BASE> TABLA_NAVES_BASE { get; set; }
+        public virtual DbSet<NAVES_BASE> NAVES_BASE { get; set; }
         public virtual DbSet<GENTEMAR_TITULO_REGLA_CARGOS> GENTEMAR_TITULO_REGLA_CARGOS { get; set; }
         public virtual DbSet<GENTEMAR_TITULO_CARGO_HABILITACION> GENTEMAR_TITULO_CARGO_HABILITACION { get; set; }
         public virtual DbSet<GENTEMAR_TITULO_CARGO_FUNCION> GENTEMAR_TITULO_CARGO_FUNCION { get; set; }
         public virtual DbSet<GENTEMAR_CONSOLIDADO> GENTEMAR_CONSOLIDADO { get; set; }
         public virtual DbSet<GENTEMAR_EXPEDIENTE> GENTEMAR_EXPEDIENTE { get; set; }
         public virtual DbSet<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES> GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES { get; set; }
-
+        public virtual DbSet<DETALLE_NAVE> TABLA_DETALLE_NAVE { get; set; }
+        public virtual DbSet<GENTEMAR_LOGS> GENTEMAR_LOGS { get; set; }
         #endregion
 
 
@@ -589,7 +589,7 @@ namespace GenteMarCore.Entities
                 .HasKey(x => new { x.id_regla, x.id_funcion });
 
             modelBuilder.Entity<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>()
-                .Property(e => e.descripcion)
+                .Property(e => e.descripcion_observacion)
                 .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>()

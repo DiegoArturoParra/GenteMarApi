@@ -64,7 +64,11 @@
       <DependentUpon>202307020253242_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\APLICACIONES_ESTADO_TRAMITE.cs" />
     <Compile Include="Models\APLICACIONES_TIPO_REFRENDO.cs" />
+    <Compile Include="Models\GENTEMAR_ACLARACION_ANTECEDENTES.cs" />
+    <Compile Include="Models\GENTEMAR_ESTADO_ANTECEDENTES.cs" />
+    <Compile Include="Models\GENTEMAR_ESTADO_LICENCIAS.cs" />
     <Compile Include="Models\GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.cs" />
     <Compile Include="Models\GENTEMAR_CARGO_LICENCIA_LIMITANTE.cs" />
     <Compile Include="Helpers\BanderaBasic.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="Models\GENTEMAR_CARGO_LIMITACION.cs" />
     <Compile Include="Models\GENTEMAR_HISTORIAL_DOCUMENTO.cs" />
     <Compile Include="Models\GENTEMAR_LIMITANTE.cs" />
+    <Compile Include="Models\GENTEMAR_LOGS.cs" />
     <Compile Include="Models\GENTEMAR_OBSERVACIONES_LICENCIAS.cs" />
     <Compile Include="Models\GENTEMAR_REGLAS_CARGO.cs" />
     <Compile Include="Models\GENTEMAR_CARGO_TITULO.cs" />
@@ -142,8 +147,11 @@
     <Compile Include="Models\GENTEMAR_TITULO_REGLA_CARGOS.cs" />
     <Compile Include="Models\NAVES_BASE.cs" />
     <Compile Include="Models\PAISES.cs" />
+    <Compile Include="Models\REPOSITORIO_ARCHIVOS.cs" />
     <Compile Include="Models\SGDEA_PREVISTAS.cs" />
+    <Compile Include="Models\DETALLE_NAVE.cs" />
     <Compile Include="Partials\GENTEMAR_ANTECEDENTES.cs" />
+    <Compile Include="Partials\GENTEMAR_ANTECEDENTES_DATOSBASICOS.cs" />
     <Compile Include="Partials\GENTEMAR_CARGO_LICENCIA.cs" />
     <Compile Include="Partials\GENTEMAR_DATOSBASICOS.cs" />
     <Compile Include="Partials\GENTEMAR_LICENCIAS.cs" />

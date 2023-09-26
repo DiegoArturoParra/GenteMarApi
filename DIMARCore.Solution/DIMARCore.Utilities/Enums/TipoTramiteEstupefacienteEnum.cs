@@ -4,13 +4,13 @@ namespace DIMARCore.Utilities.Enums
 {
     public enum TipoTramiteEstupefacienteEnum
     {
-        [Description("activo")]
+        [Description("GENTES")]
         GENTES = 1,
-        [Description("inactivo")]
+        [Description("NAVES")]
         NAVES = 2,
-        [Description("activo")]
+        [Description("TRANSPORTE")]
         TRANSPORTE = 3,
-        [Description("activo")]
+        [Description("CONCESIÓN")]
         CONCESION = 4,
     }
 }

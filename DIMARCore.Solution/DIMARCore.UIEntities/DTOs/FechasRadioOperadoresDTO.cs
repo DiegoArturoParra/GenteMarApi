@@ -3,7 +3,7 @@ using System;
 
 namespace DIMARCore.UIEntities.DTOs
 {
-    public class FechasDTO
+    public class FechasRadioOperadoresDTO
     {
         [JsonIgnore]
         public DateTime? FechaVencimiento { get; set; }

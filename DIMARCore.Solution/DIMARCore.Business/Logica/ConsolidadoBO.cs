@@ -41,8 +41,7 @@ namespace DIMARCore.Business.Logica
 
                     data = await repository.GetEstupefacientesEstadoInicial();
                     if (!data.Any())
-                        return Responses.SetNotFoundResponse("No hay datos actualmente para exportar al Excel.");
-
+                        throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No hay estupefacientes en estado {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)} para exportar el Excel."));
 
                     IList<long> EstupefacientesIds = data.Select(x => x.EstupefacienteId).ToList();
                     var datosAEditar = await repository.GetAllWithConditionAsync(x => EstupefacientesIds.Contains(x.id_antecedente));
@@ -67,11 +66,9 @@ namespace DIMARCore.Business.Logica
                         await repository.EditBulkWithconsolidated(datosAEditar, 100, consolidadoDTO.Consolidado, consolidadoDTO.ArrayExpedientesEntidad, true);
                     }
                 }
-
             }
 
             var archivoBytes = GenerateExcel(data, numeroConsolidado);
-
             var archivoBase64 = Convert.ToBase64String(archivoBytes);
 
             _ = Task.Run(async () =>
@@ -89,7 +86,7 @@ namespace DIMARCore.Business.Logica
             });
 
 
-            return Responses.SetOkResponse(new { ArchivoBase64 = archivoBase64, Extension = Constantes.EXTENSION_EXCEL });
+            return Responses.SetOkResponse(new ArchivoExcelDTO { ArchivoBase64 = archivoBase64, Extension = Constantes.EXTENSION_EXCEL });
         }
 
         #region Generar reporte en excel
@@ -157,6 +154,18 @@ namespace DIMARCore.Business.Logica
             }
         }
         #endregion
+
+        public async Task<Respuesta> GetConsolidadosEnUso()
+        {
+           var data = await new ConsolidadoEstupefacienteRepository().GetConsolidadosEnUso();
+            return Responses.SetOkResponse(data);
+        }
+
+        public async Task<Respuesta> GetAllIdsEstupefacienteByConsolidado(int consolidadoId)
+        {
+            var data = await new ConsolidadoEstupefacienteRepository().GetAllIdsEstupefacienteByConsolidado(consolidadoId);
+            return Responses.SetOkResponse(data);
+        }
 
     }
 }

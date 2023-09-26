@@ -50,8 +50,8 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(List<EntidadDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes,
-            RolesEnum.JuridicaEstupefacientes, RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE,
+            RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceEntidad.GetAll(dto != null ? dto.Activo : null);
@@ -75,7 +75,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseTypeSwagger<EntidadDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> GetEntidad(int id)
         {
             var entidad = await _serviceEntidad.GetByIdAsync(id);
@@ -104,7 +104,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] EntidadDTO Entidad)
         {
             var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD>(Entidad);
@@ -130,7 +130,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Editar([FromBody] EntidadDTO Entidad)
         {
             var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD>(Entidad);
@@ -154,7 +154,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceEntidad.AnulaOrActivaAsync(id);

@@ -89,9 +89,11 @@ namespace DIMARCore.Repositories.Repository
                         grado.activo = data.activo;
                         _context.APLICACIONES_GRADO.Add(grado);
                         await SaveAllAsync();
-                        var formacionGrado = new GENTEMAR_FORMACION_GRADO();
-                        formacionGrado.id_formacion = data.formacion.id_formacion;
-                        formacionGrado.id_grado = grado.id_grado;
+                        var formacionGrado = new GENTEMAR_FORMACION_GRADO
+                        {
+                            id_formacion = data.formacion.id_formacion,
+                            id_grado = grado.id_grado
+                        };
                         _context.GENTEMAR_FORMACION_GRADO.Add(formacionGrado);
                         await SaveAllAsync();
                         trassaction.Commit();

@@ -11,27 +11,24 @@ namespace DIMARCore.Business
     public class SeccionBO
     {
         #region seccion titulos
-        public IEnumerable<GENTEMAR_SECCION_TITULOS> GetSeccionesTitulos(bool? activo = true)
+        public async Task<IEnumerable<GENTEMAR_SECCION_TITULOS>> GetSeccionesTitulos(bool? activo = true)
         {
             using (var repo = new SeccionTitulosRepository())
             {
                 if (activo == null)
                 {
-                    return repo.GetAll();
+                    return await repo.GetAllAsync();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return await repo.GetAllWithConditionAsync(x => x.activo == activo);
             }
         }
 
         public async Task<Respuesta> GetSeccionTitulo(int id)
         {
             var seccionTitulo = await new SeccionTitulosRepository().GetById(id);
-            if (seccionTitulo == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la sección del titulo."));
-            return Responses.SetOkResponse(seccionTitulo);
+            return seccionTitulo == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la sección del titulo."))
+                : Responses.SetOkResponse(seccionTitulo);
         }
 
 
@@ -120,9 +117,9 @@ namespace DIMARCore.Business
         /// Obtiene la lista de secciones dependiendo el id de la actividad
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<SeccionDTO> GetSeccionesActividad(int id)
+        public async Task<IEnumerable<SeccionDTO>> GetSeccionesActividad(int id)
         {
-            return new SeccionLicenciasRepository().GetSeccionActividad(id);
+            return await new SeccionLicenciasRepository().GetSeccionActividad(id);
         }
 
 
@@ -158,9 +155,9 @@ namespace DIMARCore.Business
         public async Task<Respuesta> GetSeccionLicencia(int id)
         {
             var seccionlicencia = await new SeccionLicenciasRepository().GetById(id);
-            if (seccionlicencia == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la sección."));
-            return Responses.SetOkResponse(seccionlicencia);
+            return seccionlicencia == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la sección."))
+                : Responses.SetOkResponse(seccionlicencia);
         }
 
         public async Task<Respuesta> InactivarSeccionLicencia(int id)

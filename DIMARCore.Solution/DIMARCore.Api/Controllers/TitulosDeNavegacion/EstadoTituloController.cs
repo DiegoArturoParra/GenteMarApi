@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -45,7 +46,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(List<EstadoTituloDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista")]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
@@ -61,29 +62,25 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <remarks>
         /// Muestra objeto tipo respuesta con el estado tramite.
         /// </remarks>
+        /// <param name="id">parametro del id estado</param>
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>    
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado data.</response>
-        /// <response code="500">Internal Server. Error En el servidor. </response>
-        /// <param name="id">parametro del id estado</param>
+        /// <response code="500">Internal Server. Error En el servidor.</response>
         /// <returns></returns>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseTypeSwagger<EstadoTituloDTO>))]
         [HttpGet]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [Route("{id}")]
         public async Task<IHttpActionResult> GetEstadoTramiteTitulo(int id)
         {
             var entidad = await _service.GetByIdAsync(id);
-            if (entidad.Estado)
-            {
-                var obj = Mapear<GENTEMAR_NIVEL, NivelDTO>((GENTEMAR_NIVEL)entidad.Data);
-                entidad.Data = obj;
-            }
-            return ResultadoStatus(entidad);
+            var obj = Mapear<GENTEMAR_ESTADO_TITULO, EstadoTituloDTO>((GENTEMAR_ESTADO_TITULO)entidad.Data);
+            entidad.Data = obj;
+            return Ok(entidad);
         }
-
-
 
         /// <summary>
         /// Servicio para crear un estado para los titulos
@@ -95,21 +92,20 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud ya existe el estado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
-        [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPost]
         [Route("crear")]
         public async Task<IHttpActionResult> Crear([FromBody] EstadoTituloDTO estado)
         {
             var data = Mapear<EstadoTituloDTO, GENTEMAR_ESTADO_TITULO>(estado);
             var response = await _service.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
-
-
 
         /// <summary>
         /// Servicio para editar un estado.
@@ -118,22 +114,22 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         ///  Servicio para editar un estado de tramite de un titulo.
         /// </remarks>
         /// <param name="estado">objeto para editar un estado</param>
-        /// <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+        /// <response code="200">OK. Devuelve el mensaje se ha editado.</response>        
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. Ya existe el nombre del estado.</response>       
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
-        [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("editar")]
         public async Task<IHttpActionResult> Editar([FromBody] EstadoTituloDTO estado)
         {
             var data = Mapear<EstadoTituloDTO, GENTEMAR_ESTADO_TITULO>(estado);
             var response = await _service.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -143,20 +139,20 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         ///  Servicio para inactivar o activar un estado de tramite a partir del parametro id.
         /// </remarks>
         /// <param name="id">id del estado</param>
-        /// <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+        /// <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _service.AnulaOrActivaAsync(id);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
     }
 }

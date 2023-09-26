@@ -42,7 +42,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<FormacionDTO>))]
         [HttpGet]
         [Route("{estado}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetFormacion(bool estado)
         {
             var formacion = _service.GetFormacion(estado);
@@ -63,7 +63,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<FormacionDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetTableFormacion()
         {
             var formacion = _service.GetTableFormacion();
@@ -84,7 +84,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<FormacionDTO>))]
         [HttpGet]
         [Route("listaActivo")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetTableFormacionActivo()
         {
             var formacion = _service.GetTableFormacionActivo();
@@ -108,7 +108,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearFormacion(FormacionDTO fomacion)
         {
             var data = Mapear<FormacionDTO, GENTEMAR_FORMACION>(fomacion);
@@ -132,7 +132,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> actualizarFormacion(FormacionDTO formacion)
         {
             var data = Mapear<FormacionDTO, GENTEMAR_FORMACION>(formacion);
@@ -155,7 +155,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles( RolesEnum.Administrador)]
+        [AuthorizeRoles( RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarFormacion(int id)
         {
             var respuesta = await _service.cambiarFormacion(id);

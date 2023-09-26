@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Repositories.Repository;
+using DIMARCore.UIEntities.DTOs;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace DIMARCore.Business.Logica
             _repositoryNaves = new NaveRepository();
         }
 
-        public async Task<ICollection<NAVES_BASE>> GetAll()
+        public async Task<ICollection<NavesDTO>> GetAll()
         {
             return await _repositoryNaves.GetNaves();
         }

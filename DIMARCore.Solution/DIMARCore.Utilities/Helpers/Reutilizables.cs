@@ -144,7 +144,7 @@ namespace DIMARCore.Utilities.Helpers
                 return Responses.SetOkResponse(new Archivo
                 {
                     NombreArchivo = nombreArchivo,
-                    PathArchivo = rutaNombreArchivo
+                    PathArchivo = $@"{rutaModuloTipoDocumento}\{nombreArchivo}",
                 });
             }
             catch (Exception ex)
@@ -495,6 +495,14 @@ namespace DIMARCore.Utilities.Helpers
             }
 
             return edad;
+        }
+
+        public static (DateTime DateInitial, DateTime DateEnd) FormatDatesByRange(DateTime dateInitial, DateTime dateEnd)
+        {
+            dateInitial = new DateTime(dateInitial.Year, dateInitial.Month, dateInitial.Day, 0, 0, 0, 0);
+            dateEnd = new DateTime(dateEnd.Year, dateEnd.Month, dateEnd.Day, 0, 0, 0, 0);
+            dateEnd = dateEnd.AddHours(24).AddSeconds(-1);
+            return (dateInitial, dateEnd);
         }
     }
 

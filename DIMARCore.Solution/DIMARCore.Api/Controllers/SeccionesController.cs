@@ -1,4 +1,5 @@
 ﻿
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers
 {
@@ -21,39 +23,40 @@ namespace DIMARCore.Api.Controllers
     {
         #region secciones de titulos
 
+
         /// <summary>
         /// Listado de secciones por titulos con información basica
         /// </summary>
-        /// <returns>Listado de secciones</returns>
+        /// <remarks>
+        /// <param name="dto"></param>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve la lista de secciones de los titulos.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>             
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(List<SeccionDTO>))]
         [HttpGet]
         [Route("lista-por-titulos")]
-        public IHttpActionResult GetSeccionesTitulos([FromUri] ActivoDTO dto)
+        public async Task<IHttpActionResult> GetSeccionesTitulos([FromUri] ActivoDTO dto)
         {
-            try
-            {
-                var secciones = new SeccionBO().GetSeccionesTitulos(dto != null ? dto.Activo : null);
-                var listado = Mapear<IEnumerable<GENTEMAR_SECCION_TITULOS>, IEnumerable<SeccionDTO>>(secciones);
-                return Ok(listado);
-            }
-            catch (Exception ex)
-
-            {
-                return Content(System.Net.HttpStatusCode.InternalServerError, new Respuesta
-                {
-                    MensajeExcepcion = ex.Message,
-                    StatusCode = System.Net.HttpStatusCode.InternalServerError,
-                });
-            }
+            var secciones = await new SeccionBO().GetSeccionesTitulos(dto != null ? dto.Activo : null);
+            var listado = Mapear<IEnumerable<GENTEMAR_SECCION_TITULOS>, IEnumerable<SeccionDTO>>(secciones);
+            return Ok(listado);
         }
-
         /// <summary>
-        ///  seccion por titulo con información basica
+        ///  seccion de titulo por id
         /// </summary>
-        /// <returns>Listado de secciones</returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseTypeSwagger<SeccionDTO>))]
         [HttpGet]
         [Route("por-titulo/{id}")]
         public async Task<IHttpActionResult> GetSeccionTitulo(int id)
@@ -67,15 +70,19 @@ namespace DIMARCore.Api.Controllers
             return ResultadoStatus(seccion);
         }
 
-
-
         /// <summary>
-        /// Servicio para crear una sección de un titulo
+        /// Servicio para crear una seccion de un titulo
         /// </summary>
         /// <param name="seccion"></param>
         /// <returns></returns>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. Ya existe el nombre de la sección del titulo de navegación.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-por-titulo")]
         public async Task<IHttpActionResult> CrearSeccionTitulo([FromBody] SeccionDTO seccion)
@@ -87,12 +94,19 @@ namespace DIMARCore.Api.Controllers
 
 
         /// <summary>
-        /// Servicio para editar una sección de un titulo
+        /// Servicio para editar una seccion de un titulo
         /// </summary>
         /// <param name="seccion"></param>
-        /// <returns></returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. Ya existe el nombre de la sección de un titulo de navegación.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-titulo")]
         public async Task<IHttpActionResult> EditarSeccionTitulo([FromBody] SeccionDTO seccion)
@@ -106,15 +120,21 @@ namespace DIMARCore.Api.Controllers
         /// Servicio para Inactivar una sección de un titulo
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa-por-titulo/{id}")]
         public async Task<IHttpActionResult> InactivarSeccionTitulo(int id)
         {
             var obj = await new SeccionBO().AnulaOrActivaSeccionTitulo(id);
-            return ResultadoStatus(obj);
+            return Ok(obj);
         }
         #endregion
 
@@ -122,24 +142,35 @@ namespace DIMARCore.Api.Controllers
         /// <summary>
         /// Listado de secciones por licencias con información basica
         /// </summary>
-        /// <returns>Listado de secciones por licencias</returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve la lista de secciones de las licencias.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>             
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(List<SeccionDTO>))]
         [HttpGet]
         [Route("lista-por-licencias")]
         public IHttpActionResult GetSeccionesLicencias()
         {
             var secciones = new SeccionBO().GetSeccionesLicencias();
-            //var listado = Mapear<IEnumerable<GENTEMAR_SECCION_LICENCIAS>, IEnumerable<SeccionDTO>>(secciones);
             return Ok(secciones);
         }
 
         /// <summary>
         /// Listado de secciones activas por licencias con información basica
         /// </summary>
-        /// <returns>Listado de secciones por licencias</returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve la lista de secciones de las licencias.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>             
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(List<SeccionDTO>))]
         [HttpGet]
         [Route("lista-por-licencias-activas")]
         public IHttpActionResult GetSeccionesLicenciasActivas()
@@ -159,53 +190,54 @@ namespace DIMARCore.Api.Controllers
         /// <Fecha>2022/02/26</Fecha>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve la información del estado.</response>
-        /// <response code="204">No Content. No hay estado.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [HttpGet]
         [Route("lista-secciones-actividad-licencias/{id}")]
-        public IHttpActionResult GetSeccionesActividadId(int id)
+        public async Task<IHttpActionResult> GetSeccionesActividadId(int id)
         {
-            var secciones = new SeccionBO().GetSeccionesActividad(id);
-            //var listado = Mapear<IEnumerable<GENTEMAR_SECCION_LICENCIAS>, IEnumerable<SeccionDTO>>(id);
+            var secciones = await new SeccionBO().GetSeccionesActividad(id);
             return Ok(secciones);
         }
 
         /// <summary>
-        /// seccion de licencia
+        ///  seccion de licencia por id
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseTypeSwagger<SeccionDTO>))]
         [HttpGet]
         [Route("por-licencia/{id}")]
         public async Task<IHttpActionResult> GetSeccionLicencia(int id)
         {
             var seccion = await new SeccionBO().GetSeccionLicencia(id);
-            if (seccion.Estado)
-            {
-                var obj = Mapear<GENTEMAR_SECCION_LICENCIAS, SeccionDTO>((GENTEMAR_SECCION_LICENCIAS)seccion.Data);
-                seccion.Data = obj;
-            }
-            return ResultadoStatus(seccion);
+            var obj = Mapear<GENTEMAR_SECCION_LICENCIAS, SeccionDTO>((GENTEMAR_SECCION_LICENCIAS)seccion.Data);
+            seccion.Data = obj;
+            return Ok(seccion);
         }
 
 
 
         /// <summary>
-        /// 
+        /// Servicio para crear una seccion de una licencia
         /// </summary>
         /// <param name="seccion"></param>
         /// <returns></returns>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
-        /// /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. Ya existe el nombre de la clase de la licencia de navegación.</response>
+        /// <response code="409">Conflict. Ya existe el nombre de la seccion de la licencia de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-por-licencia")]
         public async Task<IHttpActionResult> CrearSeccionLicencia([FromBody] SeccionDTO seccion)
@@ -218,12 +250,19 @@ namespace DIMARCore.Api.Controllers
 
 
         /// <summary>
-        /// 
+        /// Servicio para editar una seccion de una licencia
         /// </summary>
         /// <param name="seccion"></param>
-        /// <returns></returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. Ya existe el nombre de la sección de la licencia de navegación.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-licencia")]
         public async Task<IHttpActionResult> EditarSeccionLicencia([FromBody] SeccionDTO seccion)
@@ -239,15 +278,21 @@ namespace DIMARCore.Api.Controllers
         /// Servicio para Inactivar una sección de una licencia
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
+        /// <Fecha>05/04/2022</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("inactivar-por-licencia/{id}")]
         public async Task<IHttpActionResult> InactivarSeccionLicencia(int id)
         {
             var obj = await new SeccionBO().InactivarSeccionLicencia(id);
-            return ResultadoStatus(obj);
+            return Ok(obj);
         }
 
         #endregion

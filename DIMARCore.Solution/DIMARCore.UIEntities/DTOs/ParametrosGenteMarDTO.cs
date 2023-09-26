@@ -7,7 +7,7 @@ namespace DIMARCore.UIEntities.DTOs
     public class ParametrosGenteMarDTO
     {
         public long Id { get; set; }
-        public bool IsEstupefacientes { get; set; }
+        public bool IsModuleEstupefacientes { get; set; }
         public string Identificacion { get; set; }
         [JsonIgnore]
         public string IdentificacionConPuntos

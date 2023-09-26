@@ -25,12 +25,33 @@ namespace DIMARCore.Api.Core
             var response = new Respuesta();
             if (!modelState.IsValid)
             {
-                response.Mensaje = string.Join(" , ", modelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                response.Estado = false;
-                response.StatusCode = HttpStatusCode.BadRequest;
-                string json = JsonConvert.SerializeObject(response);
-                _logger.Warn(json);
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.BadRequest, response);
+                var errorMessages = modelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Where(e => e != null && !string.IsNullOrEmpty(e.ErrorMessage))
+                    .Select(e => e.ErrorMessage);
+
+                if (errorMessages.Any())
+                {
+                    response.Mensaje = string.Join(", ", errorMessages);
+                    response.Estado = false;
+                    response.StatusCode = HttpStatusCode.BadRequest;
+                    string json = JsonConvert.SerializeObject(response);
+                    _logger.Warn(json);
+                    actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.BadRequest, response);
+                }
+                else
+                {
+                    var errorExceptions = modelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Where(e => e != null)
+                    .Select(e => e.Exception);
+                    response.MensajeExcepcion = string.Join(", ", errorExceptions);
+                    response.Estado = false;
+                    response.StatusCode = HttpStatusCode.InternalServerError;
+                    string json = JsonConvert.SerializeObject(response);
+                    _logger.Error(json);
+                    actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.InternalServerError, response);
+                }
             }
         }
     }

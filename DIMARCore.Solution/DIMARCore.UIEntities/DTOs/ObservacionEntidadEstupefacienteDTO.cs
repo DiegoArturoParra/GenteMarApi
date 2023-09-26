@@ -36,15 +36,15 @@ namespace DIMARCore.UIEntities.DTOs
         [Required(ErrorMessage = "Antecedente id requerido.")]
         public long AntecedenteId { get; set; }
         [Required(ErrorMessage = "Detalle aclaración requerido.")]
-        [StringLength(5000, ErrorMessage = "Debe tener una longitud mínima de {2} y una longitud máxima de {1}.", MinimumLength = 10)]
+        [StringLength(5000, ErrorMessage = "La aclaración debe tener una longitud mínima de {2} y una longitud máxima de {1}.", MinimumLength = 10)]
         public string DetalleAclaracion { get; set; }
-        [Required(ErrorMessage = "El archivo es requerido.")]
-        [ValidFileInBytesType(".pdf", ".docx", MaxFileSizeMB = 10)]
-        public byte[] Archivo { get; set; }
+        [ValidFileInBytesType(MaxFileSizeMB = 10)]
+        public byte[] FileBytes { get; set; }
         [Required(ErrorMessage = "expediente observación id requerido.")]
         public long ExpedienteObservacionId { get; set; }
         public string DetalleObservacionNuevo { get; set; }
         public bool VerificacionExitosa { get; set; }
+        [ValidExtension("PDF", "DOCX")]
         public string Extension { get; set; }
         public ObservacionAnteriorDTO ObservacionAnterior { get; set; }
     }
@@ -52,7 +52,8 @@ namespace DIMARCore.UIEntities.DTOs
     public class ObservacionAnteriorDTO
     {
         public string DetalleAnterior { get; set; }
-        public bool VerificacionExitosaAnterior { get; set; }
+        public bool VerificacionExitosaBefore { get; set; }
+        public bool VerificacionExitosaAfter { get; set; }
     }
 
     public class DetalleExpedienteObservacionEstupefacienteDTO

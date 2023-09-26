@@ -8,7 +8,7 @@ using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers
 {    /// <summary>
-     /// Api Paises
+     /// Servicios multas
      /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/multas")]
@@ -18,15 +18,14 @@ namespace DIMARCore.Api.Controllers
         ///  Se obtiene el listado de multas de una persona en gente de mar.
         /// </summary>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="200">OK. Devuelve la lista de multas.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         /// <remarks>
         /// <Autor>Diego Parra</Autor>
-        /// <Fecha>23/03/2022</Fecha>
+        /// <Fecha>04/07/2023</Fecha>
         /// </remarks>
-
         [ResponseType(typeof(List<MultaDTO>))]
         [HttpGet]
         [Route("lista-por-usuario")]

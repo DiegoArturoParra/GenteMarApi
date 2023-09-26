@@ -1,4 +1,5 @@
-﻿using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.CorreoSMTP;
@@ -69,6 +70,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -138,6 +140,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -147,6 +150,7 @@ namespace DIMARCore.Business.Logica
         #region metodo que actualiza el estado del usuario y dependiendo el estado actualiza el estado de los titulos y licencias
         public async Task<Respuesta> ChangeStatus(GENTEMAR_DATOSBASICOS datos, string rutaInicial)
         {
+            
             using (var repo = new DatosBasicosRepository())
             {
                 var data = await repo.GetWithCondition(x => x.id_gentemar == datos.id_gentemar);
@@ -281,7 +285,6 @@ namespace DIMARCore.Business.Logica
                     data.FotoBase64 = archivoBase64;
                 }
             }
-
             return data;
         }
 
@@ -320,19 +323,19 @@ namespace DIMARCore.Business.Logica
         /// <param name="parametrosGenteMar"></param>
         /// <returns></returns>
         /// <exception cref="HttpStatusCodeException"></exception>
-        public async Task<Respuesta> GetPersonaByIdentificacionOrId(ParametrosGenteMarDTO parametrosGenteMar)
+        public async Task<Respuesta> ValidationsStatusPersona(ParametrosGenteMarDTO parametrosGenteMar)
         {
             var datos = await new DatosBasicosRepository()
                 .GetPersonaByIdentificacionOrId(parametrosGenteMar.IdentificacionConPuntos, parametrosGenteMar.Id) 
-                ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la persona.");
+                ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la persona en Datos Básicos.");
            
-            if (!datos.IsCreateTituloOrLicencia)
+            if (!datos.IsCreateTituloOrLicencia && (!parametrosGenteMar.IsModuleEstupefacientes))
                 throw new HttpStatusCodeException(HttpStatusCode.Conflict, $@"El usuario está en estado {datos.NombreEstado} 
-                                                                           no puede generar titulos y licencias de navegación.");
-            if (datos.ContieneEstupefacienteVigente)
-   
-                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $@"El usuario contiene estupefaciente negativo, 
-                                                                            por lo tanto no puede generar titulos y licencias de navegación.");
+                                                                           no puede generar títulos y licencias de navegación.");
+            
+            if (!parametrosGenteMar.IsModuleEstupefacientes && datos.ContieneEstupefacienteVigente)
+                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $@"El usuario contiene verificación de carencia de informe por Trafico de Estupefacientes (VCITE), 
+                                                                            por lo tanto no puede generar títulos y licencias de navegación.");
 
             return Responses.SetOkResponse(datos);
         }

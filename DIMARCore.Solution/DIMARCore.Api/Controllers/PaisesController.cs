@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
+using System.Web.Http.Description;
 
 namespace DIMARCore.Api.Controllers
 {
     /// <summary>
-    /// Api Paises
+    /// Servicios Paises
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/paises")]
@@ -24,9 +25,10 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Carlos Rodríguez</Autor>
         /// <Fecha>2020/05/26</Fecha>
         /// <UltimaActualizacion>2020/07/23 - Carlos Rodríguez - Cambio consulta para obtener los paises</UltimaActualizacion>
+        [ResponseType(typeof(List<PaisDTO>))]
         [HttpGet]
         [Route("list-basic")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IHttpActionResult> GetPaises()
         {
             var paises = await new PaisBO().GetPaises();
@@ -44,9 +46,10 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>7/03/2022</Fecha>
         /// <UltimaActualizacion>7/03/2022</UltimaActualizacion>
+        [ResponseType(typeof(List<PaisDTO>))]
         [HttpGet]
         [Route("colombia")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IHttpActionResult> GetPaisColombia()
         {
             var pais = await new PaisBO().GetPaisColombia();

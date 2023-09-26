@@ -91,9 +91,9 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(LicenciaDTO))]
         [HttpGet]
         [Route("lista-licencia-id/{id}")]
-        public IHttpActionResult GetlicenciaId(int id)
+        public async Task<IHttpActionResult> GetlicenciaId(int id)
         {
-            var licencias = _service.GetlicenciaId(id);
+            var licencias = await _service.GetlicenciaIdAsync(id);
             return Ok(licencias);
         }
 

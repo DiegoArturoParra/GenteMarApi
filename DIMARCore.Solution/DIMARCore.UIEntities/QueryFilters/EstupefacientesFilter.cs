@@ -10,7 +10,7 @@ namespace DIMARCore.UIEntities.QueryFilters
         /// <summary>
         /// parametros de la paginación
         /// </summary>
-        public ParametrosPaginacion Paginacion { get; set; } = new ParametrosPaginacion();
+        public ParametrosPaginacion Paginacion { get; set; }
         /// <summary>
         /// propiedad para la identificacion
         /// </summary>

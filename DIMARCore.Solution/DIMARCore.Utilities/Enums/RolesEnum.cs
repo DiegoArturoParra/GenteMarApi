@@ -5,7 +5,7 @@ namespace DIMARCore.Utilities.Enums
     public enum RolesEnum
     {
         [Description("Administrador")]
-        Administrador = 29,
+        AdministradorGDM = 29,
         [Description("Gestor sede Central")]
         GestorSedeCentral = 30,
         [Description("Gestor Capitanía")]
@@ -13,13 +13,13 @@ namespace DIMARCore.Utilities.Enums
         [Description("Consultas")]
         Consultas = 32,
         [Description("Administrador Estupefacientes")]
-        AdministradorEstupefacientes = 33,
+        AdministradorVCITE = 33,
         [Description("Gestor Estupefacientes")]
-        GestorEstupefacientes = 34,
+        GestorVCITE = 34,
         [Description("Consultas Estupefacientes")]
-        ConsultasEstupefacientes = 35,
+        ConsultasVCITE = 35,
         [Description("Jurídica Estupefacientes")]
-        JuridicaEstupefacientes = 36,
+        JuridicaVCITE = 36,
         [Description("ASEPAC")]
         ASEPAC = 37,
     }

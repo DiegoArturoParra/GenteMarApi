@@ -1,4 +1,5 @@
-﻿using DIMARCore.Utilities.Helpers;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using log4net;
 using Newtonsoft.Json;
@@ -53,8 +54,9 @@ namespace DIMARCore.Api.Core
                 status = HttpStatusCode.InternalServerError;
                 string json = JsonConvert.SerializeObject(response);
                 _logger.Error(json);
-            }
 
+            }
+            new DbLogger().InsertLogToDatabase(response);
             actionExecutedContext.Response = actionExecutedContext.Request.CreateResponse(status, response);
         }
     }

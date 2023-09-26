@@ -15,29 +15,20 @@ namespace DIMARCore.Repositories.Repository
         /// Lista de las secciones por id de la actividad
         /// </summary>
         /// <returns>Lista de los tipos de formacion</returns>
-        public IList<SeccionDTO> GetSeccionActividad(int id)
+        public async Task<IList<SeccionDTO>> GetSeccionActividad(int id)
         {
-            try
-            {
-                var resultado = (from actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
-                                 join seccion in _context.GENTEMAR_SECCION_LICENCIAS on actividadSeccion.id_seccion equals
-                                 seccion.id_seccion
-                                 where actividadSeccion.id_actividad == id && seccion.activo == true
-                                 select new SeccionDTO
-                                 {
-                                     Id = seccion.id_seccion,
-                                     Descripcion = seccion.actividad_a_bordo,
-                                     IsActive = seccion.activo,
-                                     IdActividaSeccion = actividadSeccion.id_actividad_seccion_licencia
+            return await (from actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
+                          join seccion in _context.GENTEMAR_SECCION_LICENCIAS on actividadSeccion.id_seccion equals
+                          seccion.id_seccion
+                          where actividadSeccion.id_actividad == id && seccion.activo == true
+                          select new SeccionDTO
+                          {
+                              Id = seccion.id_seccion,
+                              Descripcion = seccion.actividad_a_bordo,
+                              IsActive = seccion.activo,
+                              IdActividaSeccion = actividadSeccion.id_actividad_seccion_licencia
 
-                                 }).ToList();
-
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+                          }).ToListAsync();
         }
 
         /// <summary>

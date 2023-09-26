@@ -688,8 +688,21 @@
             <Autor>Diego Parra</Autor>
             <Fecha>01/08/2023</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el listado de expedientes.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ExpedienteController.GetExpedientePorConsolidadoEntidad(DIMARCore.UIEntities.QueryFilters.ExpedienteFilter)">
+            <summary>
+             Datos del expediente de estupefaciente por consolidado y entidad
+            </summary>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>01/08/2023</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el expediente de estupefaciente por consolidado y entidad.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>  
+            <response code="404">NotFound. No se ha encontrado la entidad o el consolidado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.Estupefacientes.ConsolidadoController">
@@ -710,8 +723,32 @@
             <Autor>Diego Parra</Autor>
             <Fecha>01/08/2023</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el listado de consolidados.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ConsolidadoController.GetConsolidadosEnUso">
+            <summary>
+             Datos de los consolidados de estupefacientes que estan en uso
+            </summary>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>01/08/2023</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el listado de consolidados.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ConsolidadoController.GetEstupefacientesIdPorConsolidado(System.Int32)">
+            <summary>
+            ids de estupefacientes por el numero de consolidado.
+            </summary>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>01/08/2023</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el listado de ids de estupefacientes por un consolidado.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ConsolidadoController.FolioExcelParaEnvioAConsultas(DIMARCore.UIEntities.DTOs.CrearConsolidadoExcelDTO)">
@@ -723,8 +760,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>01/06/2023</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">Ok. La solicitud ha exportado el archivo excel.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
@@ -1034,7 +1071,7 @@
             <param name="filtro"></param>
             <returns></returns>
             <response code="200">OK. Devuelve la información de estupefacientes mediante filtros.</response>
-            <response code="204">No Content. No hay titulos.</response>
+            <response code="204">No Content. No hay estupefacientes con los filtros correspondientes.</response>
             <response code="400">Bad request. Objeto invalido.</response>  
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response> 
@@ -1075,8 +1112,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>05/06/2023</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve y extrae la lista de estupefacientes que no tienen observaciones.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
@@ -1090,8 +1127,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>08/07/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la tramite de estupefaciente.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
@@ -1104,8 +1141,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>08/07/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. se ha actualizado el recurso (estupefaciente).</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. conflicto de solicitud con el estado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -1120,8 +1157,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>28/04/2023</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. se ha actualizado los recursos (estupefacientes).</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. conflicto de solicitud con el estado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -1135,8 +1172,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>28/04/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -1148,8 +1185,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>28/04/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -1163,11 +1200,11 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.DatosBasicos.DimRegistroEmbarqueController.GetDimRegistrosEmbarque(DIMARCore.UIEntities.DTOs.DatosBasicosDTO)">
+        <member name="M:DIMARCore.Api.Controllers.DatosBasicos.DimRegistroEmbarqueController.GetDimRegistrosEmbarque(System.String)">
             <summary>
             Metodo para traer los dim de registros de embarque por una persona 
             </summary>
-            <param name="usuario"></param>
+            <param name="usuarioId"></param>
             <returns></returns>
             <response code="200">OK. Devuelve la información del dim de embarque.</response>
             <response code="204">No Content. No hay estado.</response>
@@ -1420,7 +1457,6 @@
             <Fecha>2022/02/26</Fecha>
             <returns></returns>
             <response code="200">OK. Devuelve la información de datos basicos.</response>
-            <response code="204">No Content. No hay titulos.</response>
             <response code="400">Bad request. Objeto invalido.</response>  
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
@@ -1690,17 +1726,21 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.GeneroController">
             <summary>
-            Api Usuarios
+            servicios genero
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.GeneroController.GetGenero">
+        <member name="M:DIMARCore.Api.Controllers.GeneroController.GetGeneros">
             <summary>
-            Listado de GEnero con información basica
+            Listado de Generos con información basica
             </summary>
             <returns>Listado de Genero</returns>
             <Autor>Camilo Vargas </Autor>
             <Fecha>2022/02/22</Fecha>
             <UltimaActualizacion>2021/12/21 - Camilo Vargas - Creación del servicio</UltimaActualizacion>
+            <response code="200">OK. Se obtiene el listado de los generos.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.GenteMarEstadoController">
             <summary>
@@ -2398,7 +2438,7 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.MultasController">
             <summary>
-            Api Paises
+            Servicios multas
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.MultasController.GetMultasPorUsuario(DIMARCore.UIEntities.DTOs.CedulaDTO)">
@@ -2406,13 +2446,13 @@
              Se obtiene el listado de multas de una persona en gente de mar.
             </summary>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="200">OK. Devuelve la lista de multas.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>23/03/2022</Fecha>
+            <Fecha>04/07/2023</Fecha>
             </remarks>
         </member>
         <member name="T:DIMARCore.Api.Controllers.MunicipiosController">
@@ -2430,10 +2470,14 @@
             <Autor>Camilo Vargas </Autor>
             <Fecha>2022/02/22</Fecha>
             <UltimaActualizacion>2022/02/22 - Camilo Vargas - Crear metodo</UltimaActualizacion>
+            <response code="200">OK. Se obtiene el listado de los municipios.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.NavesController">
             <summary>
-            Api Paises
+            servicios naves
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.NavesController.GetNaves">
@@ -2441,6 +2485,17 @@
             Listado de las naves Colombianas
             </summary>
             <returns>Lista de naves</returns>
+            <summary>
+            Listado de naves
+            </summary>
+            <returns>Listado json de naves</returns>
+            <Autor>Camilo Vargas </Autor>
+            <Fecha>24/04/2023</Fecha>
+            <UltimaActualizacion>24/04/2023 - Camilo Vargas </UltimaActualizacion>
+            <response code="200">OK. Se obtiene el listado de las naves colombianas.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.ObservacionesController">
             <summary>
@@ -2570,7 +2625,7 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.PaisesController">
             <summary>
-            Api Paises
+            Servicios Paises
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.PaisesController.GetPaises">
@@ -2594,6 +2649,36 @@
             <Autor>Diego Parra</Autor>
             <Fecha>7/03/2022</Fecha>
             <UltimaActualizacion>7/03/2022</UltimaActualizacion>
+        </member>
+        <member name="T:DIMARCore.Api.Controllers.Reportes.ReportesGDMController">
+            <summary>
+            Servicios que genera los reportes de Gente de Mar, datos Basicos, licencias y titulos (GDM)
+            </summary>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.Reportes.ReportesGDMController.#ctor">
+            <summary>
+            ctor
+            </summary>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.Reportes.ReportesGDMController.GenerarCSVDatosBasicos(DIMARCore.UIEntities.QueryFilters.Reports.DatosBasicosReportFilter)">
+            <summary>
+            Servicio para generar el reporte de datos basicos de gente de mar en formato CSV
+            </summary>        
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>10/08/2023</Fecha>
+            </remarks>
+            <param name="reportFilter">objeto para filtrar la consulta del reporte.</param>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="200">Ok. la solicitud ha tenido éxito y ha llevado a la generación del reporte.</response>   
+            <response code="404">NotFound. No se ha encontrado ningun dato del filtro.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+            <returns></returns>
+        </member>
+        <member name="T:DIMARCore.Api.Controllers.Reportes.ReportesVCITEController">
+            <summary>
+            Servicios que genera los reportes de estupefacientes
+            </summary>
         </member>
         <member name="T:DIMARCore.Api.Controllers.ServiciosAplicacionesController">
             <summary>
@@ -2707,7 +2792,7 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.TipoDocumentoController">
             <summary>
-            Api Usuarios
+            servicios de tipo documento
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TipoDocumentoController.GetTipoDocumento">
@@ -2718,6 +2803,11 @@
             <Autor>Camilo Vargas </Autor>
             <Fecha>2022/02/22</Fecha>
             <UltimaActualizacion>2021/12/21 - Camilo Vargas - Creación del servicio</UltimaActualizacion>
+            <response code="200">OK. Devuelve la lista de documentos.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado data.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <returns></returns>
         </member>
         <member name="T:DIMARCore.Api.Controllers.TipoLicenciaController">
             <summary>
@@ -2877,60 +2967,97 @@
             <summary>
             Listado de secciones por titulos con información basica
             </summary>
-            <returns>Listado de secciones</returns>
+            <remarks>
+            <param name="dto"></param>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve la lista de secciones de los titulos.</response>  
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>             
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.GetSeccionTitulo(System.Int32)">
             <summary>
-             seccion por titulo con información basica
+             seccion de titulo por id
             </summary>
-            <returns>Listado de secciones</returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.CrearSeccionTitulo(DIMARCore.UIEntities.DTOs.SeccionDTO)">
             <summary>
-            Servicio para crear una sección de un titulo
+            Servicio para crear una seccion de un titulo
             </summary>
             <param name="seccion"></param>
             <returns></returns>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. Ya existe el nombre de la sección del titulo de navegación.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.EditarSeccionTitulo(DIMARCore.UIEntities.DTOs.SeccionDTO)">
             <summary>
-            Servicio para editar una sección de un titulo
+            Servicio para editar una seccion de un titulo
             </summary>
             <param name="seccion"></param>
-            <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. Ya existe el nombre de la sección de un titulo de navegación.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.InactivarSeccionTitulo(System.Int32)">
             <summary>
             Servicio para Inactivar una sección de un titulo
             </summary>
             <param name="id"></param>
-            <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.GetSeccionesLicencias">
             <summary>
             Listado de secciones por licencias con información basica
             </summary>
-            <returns>Listado de secciones por licencias</returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve la lista de secciones de las licencias.</response>  
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>             
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.GetSeccionesLicenciasActivas">
             <summary>
             Listado de secciones activas por licencias con información basica
             </summary>
-            <returns>Listado de secciones por licencias</returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve la lista de secciones de las licencias.</response>  
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>             
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.GetSeccionesActividadId(System.Int32)">
             <summary>
@@ -2942,55 +3069,69 @@
             <Fecha>2022/02/26</Fecha>
             <returns></returns>
             <response code="200">OK. Devuelve la información del estado.</response>
-            <response code="204">No Content. No hay estado.</response>
             <response code="400">Bad request. Objeto invalido.</response>  
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.GetSeccionLicencia(System.Int32)">
             <summary>
-            seccion de licencia
+             seccion de licencia por id
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.CrearSeccionLicencia(DIMARCore.UIEntities.DTOs.SeccionDTO)">
             <summary>
-            
+            Servicio para crear una seccion de una licencia
             </summary>
             <param name="seccion"></param>
             <returns></returns>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
-            /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. Ya existe el nombre de la clase de la licencia de navegación.</response>
+            <response code="409">Conflict. Ya existe el nombre de la seccion de la licencia de navegación.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.EditarSeccionLicencia(DIMARCore.UIEntities.DTOs.SeccionDTO)">
             <summary>
-            
+            Servicio para editar una seccion de una licencia
             </summary>
             <param name="seccion"></param>
-            <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. Ya existe el nombre de la sección de la licencia de navegación.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.SeccionesController.InactivarSeccionLicencia(System.Int32)">
             <summary>
             Servicio para Inactivar una sección de una licencia
             </summary>
             <param name="id"></param>
-            <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el mensaje de actualización.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.ClasesController">
             <summary>
-            Api Clases
+            servicios clases de titulos y licencias
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.ClasesController.#ctor">
@@ -3004,7 +3145,7 @@
             </summary>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/05/2022</Fecha>
             </remarks>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
@@ -3017,7 +3158,7 @@
             </summary>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/05/2022</Fecha>
             </remarks>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
@@ -3033,8 +3174,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la clase del titulo.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. Ya existe el nombre de la clase del titulo de navegación.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -3049,7 +3190,7 @@
             <Fecha>05/03/2022</Fecha>
             </remarks>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="200">OK. Devuelve el mensaje de edición.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. Ya existe el nombre de la clase del titulo de navegación.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -3063,8 +3204,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
+            <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -3104,8 +3245,7 @@
             <Autor>Camilo Vargas</Autor>
             <Fecha>2022/02/26</Fecha>
             <returns></returns>
-            <response code="200">OK. Devuelve la información del estado.</response>
-            <response code="204">No Content. No hay estado.</response>
+            <response code="200">OK. Devuelve Listado de clases por id de sección.</response>
             <response code="400">Bad request. Objeto invalido.</response>  
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
@@ -3118,8 +3258,8 @@
             <Autor>Camilo Vargas</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
+            <response code="200">OK. Devuelve el listado de las clases activas.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -3129,24 +3269,24 @@
             </summary>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.ClasesController.CrearClaseLicencia(DIMARCore.UIEntities.DTOs.ClaseDTO)">
             <summary>
-            Servicio para crear una clase de un titulo
+            Servicio para crear una clase de una licencia de navegación
             </summary>
             <param name="clase"></param>
             <remarks>
-            <Autor>Diego Parra</Autor>
+            <Autor>Juan Camilo</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la clase de una licencia.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. Ya existe el nombre de la clase de la licencia de navegación.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -3158,10 +3298,10 @@
             <param name="clase"></param>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
             </remarks>
+            <response code="200">OK. Devuelve el mensaje de actualización.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. Ya existe el nombre de la clase de la licencia de navegación.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -3173,10 +3313,10 @@
             <param name="id"></param>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
             </remarks>
+            <response code="200">OK. Devuelve el mensaje de actualización.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -3212,11 +3352,11 @@
             <remarks>
             Muestra objeto tipo respuesta con el estado tramite.
             </remarks>
+            <param name="id">parametro del id estado</param>
             <response code="200">OK. Devuelve el objeto solicitado.</response>    
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado data.</response>
-            <response code="500">Internal Server. Error En el servidor. </response>
-            <param name="id">parametro del id estado</param>
+            <response code="500">Internal Server. Error En el servidor.</response>
             <returns></returns>
             <Autor>Diego Parra</Autor>
             <Fecha>16/12/2022</Fecha>
@@ -3232,6 +3372,7 @@
             <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe el estado.</response>
             <response code="500">Internal Server. Error En el servidor. </response>
             <Autor>Diego Parra</Autor>
             <Fecha>16/12/2022</Fecha>
@@ -3244,7 +3385,7 @@
              Servicio para editar un estado de tramite de un titulo.
             </remarks>
             <param name="estado">objeto para editar un estado</param>
-            <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+            <response code="200">OK. Devuelve el mensaje se ha editado.</response>        
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. Ya existe el nombre del estado.</response>       
@@ -3260,7 +3401,7 @@
              Servicio para inactivar o activar un estado de tramite a partir del parametro id.
             </remarks>
             <param name="id">id del estado</param>
-            <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+            <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server. Error En el servidor. </response>
@@ -3269,9 +3410,8 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaFuncionController">
             <summary>
-            servicios para las capacidad del titulo de navegación
+            servicios para la relación entre regla y sus funciones
             <Autor>Diego Parra</Autor>
-            <Fecha>23/03/2022</Fecha>
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaFuncionController.#ctor">
@@ -3299,10 +3439,10 @@
             </summary>
             <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>23/03/2022</Fecha>
+            <Fecha>28/04/2022</Fecha>
             </remarks>
+            <response code="200">OK. Se obtiene el listado de las reglas sin asignar funciones.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
@@ -3316,10 +3456,10 @@
             <Fecha>28/04/2022</Fecha>
             </remarks>
             <param name="info">objeto para asignarle a una regla funciones.</param>
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de las funciones a la regla.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="409">Conflict. conflicto de solicitud Ya existe la relación indicada.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
@@ -3332,8 +3472,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
+            <response code="200">OK. Devuelve el mensaje de edición.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="409">Conflict. conflicto de solicitud con el estado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -3355,8 +3495,9 @@
             <summary>
              Se obtiene el listado de capacidades por Id regla.
             </summary>
+            <param name="items"> parametros que contiene los ids de regla y cargo</param>
+            <response code="200">OK. Devuelve la lista de capacidades por regla cargo solicitada.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
@@ -3384,7 +3525,7 @@
             <summary>
             servicio get capacidad
             </summary>
-            <param name="id"></param>
+            <param name="id">parametro que filtra por id</param>
             <returns></returns>
             <remarks>
             <Autor>Diego Parra</Autor>
@@ -3404,10 +3545,10 @@
             <Fecha>28/04/2022</Fecha>
             </remarks>
             <param name="capacidad">objeto para crear una capacidad.</param>
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la capacidad.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la entidad de estupefaciente.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe la capacidad.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
@@ -3420,10 +3561,10 @@
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. se ha actualizado el recurso (capacidad).</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe la capacidad.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
@@ -3437,8 +3578,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
             </remarks>
+            <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -3446,7 +3587,7 @@
             <summary>
             servicios para los cargos de titulos
             <Autor>Diego Parra</Autor>  
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>23/05/2022</Fecha>
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.#ctor">
@@ -3456,37 +3597,83 @@
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.GetCargoTitulosBySeccionId(System.Int32)">
             <summary>
-            Retorna los cargos de los titulos por cada sección.
+             Se obtiene el listado de cargos por sección.
             </summary>
+            <param name="SeccionId"> parametro que contiene el id de la sección</param>
+            <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>23/05/2022</Fecha>
+            </remarks>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Listado(DIMARCore.UIEntities.QueryFilters.CargoTituloFilter)">
             <summary>
             Listado de cargos de titulos de navegación
             </summary>
             <returns></returns>
+            <param name="filter"> parametro que contiene el filtro por: SeccionId y ClaseId</param>
+            <summary>
+             Se obtiene el listado de cargos por sección.
+            </summary>
+            <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+            <returns></returns>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>23/05/2022</Fecha>
+            </remarks>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.GetCargoTitulo(System.Int32)">
             <summary>
-            servicio get funcion
+            servicio get cargo del titulo por id
             </summary>
-            <param name="id"></param>
+            <param name="id">parametro que filtra por id</param>
             <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/05/2022</Fecha>
+            </remarks>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Crear(DIMARCore.UIEntities.DTOs.CargoTituloDTO)">
             <summary>
-            Servicio para crear un cargo de un titulo de navegación
-            </summary>
-            <param name="cargo"></param>
+            Servicio para crear un cargo
+            </summary>        
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>28/04/2022</Fecha>
+            </remarks>
+            <param name="cargo">objeto para crear un cargo.</param>
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación del cargo.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe el cargo.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Editar(DIMARCore.UIEntities.DTOs.CargoTituloDTO)">
             <summary>
-            Servicio para editar un cargo de un titulo de navegación
+            Servicio para editar un cargo
             </summary>
-            <param name="cargo"></param>
+            <param name="cargo">objeto para editar un cargo.</param>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>05/03/2022</Fecha>
+            </remarks>
+            <response code="200">OK. se ha actualizado el recurso (cargo).</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe el cargo.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.AnularOrActivar(System.Int32)">
@@ -3495,8 +3682,14 @@
             </summary>
             <param name="id"></param>
             <returns></returns>
+            <remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/05/2022</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController">
             <summary>
@@ -3532,39 +3725,43 @@
             <Autor>Diego Parra</Autor>
             <Fecha>23/03/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController.CrearCargoRegla(DIMARCore.UIEntities.DTOs.CargoReglaDTO)">
             <summary>
-             Creación cargo reglas
+             Creación cargo regla
             </summary>
             <remarks>
+             Servicio para crear la relación del cargo con regla
+            </remarks>
             <Autor>Diego Parra</Autor>
             <Fecha>28/04/2022</Fecha>
-            </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <param name="obj">Objeto dto para crear la relación cargo regla</param>
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="409">Conflict. conflicto de solicitud.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController.EditarCargoRegla(DIMARCore.UIEntities.DTOs.CargoReglaDTO)">
             <summary>
-             Edición cargo reglas
+             Edición cargo regla
             </summary>
             <remarks>
+             Servicio para editar la relación del cargo con regla
+            </remarks>
             <Autor>Diego Parra</Autor>
             <Fecha>28/04/2022</Fecha>
-            </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <param name="obj">Objeto dto para editar la relación cargo regla</param>
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="409">Conflict. conflicto de solicitud.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
@@ -3572,8 +3769,7 @@
             <summary>
             servicios para las funciones titulos de navegación
             <Autor>Diego Parra</Autor>
-            
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>05/03/2022</Fecha>
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.#ctor">
@@ -3583,54 +3779,102 @@
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.FuncionesByRegla(System.Int32)">
             <summary>
-            Retorna la lista de reglas por cargo del titulo
+            Servicio que lista las funciones por regla.
             </summary>
+            <remarks>
+            Servicio que lista las funciones por regla.
+            </remarks>
+            <response code="200">OK. Devuelve el listado de funciones por una regla.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <param name="ReglaId">objeto que filtra las funciones por regla</param>
             <returns></returns>
+            <Autor>Diego Parra</Autor>
+            <Fecha>05/05/2022</Fecha>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
-            Listado de funciones
+            Servicio que lista las funciones.
             </summary>
+            <remarks>
+            Servicio que lista las funciones.
+            </remarks>
+            <response code="200">OK. Devuelve el listado de funciones.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <param name="dto">objeto que filtra las funciones por activo o inactivo</param>
             <returns></returns>
+            <Autor>Diego Parra</Autor>
+            <Fecha>05/03/2022</Fecha>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.GetFuncion(System.Int32)">
             <summary>
-            servicio get funcion
+            servicio que retorna la función por id
             </summary>
-            <param name="id"></param>
+            <remarks>
+            Muestra objeto tipo respuesta con la función.
+            </remarks>
+            <response code="200">OK. Devuelve el objeto solicitado.</response>     
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado data.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <param name="id">parametro del id funci´´on</param>
             <returns></returns>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.Crear(DIMARCore.UIEntities.DTOs.FuncionDTO)">
             <summary>
-            Servicio para crear una funcion
+            Servicio para crear una función.
             </summary>
-            <param name="funcion"></param>
-            <returns></returns>
+            <remarks>
+             Servicio para crear una función.
+            </remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>05/04/2022</Fecha>
+            <param name="funcion">objeto para crear función</param>
+            <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. Ya existe el nombre de la función.</response>      
+            <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.Editar(DIMARCore.UIEntities.DTOs.FuncionDTO)">
             <summary>
-            Servicio para editar una funcion
+            Servicio para editar un nivel.
             </summary>
-            <param name="funcion"></param>
-            <returns></returns>
+            <remarks>
+             Servicio para editar un nivel de un titulo.
+            </remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>05/04/2022</Fecha>
+            <param name="funcion">objeto para editar una función</param>
+            <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. Ya existe el nombre de la función.</response>       
+            <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.AnularOrActivar(System.Int32)">
             <summary>
-            Servicio para Inactivar una funcion
+            Servicio para inactivar o activar una función.
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+            <remarks>
+             Servicio para inactivar o activar una función a partir del parametro id.
+            </remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>05/04/2022</Fecha>
+            <param name="id">id de la función</param>
+            <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController">
             <summary>
             servicios para las habilitaciones del titulo de navegación
             <Autor>Diego Parra</Autor>
             versión 1.0
-            2022/02/26
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.#ctor">
@@ -3646,7 +3890,7 @@
             listado de habilitaciones con filtro.
             </remarks>
             <Autor>Diego Parra</Autor>
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>01/06/2022</Fecha>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado data.</response>
             <response code="200">OK. Devuelve el objeto solicitado.</response>        
@@ -3656,41 +3900,83 @@
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
-            Listado de habilitaciones
+            Servicio para el listado de habilitaciones.
             </summary>
+            <remarks>
+            listado de habilitaciones con filtro de activo.
+            </remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>01/06/2022</Fecha>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado data.</response>
+            <response code="200">OK. Devuelve el objeto solicitado.</response>        
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <param name="dto">(dto) objeto que tiene el filtro de activo</param>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.GetHabilitacion(System.Int32)">
             <summary>
-            servicio get habilitacion
+            servicio que retorna la habilitación por id
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+            <remarks>
+            Muestra objeto tipo respuesta con la habilitación.
+            </remarks>
+            <param name="id">parametro del id habilitación</param>
+            <response code="200">OK. Devuelve el objeto solicitado.</response>    
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado data.</response>
+            <response code="500">Internal Server. Error En el servidor.</response>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>18/06/2022</Fecha>
+            <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.Crear(DIMARCore.UIEntities.DTOs.HabilitacionDTO)">
             <summary>
-            Servicio para crear una habilitacion
+            Servicio para crear una habilitación
             </summary>
-            <param name="habilitacion"></param>
+            <remarks>
+             Servicio para crear una habilitación
+            </remarks>
+            <param name="habilitacion">objeto para crear una habilitación</param>
+            <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe la habilitación.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <Autor>Diego Parra</Autor>
+            <Fecha>20/06/2022</Fecha>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.Editar(DIMARCore.UIEntities.DTOs.HabilitacionDTO)">
             <summary>
-             Servicio para editar una habilitacion
+            Servicio para editar una habilitación.
             </summary>
-            <param name="habilitacion"></param>
-            <returns></returns>
+            <remarks>
+             Servicio para editar una habilitación.
+            </remarks>
+            <param name="habilitacion">objeto para editar una habilitación </param>
+            <response code="200">OK. Devuelve el mensaje se ha editado.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. Ya existe el nombre de la habilitación.</response>       
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <Autor>Diego Parra</Autor>
+            <Fecha>20/06/2022</Fecha>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.AnularOrActivar(System.Int32)">
             <summary>
-            Servicio para Inactivar una habilitacion
+            Servicio para inactivar o activar una habilitación.
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+            <remarks>
+             Servicio para inactivar o activar una habilitación a partir del parametro id.
+            </remarks>
+            <param name="id">id de la habilitación</param>
+            <response code="200">OK. Devuelve el mensaje si se activo o inactivo.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
             <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
+            <Fecha>20/06/2022</Fecha>
         </member>
         <member name="T:DIMARCore.Api.Controllers.TitulosDeNavegacion.NivelController">
             <summary>
@@ -3723,7 +4009,7 @@
             Servicio que lista los niveles de un titulo.
             </summary>
             <remarks>
-            Nivel del titulo.
+            Servicio que lista los niveles.
             </remarks>
             <response code="200">OK. Devuelve el listado de niveles.</response>        
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
@@ -3760,8 +4046,9 @@
             <Fecha>05/03/2022</Fecha>
             <param name="nivel">objeto para crear un nivel</param>
             <response code="201">Created. Crea y muestra el objeto respuesta con el mensaje de creación.</response>   
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>    
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe el nivel.</response>
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.NivelController.Editar(DIMARCore.UIEntities.DTOs.NivelDTO)">
@@ -3777,7 +4064,7 @@
             <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. Ya existe el nombre del nivel.</response>       
+            <response code="409">Conflict. conflicto de solicitud ya existe el nivel.</response>
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.NivelController.AnularOrActivar(System.Int32)">
@@ -3809,43 +4096,86 @@
             <summary>
             Retorna la lista de reglas por cargo del titulo
             </summary>
+            <param name="CargoId">Parametro para filtrar por cargo.</param>
+            <Autor>Diego Parra</Autor>
+            <Fecha>2022/02/26</Fecha>
             <returns></returns>
+            <response code="200">OK. Devuelve el listado de las reglas por cargo.</response>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.ListReglas(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
-            Listado de reglas
+            Metodo para listar las reglas
             </summary>
+            <param name="dto">Parametro para filtrar por activo.</param>
+            <Autor>Diego Parra</Autor>
+            <Fecha>2022/02/26</Fecha>
             <returns></returns>
+            <response code="200">OK. Devuelve el listado de las reglas.</response>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.GetRegla(System.Int32)">
             <summary>
-            servicio get regla
+            Servicio que retorna la información de la regla solicitada.
             </summary>
-            <param name="id"></param>
-            <returns></returns>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
+            <param name="id">Id (int) de la regla.</param>
+            <returns></returns>
+            <response code="200">OK. Devuelve la información de la regla.</response>
+            <response code="400">Bad request. Objeto invalido.</response>  
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>     
+            <response code="404">NotFound. No existe la regla solicitada.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.Crear(DIMARCore.UIEntities.DTOs.ReglaDTO)">
             <summary>
-            crear una regla
+             Creación regla
             </summary>
-            <param name="regla"></param>
+            <remarks>
+            Servicio para crear una regla
+            </remarks>
+            <param name="regla">Objeto dto para crear la regla</param>
+            <Autor>Diego Parra</Autor>
+            <Fecha>28/04/2022</Fecha>
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la regla.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe el nombre de la regla.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.Editar(DIMARCore.UIEntities.DTOs.ReglaDTO)">
             <summary>
-            editar una regla
+             Edición regla
             </summary>
-            <param name="regla"></param>
+            <remarks>
+            Servicio para editar una regla
+            </remarks>
+            <param name="regla">Objeto dto para editar la regla</param>
+            <Autor>Diego Parra</Autor>
+            <Fecha>28/04/2022</Fecha>
+            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud ya existe el nombre de la regla.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.AnularOrActivar(System.Int32)">
             <summary>
-            Servicio para Inactivar una regla
+            Servicio para inactivar o activar una regla.
             </summary>
-            <param name="id"></param>
-            <returns></returns>
+            <remarks>
+             Servicio para inactivar o activar una regla a partir del parametro id.
+            </remarks>
+            <param name="id">id de la regla</param>
+            <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
         </member>
@@ -3853,7 +4183,6 @@
             <summary>
             servicios para los titulos de navegación
             <Autor>Diego Parra</Autor>
-            <Fecha>2022/02/26</Fecha>
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.#ctor">
@@ -3867,7 +4196,7 @@
             </summary>
             <param name="paginacion"> paginacion (ParametrosPaginacion) objeto que contiene los datos para paginar.</param>
             <Autor>Diego Parra</Autor>
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>/26/02/2022</Fecha>
             <returns></returns>
             <response code="200">OK. Devuelve la información del titulo.</response>
             <response code="204">No Content. No hay titulos.</response>
@@ -3880,21 +4209,21 @@
             Servicio que retorna toda la información de un titulo en especifico por Id
             </summary>
             <Autor>Diego Parra</Autor>
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>/26/02/2022</Fecha>
             <param name="id">Id (long) del titulo de navegación de gente de mar.</param>
             <returns></returns>
             <response code="200">OK. Devuelve la información del titulo.</response>
             <response code="400">Bad request. Objeto invalido.</response>  
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>     
-            <response code="404">NotFound. No se ha el titulo solicitado.</response>
+            <response code="404">NotFound. No existe el título solicitado.</response>
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.GetTitulosByIdentificacion(DIMARCore.UIEntities.QueryFilters.FiltroByIdentificacion)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.GetTitulosByIdentificacion(DIMARCore.UIEntities.QueryFilters.DocumentFilter)">
             <summary>
             Servicio que hace la paginacion de titulos por identificacion de la persona
             </summary>
             <Autor>Diego Parra</Autor>
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>/26/02/2022</Fecha>
             <param name="filtro"></param>
             <returns></returns>
             <response code="200">OK. Devuelve el listado de titulos de la persona de gente de mar..</response>        
@@ -3904,12 +4233,12 @@
             <response code="404">NotFound. No se ha encontrado la persona de gente de mar solicitada.</response>
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.GetTitulosById(DIMARCore.UIEntities.QueryFilters.FiltroById)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.GetTitulosById(DIMARCore.UIEntities.QueryFilters.IdentificatorFilter)">
             <summary>
             Servicio que hace la paginacion de titulos por identificacion de la persona
             </summary>
             <Autor>Diego Parra</Autor>
-            <Fecha>2022/02/26</Fecha>
+            <Fecha>/26/02/2022</Fecha>
             <param name="filtro">parametro para el fitro de paginación con Id de gente de mar.</param>
             <returns></returns>
             <response code="200">OK. Devuelve el listado de titulos de la persona de gente de mar..</response>        
@@ -3951,7 +4280,7 @@
                 file = archivo
              </remarks>
              <Autor>Diego Parra</Autor>
-             <Fecha>2022/02/26</Fecha>
+             <Fecha>/26/02/2022</Fecha>
              <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
              <response code="200">OK. Devuelve el objeto solicitado.</response>        
              <response code="400">Bad request. Objeto invalido.</response>  
@@ -4006,7 +4335,7 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.UsuariosController">
             <summary>
-            Api Usuarios
+            servicios Usuarios
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.UsuariosController.GetUsuariosPorDirectorioActivo(DIMARCore.Utilities.Helpers.ActiveDirectoryFilter)">
@@ -4105,7 +4434,7 @@
         </member>
         <member name="T:DIMARCore.Api.Controllers.AccountController">
             <summary>
-            Api Autenticación
+            Servicios de Autenticación
             </summary>
         </member>
         <member name="M:DIMARCore.Api.Controllers.AccountController.#ctor">
@@ -4121,9 +4450,9 @@
             <Fecha>01/07/2022</Fecha>
             <param name="login"></param>
             <returns></returns>
+            <response code="200">OK. Devuelve la información del usuario con el token.</response>       
             <response code="401">Unauthorized. La combinación usuario/contraseña es incorrecta..</response>   
             <response code="404">Not found. Aplicación de gente mar no encontrada.</response>   
-            <response code="200">OK. Devuelve la información del usuario con el token.</response>           
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.AccountController.LoginTest(DIMARCore.UIEntities.Requests.LoginRequest)">
@@ -4134,9 +4463,9 @@
             <Fecha>01/07/2022</Fecha>
             <param name="login"></param>
             <returns></returns>
+            <response code="200">OK. Devuelve la información del usuario con el token.</response>           
             <response code="401">Unauthorized. La combinación usuario/contraseña es incorrecta..</response>   
             <response code="404">Not found. Aplicación de gente mar no encontrada.</response>   
-            <response code="200">OK. Devuelve la información del usuario con el token.</response>           
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="M:DIMARCore.Api.Controllers.AccountController.GetRolesByAutenticacion">
@@ -4146,8 +4475,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>01/07/2022</Fecha>
             <returns></returns>
-            <response code="401">Unauthorized. no hay autenticación.</response>   
             <response code="200">OK. Devuelve los roles.</response>           
+            <response code="401">Unauthorized. no hay autenticación.</response>   
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
         <member name="T:DIMARCore.Api.Controllers.BaseApiController">

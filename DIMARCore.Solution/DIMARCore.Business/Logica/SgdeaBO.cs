@@ -30,7 +30,7 @@ namespace DIMARCore.Business.Logica
         /// <param name="radicado"></param>
         /// <param name="estado"></param>
         /// <returns></returns>
-        public async Task<SGDEA_PREVISTAS> GetPrevistaEstado(decimal radicado, string estado, string tramite )
+        public async Task<SGDEA_PREVISTAS> GetPrevistaEstado(decimal radicado, string estado, string tramite)
         {
             return await new SGDEARepository().GetWithCondition(x => x.radicado == radicado
             && x.tipo_tramite.Contains(tramite) && x.estado == estado);

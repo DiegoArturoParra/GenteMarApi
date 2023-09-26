@@ -17,10 +17,7 @@ namespace DIMARCore.Business.Logica
                 {
                     return repo.GetAll();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return repo.GetAllWithCondition(x => x.activo == activo);
             }
 
         }
@@ -28,10 +25,9 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
             var funcion = await new FuncionRepository().GetById(Id);
-            if (funcion == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la función digitada."));
-
-            return Responses.SetOkResponse(funcion);
+            return funcion == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la función digitada."))
+                : Responses.SetOkResponse(funcion);
         }
         public async Task<Respuesta> CrearAsync(GENTEMAR_FUNCIONES entidad)
         {
@@ -68,13 +64,14 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, $"Se anulo {entidad.funcion}");
         }
 
-        public async Task<Respuesta> Validaciones(int reglaId)
+        public async Task<Respuesta> IsExistRegla(int reglaId)
         {
             return await new ReglaBO().ExisteReglaById(reglaId);
         }
 
         public async Task<IEnumerable<GENTEMAR_REGLA_FUNCION>> GetFuncionesByRegla(int reglaId)
         {
+            await IsExistRegla(reglaId);
             return await new FuncionRepository().GetFuncionesByRegla(reglaId);
         }
 

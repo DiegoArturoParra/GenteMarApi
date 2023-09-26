@@ -7,7 +7,7 @@ namespace DIMARCore.UIEntities.QueryFilters
     /// <summary>
     /// Clase para filtrar titulos por numero de identificación
     /// </summary>
-    public class FiltroByIdentificacion
+    public class DocumentFilter
     {
 
         /// <summary>
@@ -27,16 +27,5 @@ namespace DIMARCore.UIEntities.QueryFilters
         }
     }
 
-    /// <summary>
-    /// Clase para filtrar titulos por id de gente de mar
-    /// </summary>
-    public class FiltroById
-    {
-        /// <summary>
-        /// propiedad para el id
-        /// </summary>
-        [Required(ErrorMessage = "Id requerido.")]
-        public string Id { get; set; }
-
-    }
+  
 }

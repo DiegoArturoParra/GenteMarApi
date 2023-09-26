@@ -57,7 +57,7 @@ namespace DIMARCore.Repositories.Repository
                     APLICACIONES_LOGIN_ROL rol = new APLICACIONES_LOGIN_ROL
                     {
                         FECHA_ASIGNACION = DateTime.Now,
-                        ID_ESTADO = 1,
+                        ID_ESTADO = (byte)EstadoUsuarioLoginEnum.ACTIVO,
                         ID_LOGIN = user.ID_LOGIN,
                         ID_ROL = item,
                     };
@@ -216,7 +216,7 @@ namespace DIMARCore.Repositories.Repository
                        join login in _context.APLICACIONES_LOGINS on loginRol.ID_LOGIN equals login.ID_LOGIN
                        join roles in _context.APLICACIONES_ROLES on loginRol.ID_ROL equals roles.ID_ROL
                        where roles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar && roles.ID_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO
-                       && roles.ID_ROL == (int)RolesEnum.Administrador && loginRol.ID_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO
+                       && roles.ID_ROL == (int)RolesEnum.AdministradorGDM && loginRol.ID_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO
                        && (login.ID_TIPO_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO || login.ID_TIPO_ESTADO == (int)EstadoUsuarioLoginEnum.USUARIONUEVO)
                        select new
                        {

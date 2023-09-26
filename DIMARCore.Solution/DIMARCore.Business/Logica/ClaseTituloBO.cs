@@ -18,10 +18,7 @@ namespace DIMARCore.Business.Logica
                 {
                     return repo.GetAll();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return repo.GetAllWithCondition(x => x.activo == activo);
             }
         }
 
@@ -29,9 +26,9 @@ namespace DIMARCore.Business.Logica
         {
 
             var entidad = await new ClaseTitulosRepository().GetById(Id);
-            if (entidad == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No encuentra registrada la clase del titulo."));
-            return Responses.SetOkResponse(entidad);
+            return entidad == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No encuentra registrada la clase del titulo."))
+                : Responses.SetOkResponse(entidad);
         }
         public async Task<Respuesta> CrearAsync(GENTEMAR_CLASE_TITULOS entidad)
         {

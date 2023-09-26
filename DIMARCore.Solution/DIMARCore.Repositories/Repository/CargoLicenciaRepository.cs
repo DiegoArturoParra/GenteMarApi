@@ -3,9 +3,7 @@ using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Repositories.Repository
@@ -201,7 +199,7 @@ namespace DIMARCore.Repositories.Repository
                             cargoLicencia,
                             actividadSeccion,
                             seccionClase,
-                            actividad                           
+                            actividad
 
                         });
 
@@ -407,7 +405,7 @@ namespace DIMARCore.Repositories.Repository
                                                         }).Select(x => x.capitanias.DESCRIPCION).FirstOrDefault(),
                                    ActividadLicencia = actividad,
                                    Naves = (from licNav in _context.GENTEMAR_LICENCIA_NAVES
-                                            join naves in _context.TABLA_NAVES_BASE on licNav.identi equals naves.identi
+                                            join naves in _context.NAVES_BASE on licNav.identi equals naves.identi
                                             where licNav.id_licencia == licencia.id_licencia
                                             select new NavesImpDocDTO
                                             {

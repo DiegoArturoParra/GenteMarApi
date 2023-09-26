@@ -1,6 +1,8 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
@@ -40,8 +42,8 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<ExpedienteDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes,
-            RolesEnum.ConsultasEstupefacientes, RolesEnum.GestorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
+            RolesEnum.ConsultasVCITE, RolesEnum.GestorVCITE)]
         [Route("listar")]
         public async Task<IHttpActionResult> GetExpedientes()
         {
@@ -57,17 +59,39 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>01/08/2023</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el listado de expedientes.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<ExpedienteDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes,
-            RolesEnum.ConsultasEstupefacientes, RolesEnum.GestorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
+            RolesEnum.ConsultasVCITE, RolesEnum.GestorVCITE)]
         [Route("listar-por-consolidado")]
         public async Task<IHttpActionResult> GetExpedientesPorConsolidado([FromUri] int consolidadoId)
         {
             var listado = await _serviceExpediente.GetExpedientesPorConsolidado(consolidadoId);
+            return Ok(listado);
+        }
+
+        // GET: Datos del expediente de estupefaciente por consolidado y entidad
+        /// <summary>
+        ///  Datos del expediente de estupefaciente por consolidado y entidad
+        /// </summary>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>01/08/2023</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el expediente de estupefaciente por consolidado y entidad.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>  
+        /// <response code="404">NotFound. No se ha encontrado la entidad o el consolidado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseTypeSwagger<ExpedienteDTO>))]
+        [HttpGet]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [Route("one/por-consolidado-entidad")]
+        public async Task<IHttpActionResult> GetExpedientePorConsolidadoEntidad([FromUri] ExpedienteFilter filter)
+        {
+            var listado = await _serviceExpediente.GetExpedientePorConsolidadoEntidad(filter);
             return Ok(listado);
         }
     }

@@ -1,4 +1,5 @@
-﻿using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
@@ -8,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Business.Logica
@@ -16,8 +18,8 @@ namespace DIMARCore.Business.Logica
     {
         public async Task<Respuesta> AgregarAclaracionEstupefaciente(AclaracionEditDTO aclaracionEdit, string pathActual)
         {
-            if (aclaracionEdit.Archivo == null)
-                throw new HttpStatusCodeException(Responses.SetBadRequestResponse("El archivo no puede ir vacio."));
+            if (aclaracionEdit.FileBytes == null)
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "El archivo no puede ir vacio.");
 
             var expedienteObservacion = await new ExpedienteObservacionEstupefacienteRepository().GetById(aclaracionEdit.ExpedienteObservacionId);
             if (expedienteObservacion == null)
@@ -33,8 +35,8 @@ namespace DIMARCore.Business.Logica
                 try
                 {
                     string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_ACLARACION_EXPEDIENTE}";
-                    var nombreArchivo = $"{Guid.NewGuid()}_.{aclaracionEdit.Extension}";
-                    var response = Reutilizables.GuardarArchivoDeBytes(aclaracionEdit.Archivo, pathActual, path, nombreArchivo);
+                    var nombreArchivo = $"{Guid.NewGuid()}.{aclaracionEdit.Extension}";
+                    var response = Reutilizables.GuardarArchivoDeBytes(aclaracionEdit.FileBytes, pathActual, path, nombreArchivo);
 
                     archivo = (Archivo)response.Data;
                     if (archivo != null)
@@ -52,8 +54,9 @@ namespace DIMARCore.Business.Logica
 
                         aclaracionEdit.ObservacionAnterior = new ObservacionAnteriorDTO()
                         {
-                            DetalleAnterior = expedienteObservacion.descripcion,
-                            VerificacionExitosaAnterior = expedienteObservacion.verificacion_exitosa.Value
+                            DetalleAnterior = expedienteObservacion.descripcion_observacion,
+                            VerificacionExitosaBefore = expedienteObservacion.verificacion_exitosa.Value,
+                            VerificacionExitosaAfter = aclaracionEdit.VerificacionExitosa
                         };
 
                         var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
@@ -66,7 +69,7 @@ namespace DIMARCore.Business.Logica
                             detalle_observacion_anterior_json = JsonConvert.SerializeObject(aclaracionEdit.ObservacionAnterior)
                         };
 
-                        expedienteObservacion.descripcion = aclaracionEdit.DetalleObservacionNuevo;
+                        expedienteObservacion.descripcion_observacion = aclaracionEdit.DetalleObservacionNuevo;
                         expedienteObservacion.verificacion_exitosa = aclaracionEdit.VerificacionExitosa;
                         await aclaracionRepo.AgregarAclaracionPorExpedienteObservacion(dataAclaracion, expedienteObservacion, repositorio);
                     }
@@ -77,7 +80,9 @@ namespace DIMARCore.Business.Logica
                     {
                         Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
                     }
-                    return Responses.SetInternalServerErrorResponse(ex);
+                    var response = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(response);
+                    return response;
                 }
                 return Responses.SetCreatedResponse(null, "La aclaración se agregó satisfactoriamente.");
             }

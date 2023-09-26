@@ -46,7 +46,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(List<DetalleExpedienteObservacionEstupefacienteDTO>))]
         [HttpGet]
         [Route("lista/{EstupefacienteId}")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> GetObservacionesEntidadPorEstupefaciente(long EstupefacienteId)
         {
             var data = await _service.GetObservacionesEntidadPorEstupefacienteId(EstupefacienteId);
@@ -70,7 +70,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-masivo")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> CrearMasivo([FromBody] ObservacionesEntidadBulkDTO observacionesPorEntidad)
         {
             var data = Mapear<IList<ObservacionEntidadEstupefacienteDTO>, IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>>(observacionesPorEntidad.ObservacionesPorEntidad);
@@ -94,7 +94,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.JuridicaEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] CrearObservacionEntidadVciteDTO obj)
         {
             var data = Mapear<ObservacionEntidadEstupefacienteDTO, GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>(obj.ObservacionPorEntidad);

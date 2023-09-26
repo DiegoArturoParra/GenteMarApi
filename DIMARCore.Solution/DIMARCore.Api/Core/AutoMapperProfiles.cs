@@ -292,17 +292,13 @@ namespace DIMARCore.Api.Core
 
                 cfg.CreateMap<ObservacionEntidadEstupefacienteDTO, GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>()
                 .ForMember(ent => ent.id_entidad, dto => dto.MapFrom(s => s.EntidadId))
-                .ForMember(ent => ent.descripcion, dto => dto.MapFrom(s => s.DetalleObservacion))
+                .ForMember(ent => ent.descripcion_observacion, dto => dto.MapFrom(s => s.DetalleObservacion))
                 .ForMember(ent => ent.verificacion_exitosa, dto => dto.MapFrom(s => s.VerificacionExitosa))
                 .ForMember(ent => ent.fecha_respuesta_entidad, dto => dto.MapFrom(s => s.FechaRespuestaEntidad));
 
                 cfg.CreateMap<NavesDTO, NAVES_BASE>()
                 .ForMember(ent => ent.identi, dto => dto.MapFrom(s => s.Identi))
                 .ForMember(ent => ent.nom_naves, dto => dto.MapFrom(s => s.NomNaves))
-                .ForMember(ent => ent.activa, dto => dto.MapFrom(s => s.Activa))
-                .ForMember(ent => ent.maximo, dto => dto.MapFrom(s => s.Maximo))
-                .ForMember(ent => ent.tiponave, dto => dto.MapFrom(s => s.TipoNave))
-                .ForMember(ent => ent.tiponavegacion, dto => dto.MapFrom(s => s.TipoNavegacion))
                 .ReverseMap();
 
                 cfg.CreateMap<GENTEMAR_CONSOLIDADO, ConsolidadoDTO>()

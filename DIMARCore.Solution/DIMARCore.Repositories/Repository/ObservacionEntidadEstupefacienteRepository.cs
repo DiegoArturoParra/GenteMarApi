@@ -24,7 +24,7 @@ namespace DIMARCore.Repositories.Repository
                                    {
                                        ExpedienteObservacionId = observacionEntidad.id_expediente_observacion,
                                        AntecedenteId = observacionEntidad.id_antecedente,
-                                       DetalleObservacion = observacionEntidad.descripcion,
+                                       DetalleObservacion = observacionEntidad.descripcion_observacion,
                                        Entidad = entidad.entidad,
                                        VerificacionExitosa = observacionEntidad.verificacion_exitosa ?? false,
                                        EntidadId = entidad.id_entidad,
@@ -35,30 +35,48 @@ namespace DIMARCore.Repositories.Repository
             return resultado;
         }
 
-        public async Task CrearObservacionesEntidadCascade(IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data)
+        public async Task CrearObservacionesEntidadCascade(long antecedenteId, IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data)
         {
-            var dataActual = await _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.Where(x => x.id_antecedente == data[1].id_antecedente).ToListAsync();
-
-            foreach (var item in dataActual)
+            using (_context)
             {
-                try
+                using (var trassaction = _context.Database.BeginTransaction())
                 {
-                    var objetoEdicion = data.Where(y => y.id_entidad == item.id_entidad && y.id_antecedente == item.id_antecedente).FirstOrDefault()
-                        ?? throw new Exception("Relación no existente.");
+                    try
+                    {
+                        var expedientes = await _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.Where(x => x.id_antecedente == antecedenteId).ToListAsync();
 
-                    item.descripcion = objetoEdicion.descripcion;
-                    item.fecha_respuesta_entidad = objetoEdicion.fecha_respuesta_entidad;
-                    item.verificacion_exitosa = objetoEdicion.verificacion_exitosa;
-                    _context.Entry(item).State = EntityState.Modified;
-                }
-                catch (Exception ex)
-                {
-                    var entidad = await _context.GENTEMAR_ENTIDAD.Where(x => x.id_entidad == item.id_entidad).Select(y => y.entidad).FirstOrDefaultAsync();
-                    _logger.Error($"No se encuentra el antecedente {item.id_antecedente} con la entidad {entidad}", ex);
-                    continue;
+                        foreach (var item in expedientes)
+                        {
+                            try
+                            {
+                                var objetoEdicion = data.Where(y => y.id_entidad == item.id_entidad && y.id_antecedente == item.id_antecedente).FirstOrDefault()
+                                    ?? throw new Exception("Relación no existente.");
+
+                                item.descripcion_observacion = objetoEdicion.descripcion_observacion;
+                                item.fecha_respuesta_entidad = objetoEdicion.fecha_respuesta_entidad;
+                                item.verificacion_exitosa = objetoEdicion.verificacion_exitosa;
+                                _context.Entry(item).State = EntityState.Modified;
+                            }
+                            catch (Exception ex)
+                            {
+                                var entidad = await _context.GENTEMAR_ENTIDAD.Where(x => x.id_entidad == item.id_entidad).Select(y => y.entidad).FirstOrDefaultAsync();
+                                _logger.Error($"No se encuentra el antecedente {item.id_antecedente} con la entidad {entidad}", ex);
+                                continue;
+                            }
+                        }
+                        await SaveAllAsync();
+                        await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(antecedenteId);
+                        trassaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        trassaction.Rollback();
+                        ObtenerException(ex, data[1]);
+                    }
                 }
             }
-            await SaveAllAsync();
+
+
         }
 
         public async Task EditarObservacionesEntidadCascade(IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data, GENTEMAR_OBSERVACIONES_ANTECEDENTES observacion,
@@ -93,6 +111,27 @@ namespace DIMARCore.Repositories.Repository
                     {
                         trassaction.Rollback();
                         ObtenerException(ex, data[1]);
+                    }
+                }
+            }
+        }
+
+        public async Task CrearObservacionPorEntidad(GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES dataActual)
+        {
+            using (_context)
+            {
+                using (var trassaction = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        await Update(dataActual);
+                        await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(dataActual.id_antecedente);
+                        trassaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        trassaction.Rollback();
+                        ObtenerException(ex, dataActual);
                     }
                 }
             }

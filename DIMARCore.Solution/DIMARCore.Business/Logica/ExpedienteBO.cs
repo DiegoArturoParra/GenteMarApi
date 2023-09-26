@@ -1,5 +1,6 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
@@ -26,6 +27,20 @@ namespace DIMARCore.Business.Logica
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay expedientes aún del número de consolidado."));
 
             return await new ExpedienteRepository().GetExpedientesPorConsolidado(consolidadoId);
+        }
+
+        public async Task<Respuesta> GetExpedientePorConsolidadoEntidad(ExpedienteFilter filter)
+        {
+            bool existeConsolidado = await new ConsolidadoEstupefacienteRepository().AnyWithCondition(x => x.id_consolidado == filter.ConsolidadoId);
+            if (!existeConsolidado)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el consolidado."));
+
+            bool existeEntidad = await new EntidadEstupefacienteRepository().AnyWithCondition(x => x.id_entidad == filter.EntidadId);
+            if (!existeEntidad)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe la entidad."));
+
+            var data = await new ExpedienteRepository().GetExpedientePorConsolidadoEntidad(filter);
+            return Responses.SetOkResponse(data);
         }
     }
 }

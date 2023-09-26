@@ -12,7 +12,7 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task<IEnumerable<RolSession>> GetRoles()
         {
-            return await Table.Where(y => y.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar && y.ID_ESTADO == 1)
+            return await Table.Where(y => y.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar && y.ID_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO)
                 .Select(y => new RolSession()
                 {
                     Id = y.ID_ROL,

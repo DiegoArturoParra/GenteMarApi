@@ -1,7 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
-using GenteMarCore.Entities;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -59,7 +57,7 @@ namespace DIMARCore.Repositories.Repository
             {
                 resultado = resultado.Where(x => x.activo == estado);
             }
-        return resultado.ToList();
+            return resultado.ToList();
         }
     }
 }

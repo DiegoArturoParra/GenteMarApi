@@ -14,7 +14,7 @@ using System.Web.Http.Description;
 namespace DIMARCore.Api.Controllers
 {
     /// <summary>
-    /// Api Autenticación
+    /// Servicios de Autenticación
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/account")]
@@ -37,9 +37,9 @@ namespace DIMARCore.Api.Controllers
         /// <Fecha>01/07/2022</Fecha>
         /// <param name="login"></param>
         /// <returns></returns>
+        /// <response code="200">OK. Devuelve la información del usuario con el token.</response>       
         /// <response code="401">Unauthorized. La combinación usuario/contraseña es incorrecta..</response>   
         /// <response code="404">Not found. Aplicación de gente mar no encontrada.</response>   
-        /// <response code="200">OK. Devuelve la información del usuario con el token.</response>           
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(ResponseTypeSwagger<UserTokenDTO>))]
         [HttpPost]
@@ -76,9 +76,9 @@ namespace DIMARCore.Api.Controllers
         /// <Fecha>01/07/2022</Fecha>
         /// <param name="login"></param>
         /// <returns></returns>
+        /// <response code="200">OK. Devuelve la información del usuario con el token.</response>           
         /// <response code="401">Unauthorized. La combinación usuario/contraseña es incorrecta..</response>   
         /// <response code="404">Not found. Aplicación de gente mar no encontrada.</response>   
-        /// <response code="200">OK. Devuelve la información del usuario con el token.</response>           
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(ResponseTypeSwagger<UserTokenDTO>))]
         [HttpPost]
@@ -114,13 +114,13 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>01/07/2022</Fecha>
         /// <returns></returns>
-        /// <response code="401">Unauthorized. no hay autenticación.</response>   
         /// <response code="200">OK. Devuelve los roles.</response>           
+        /// <response code="401">Unauthorized. no hay autenticación.</response>   
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(List<int>))]
+        [Authorize]
         [HttpGet]
         [Route("roles")]
-        [Authorize]
         public async Task<IHttpActionResult> GetRolesByAutenticacion()
         {
             var stopwatch = new System.Diagnostics.Stopwatch();

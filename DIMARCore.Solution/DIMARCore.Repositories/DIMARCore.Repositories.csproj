@@ -78,6 +78,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogRepository.cs" />
     <Compile Include="Repository\ExpedienteObservacionEstupefacienteRepository.cs" />
     <Compile Include="Repository\ObservacionEntidadEstupefacienteRepository.cs" />
     <Compile Include="Repository\ActividadRepository.cs" />
@@ -131,6 +132,8 @@
     <Compile Include="Repository\RangoRepository.cs" />
     <Compile Include="Repository\ReglaFuncionRepository.cs" />
     <Compile Include="Repository\ReglaRepository.cs" />
+    <Compile Include="Repository\ReportesgdmRepository.cs" />
+    <Compile Include="Repository\ReportesvciteRepository.cs" />
     <Compile Include="Repository\SeccionClaseRepository.cs" />
     <Compile Include="Repository\SeccionLicenciasRepository.cs" />
     <Compile Include="Repository\SeccionTitulosRepository.cs" />

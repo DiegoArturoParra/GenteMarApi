@@ -7,26 +7,27 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using System.Linq;
 
 namespace DIMARCore.Business.Logica
 {
     public class CargoTituloBO
     {
 
-        public IEnumerable<ListadoCargoTituloDTO> GetAll(CargoTituloFilter Filtro)
+        public async Task<IEnumerable<ListadoCargoTituloDTO>> GetAllByFilter(CargoTituloFilter Filtro)
         {
             using (var repo = new CargoTituloRepository())
             {
-                return repo.GetCargosTitulos(Filtro);
+                return await repo.GetCargosTitulos(Filtro);
             }
         }
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
             var entidad = await new CargoTituloRepository().GetById(Id);
-            if (entidad == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontro el cargo del titulo."));
-            return Responses.SetOkResponse(entidad);
+            return entidad == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontro el cargo del titulo."))
+                : Responses.SetOkResponse(entidad);
         }
 
         public async Task<Respuesta> CrearAsync(GENTEMAR_CARGO_TITULO entidad)
@@ -70,7 +71,10 @@ namespace DIMARCore.Business.Logica
 
         public async Task<IEnumerable<GENTEMAR_CARGO_TITULO>> GetCargoTitulosBySeccionId(int seccionId)
         {
-            return await new CargoTituloRepository().GetAllWithConditionAsync(x => x.id_seccion == seccionId && x.activo == true);
+            var data = await new CargoTituloRepository().GetAllWithConditionAsync(x => x.id_seccion == seccionId && x.activo == true);
+            if (!data.Any())
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existen cargos del titulo para la seccion seleccionada.");
+            return data;
         }
 
         public async Task<Respuesta> ExisteCargoTituloById(int cargoId)

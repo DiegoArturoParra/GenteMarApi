@@ -14,7 +14,7 @@ using System.Web.Http.Description;
 namespace DIMARCore.Api.Controllers
 {
     /// <summary>
-    /// Api Usuarios
+    /// servicios Usuarios
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/usuarios")]
@@ -34,7 +34,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<List<UserDirectory>>))]
         [HttpGet]
         [Route("listar-directorio-activo")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.AdministradorVCITE)]
         public IHttpActionResult GetUsuariosPorDirectorioActivo([FromUri] ActiveDirectoryFilter filtro)
         {
             var listado = new UsuarioBO().GetUsuariosPorDirectorioActivo(filtro);
@@ -54,7 +54,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<List<RolSession>>))]
         [HttpGet]
         [Route("listar-roles-triton")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> GetRoles()
         {
             var listado = await new AplicacionRolesBO().GetRoles();
@@ -73,7 +73,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<List<InfoUsuarioDTO>>))]
         [HttpGet]
         [Route("listar")]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> GetUsuarios()
         {
             var listado = await new UsuarioBO().GetUsuarios();
@@ -114,13 +114,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPost]
         [Route("crear-triton")]
         public async Task<IHttpActionResult> CrearUsuarioTriton([FromBody] UsuarioTritonDTO usuario)
         {
             var response = await new UsuarioBO().CreateUserTriton(usuario);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
         /// <summary>
@@ -138,13 +138,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("editar-triton")]
         public async Task<IHttpActionResult> EditarUsuarioTriton([FromBody] UsuarioTritonDTO usuario)
         {
             var response = await new UsuarioBO().UpdateUserTriton(usuario);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -161,8 +161,8 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.Administrador, RolesEnum.AdministradorEstupefacientes)]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("retirar-o-activar/{id}")]
         public async Task<IHttpActionResult> InactivarOActivarUsuario(int id)

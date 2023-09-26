@@ -1,15 +1,10 @@
-﻿using GenteMarCore.Entities;
-using GenteMarCore.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
+﻿using GenteMarCore.Entities.Models;
 
 
 namespace DIMARCore.Repositories
 {
-    public class CargoLimitacionRepository: GenericRepository<GENTEMAR_CARGO_LIMITACION>
+    public class CargoLimitacionRepository : GenericRepository<GENTEMAR_CARGO_LIMITACION>
     {
-       
+
     }
 }

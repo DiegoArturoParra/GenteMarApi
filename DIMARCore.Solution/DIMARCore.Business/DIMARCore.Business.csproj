@@ -73,6 +73,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\DbLogger.cs" />
     <Compile Include="Interfaces\IGenericCRUD.cs" />
     <Compile Include="Interfaces\ITitulosBO.cs" />
     <Compile Include="Logica\AclaracionEstupefacienteBO.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Logica\PaisBO.cs" />
     <Compile Include="Logica\RangoBO.cs" />
     <Compile Include="Logica\ReglaBO.cs" />
+    <Compile Include="Logica\ReportesGDMBO.cs" />
     <Compile Include="Logica\SeccionBO.cs" />
     <Compile Include="Logica\ServiciosAplicacionesBO.cs" />
     <Compile Include="Logica\SgdeaBO.cs" />

@@ -2,6 +2,7 @@
 using DIMARCore.UIEntities.QueryFilters;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace DIMARCore.Repositories.Repository
             return await AnyWithCondition(x => x.id_cargo_titulo == cargoId);
         }
 
-        public IEnumerable<ListadoCargoTituloDTO> GetCargosTitulos(CargoTituloFilter Filtro)
+        public async Task<IEnumerable<ListadoCargoTituloDTO>> GetCargosTitulos(CargoTituloFilter Filtro)
         {
             var query = (from cargo in _context.GENTEMAR_CARGO_TITULO
                          join seccion in _context.GENTEMAR_SECCION_TITULOS on cargo.id_seccion equals seccion.id_seccion
@@ -42,7 +43,7 @@ namespace DIMARCore.Repositories.Repository
                 }
 
             }
-            var listado = query.Select(m => new ListadoCargoTituloDTO
+            var data = await query.Select(m => new ListadoCargoTituloDTO
             {
                 Id = m.cargo.id_cargo_titulo,
                 Clase = m.clase.descripcion_clase,
@@ -51,8 +52,8 @@ namespace DIMARCore.Repositories.Repository
                 Seccion = m.seccion.actividad_a_bordo,
                 SeccionId = m.seccion.id_seccion,
                 IsActive = m.cargo.activo
-            });
-            var data = listado.ToList();
+            }).ToListAsync();
+
             return data;
         }
     }

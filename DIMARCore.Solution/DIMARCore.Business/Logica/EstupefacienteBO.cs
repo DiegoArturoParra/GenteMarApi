@@ -1,4 +1,5 @@
-﻿using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
@@ -38,14 +39,13 @@ namespace DIMARCore.Business.Logica
                 var fechaRadicado = await ValidacionesDeNegocio(entidad, datosBasicos, false);
                 entidad.fecha_sgdea = entidad.fecha_sgdea ?? fechaRadicado;
                 entidad.fecha_solicitud_sede_central = DateTime.Now;
-                if (datosBasicos.IsExist)
+                if (!datosBasicos.IsExist)
                 {
                     await repo.CreateWithPersonGenteMar(entidad, datosBasicos);
                     return Responses.SetCreatedResponse(entidad);
                 }
                 await repo.Create(entidad);
                 return Responses.SetCreatedResponse(entidad);
-
             }
 
         }
@@ -56,10 +56,10 @@ namespace DIMARCore.Business.Logica
 
             if (!isEdit && datosBasicos.IsExist)
             {
-                var validacion = await new EstupefacienteRepository().ContieneAntecedenteVigentePorEstado(datosBasicos.id_gentemar_antecedente);
-                if (validacion.isContains)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($@"La persona {validacion.NombreCompleto} con No de Identificación 
-                                                            {validacion.Identificacion} contiene un estupefaciente en estado {validacion.Estado} y no es posible agregar uno nuevo."));
+                var containsVciteVigente = await new EstupefacienteRepository().ContieneAntecedenteVigentePorEstado(datosBasicos.id_gentemar_antecedente);
+                if (containsVciteVigente.isContains)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La persona {containsVciteVigente.NombreCompleto} con No de Identificación " +
+                        $"{containsVciteVigente.Identificacion} contiene un estupefaciente en estado {containsVciteVigente.Estado} y no es posible agregar uno nuevo."));
             }
             if (!isEdit)
             {
@@ -118,10 +118,20 @@ namespace DIMARCore.Business.Logica
                 }
                 catch (Exception ex)
                 {
-                    return Responses.SetInternalServerErrorResponse(ex);
+                    var response = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(response);
+                    return response;
                 }
             }
 
+        }
+
+        public async Task ChangeNarcoticStateIfAllVerifications(long idAntecedente)
+        {
+            using (var estupefacienteRepository = new EstupefacienteRepository())
+            {
+                await estupefacienteRepository.ChangeNarcoticStateIfAllVerifications(idAntecedente);
+            }
         }
 
         public async Task<Respuesta> EditarAsync(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicos, string pathActual)
@@ -194,6 +204,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -210,10 +221,20 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> GetDatosGenteMarEstupefaciente(string identificacionConPuntos)
         {
-            var data = await new EstupefacienteRepository().GetDatosGenteMarEstupefaciente(identificacionConPuntos)
-                ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la persona.");
-            data.ExisteEnDatosBasicosEstupefaciente = true;
-            return Responses.SetOkResponse(data);
+            using (var estupefacienteRepository = new EstupefacienteRepository())
+            {
+                var data = await estupefacienteRepository.GetDatosGenteMarEstupefaciente(identificacionConPuntos)
+             ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la persona en VCITE.");
+
+                var containsVciteActually = await estupefacienteRepository.ContieneAntecedenteVigentePorEstado(data.Id);
+                if (containsVciteActually.isContains)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La persona {containsVciteActually.NombreCompleto} con No de Identificación " +
+                        $"{containsVciteActually.Identificacion} contiene un estupefaciente en estado {containsVciteActually.Estado} y no es posible agregar uno nuevo."));
+
+                data.ExisteEnDatosBasicosEstupefaciente = true;
+                return Responses.SetOkResponse(data);
+            }
+
         }
 
         public async Task<Respuesta> GetDetallePersonaEstupefaciente(long id)
@@ -226,6 +247,9 @@ namespace DIMARCore.Business.Logica
 
         public async Task<IEnumerable<EstupefacientesBulkDTO>> GetEstupefacientesSinObservaciones(IList<long> ids)
         {
+            if (!ids.Any())
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Es requerido tener ids de estupefacientes.");
+
             using (var repo = new EstupefacienteRepository())
             {
                 return await repo.GetEstupefacientesSinObservaciones(ids);

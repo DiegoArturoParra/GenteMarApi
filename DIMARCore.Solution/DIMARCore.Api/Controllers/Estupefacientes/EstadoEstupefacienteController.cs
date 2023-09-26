@@ -50,8 +50,8 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(List<EstadoEstupefacienteDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes, RolesEnum.GestorEstupefacientes, RolesEnum.JuridicaEstupefacientes,
-            RolesEnum.ConsultasEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
+            RolesEnum.ConsultasVCITE)]
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceEstado.GetAll(dto != null ? dto.Activo : null);
@@ -75,7 +75,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseTypeSwagger<EstadoEstupefacienteDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> GetestadoEstupefaciente(int id)
         {
             var estadoEstupefaciente = await _serviceEstado.GetByIdAsync(id);
@@ -83,7 +83,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
             var obj = Mapear<GENTEMAR_ESTADO_ANTECEDENTE, EstadoEstupefacienteDTO>((GENTEMAR_ESTADO_ANTECEDENTE)estadoEstupefaciente.Data);
             estadoEstupefaciente.Data = obj;
 
-            return ResultadoStatus(estadoEstupefaciente);
+            return Ok(estadoEstupefaciente);
         }
 
 
@@ -104,12 +104,12 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] EstadoEstupefacienteDTO estadoEstupefaciente)
         {
             var data = Mapear<EstadoEstupefacienteDTO, GENTEMAR_ESTADO_ANTECEDENTE>(estadoEstupefaciente);
             var response = await _serviceEstado.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
 
@@ -130,12 +130,12 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Editar([FromBody] EstadoEstupefacienteDTO estadoEstupefaciente)
         {
             var data = Mapear<EstadoEstupefacienteDTO, GENTEMAR_ESTADO_ANTECEDENTE>(estadoEstupefaciente);
             var response = await _serviceEstado.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -154,11 +154,11 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorEstupefacientes)]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceEstado.AnulaOrActivaAsync(id);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<DIM_IMPRESION>))]
         [HttpPost]
         [Route("listar")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.Administrador)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetDimId(DatosBasicosDTO usuario)
         {
             var DimPersona = _service.GetDimImpresionId(usuario.DocumentoIdentificacion);

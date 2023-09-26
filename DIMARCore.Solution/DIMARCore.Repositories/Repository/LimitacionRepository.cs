@@ -15,7 +15,7 @@ namespace DIMARCore.Repositories.Repository
         public IList<GENTEMAR_LIMITACION> GetLimitaciones()
         {
 
-            var resultado = (from a in this.Table
+            var resultado = (from a in Table
                              select a
                              ).OrderBy(p => p.limitaciones).ToList();
             return resultado;
@@ -31,7 +31,7 @@ namespace DIMARCore.Repositories.Repository
         /// <tabla>GENTEMAR_LIMITACION</tabla>
         public GENTEMAR_LIMITACION GetLimitacion(int id)
         {
-            var resultado = (from c in this.Table
+            var resultado = (from c in Table
                              where c.id_limitacion == id
                              select c
                             ).FirstOrDefault();

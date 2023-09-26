@@ -18,21 +18,17 @@ namespace DIMARCore.Business.Logica
                 {
                     return repo.GetAll();
                 }
-                else
-                {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
-                }
+                return repo.GetAllWithCondition(x => x.activo == activo);
             }
         }
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var regla = await new ReglaRepository().GetByIdLazy(Id);
+            var regla = await new ReglaRepository().GetById(Id);
 
-            if (regla == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la regla."));
-
-            return Responses.SetOkResponse(regla);
+            return regla == null
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe la regla solicitada."))
+                : Responses.SetOkResponse(regla);
         }
 
         public async Task<Respuesta> CrearAsync(GENTEMAR_REGLAS entidad)
@@ -94,17 +90,8 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> Validaciones(int cargoId)
         {
-            Respuesta response;
-            var existeCargoTitulo = await new CargoTituloBO().ExisteCargoTituloById(cargoId);
-            if (existeCargoTitulo.Estado)
-            {
-                response = await new ReglaCargoBO().ExisteCargoTituloInDetalleRegla(cargoId);
-            }
-            else
-            {
-                response = existeCargoTitulo;
-            }
-            return response;
+            await new CargoTituloBO().ExisteCargoTituloById(cargoId);
+            return await new ReglaCargoBO().ExisteCargoTituloInDetalleRegla(cargoId);
         }
 
         public async Task ExisteByNombreAsync(string nombre, int Id = 0)
@@ -119,7 +106,7 @@ namespace DIMARCore.Business.Logica
                 existe = await new ReglaRepository().AnyWithCondition(x => x.nombre_regla.Equals(nombre) && x.id_regla != Id);
             }
             if (existe)
-                throw new HttpStatusCodeException(Responses.SetConflictResponse( $"Ya se encuentra registrada la clase {nombre}"));
+                throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la clase {nombre}"));
         }
     }
 }

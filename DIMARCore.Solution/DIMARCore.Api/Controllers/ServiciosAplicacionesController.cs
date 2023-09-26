@@ -13,6 +13,7 @@ namespace DIMARCore.Api.Controllers
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/servicios-aplicaciones")]
+    [Authorize]
     public class ServiciosAplicacionesController : BaseApiController
     {
 
@@ -37,7 +38,6 @@ namespace DIMARCore.Api.Controllers
         /// <returns></returns>
         [ResponseType(typeof(IEnumerable<TipoSolicitudDTO>))]
         [HttpGet]
-        [Authorize]
         [Route("tipos-solicitud")]
         public IHttpActionResult GetTiposSolicitud()
         {
@@ -45,7 +45,6 @@ namespace DIMARCore.Api.Controllers
             var listado = Mapear<IEnumerable<APLICACIONES_TIPO_SOLICITUD>, IEnumerable<TipoSolicitudDTO>>(response);
             return Ok(listado);
         }
-
 
         /// <summary>
         /// Servicio para listar los tipos de refrendo.
@@ -62,7 +61,6 @@ namespace DIMARCore.Api.Controllers
         /// <returns></returns>
         [ResponseType(typeof(IEnumerable<TipoRefrendoDTO>))]
         [HttpGet]
-        [Authorize]
         [Route("tipos-refrendo")]
         public IHttpActionResult ListarRefrendos()
         {
@@ -84,7 +82,6 @@ namespace DIMARCore.Api.Controllers
 
         [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
         [HttpGet]
-        [Authorize]
         [Route("capitanias")]
         public IHttpActionResult GetCapitaniasFirma()
         {
@@ -104,7 +101,6 @@ namespace DIMARCore.Api.Controllers
         /// <returns></returns>
         [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
         [HttpGet]
-        [Authorize]
         [Route("capitanias-firmante")]
         public IHttpActionResult GetCapitaniasFirmante()
         {

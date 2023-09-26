@@ -30,10 +30,8 @@ namespace DIMARCore.Repositories.Repository
                                           JOIN DBA.MULTAS_DEUDORES_MULTA multa_deudor_multa ON multas_info.ID_MULTA = multa_deudor_multa.ID_MULTA
                                           JOIN DBA.MULTAS_DEUDORES mdeudor ON multa_deudor_multa.ID_DEUDOR = mdeudor.ID_DEUDOR
                                           WHERE mdeudor.NUM_DOCUMENTO = ? AND multas_info.ESTADO_FINAL <> ? AND multas_info.ESTADO_FINAL <> ?";
-
                     var results = await db.QueryAsync<MultaDTO>(sqlQuery, new { identificacion, estadoAnulado, estadoTerminado });
                     return results;
-
                 }
             }
             catch (Exception ex)
@@ -43,9 +41,7 @@ namespace DIMARCore.Repositories.Repository
             finally
             {
                 _coreContextDapper.CloseConnection();
-            }
-           
+            }          
         }
-
     }
 }

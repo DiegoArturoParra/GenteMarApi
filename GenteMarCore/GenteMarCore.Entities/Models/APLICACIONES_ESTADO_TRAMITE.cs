@@ -4,7 +4,6 @@ namespace GenteMarCore.Entities.Models
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("APLICACIONES_ESTADO_TRAMITE", Schema = "DBA")]
     public partial class APLICACIONES_ESTADO_TRAMITE
