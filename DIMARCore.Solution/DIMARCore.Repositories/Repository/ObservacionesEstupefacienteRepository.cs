@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data.Entity;
 using System.Linq;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Config;
 
 namespace DIMARCore.Repositories.Repository
 {
@@ -13,30 +14,28 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task CrearObservacion(GENTEMAR_OBSERVACIONES_ANTECEDENTES entidad, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
-            using (_context)
-            {
-                using (var trassaction = _context.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        _context.GENTEMAR_OBSERVACIONES_ANTECEDENTES.Add(entidad);
-                        await SaveAllAsync();
-                        if (repositorio != null)
-                        {
 
-                            repositorio.IdModulo = entidad.id_observacion.ToString();
-                            repositorio.IdUsuarioCreador = entidad.usuario_creador_registro;
-                            repositorio.FechaHoraCreacion = entidad.fecha_hora_creacion;
-                            _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
-                            await SaveAllAsync();
-                        }
-                        trassaction.Commit();
-                    }
-                    catch (Exception ex)
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    _context.GENTEMAR_OBSERVACIONES_ANTECEDENTES.Add(entidad);
+                    await SaveAllAsync();
+                    if (repositorio != null)
                     {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
+
+                        repositorio.IdModulo = entidad.id_observacion.ToString();
+                        repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
+                        repositorio.FechaHoraCreacion = DateTime.Now;
+                        _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
+                        await SaveAllAsync();
                     }
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }

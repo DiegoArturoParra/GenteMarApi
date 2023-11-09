@@ -2,7 +2,7 @@
 
 namespace DIMARCore.Repositories.Repository
 {
-    public class CargoHabilitacionRepository : GenericRepository<GENTEMAR_CARGO_HABILITACION>
+    public class CargoHabilitacionRepository : GenericRepository<GENTEMAR_REGLA_CARGO_HABILITACION>
     {
     }
 }

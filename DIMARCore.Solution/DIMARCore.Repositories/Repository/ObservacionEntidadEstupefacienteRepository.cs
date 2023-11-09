@@ -15,11 +15,11 @@ namespace DIMARCore.Repositories.Repository
         public async Task<IEnumerable<DetalleExpedienteObservacionEstupefacienteDTO>> GetObservacionesEntidadPorEstupefacienteId(long estupefacienteId)
         {
             var resultado = await (from observacionEntidad in _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES
-                                   join entidad in _context.GENTEMAR_ENTIDAD on observacionEntidad.id_entidad equals entidad.id_entidad
+                                   join entidad in _context.GENTEMAR_ENTIDAD_ANTECEDENTE on observacionEntidad.id_entidad equals entidad.id_entidad
                                    join estupefaciente in _context.GENTEMAR_ANTECEDENTES on observacionEntidad.id_antecedente equals estupefaciente.id_antecedente
                                    join expediente in _context.GENTEMAR_EXPEDIENTE on observacionEntidad.id_expediente equals expediente.id_expediente
                                    where observacionEntidad.id_antecedente == estupefacienteId
-                                   && observacionEntidad.fecha_respuesta_entidad != null
+                                   && observacionEntidad.descripcion_observacion.Length > 0
                                    select new DetalleExpedienteObservacionEstupefacienteDTO
                                    {
                                        ExpedienteObservacionId = observacionEntidad.id_expediente_observacion,
@@ -31,108 +31,97 @@ namespace DIMARCore.Repositories.Repository
                                        NumeroDeExpediente = expediente.numero_expediente,
                                        FechaRespuestaEntidad = observacionEntidad.fecha_respuesta_entidad,
                                        Radicado = estupefaciente.numero_sgdea
-                                   }).Where(x => x.FechaRespuestaEntidad != null && x.DetalleObservacion.Length > 0).ToListAsync();
+                                   }).ToListAsync();
             return resultado;
         }
 
         public async Task CrearObservacionesEntidadCascade(long antecedenteId, IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        var expedientes = await _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.Where(x => x.id_antecedente == antecedenteId).ToListAsync();
+                    var expedientes = await _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.Where(x => x.id_antecedente == antecedenteId).ToListAsync();
 
-                        foreach (var item in expedientes)
+                    foreach (var item in expedientes)
+                    {
+                        try
                         {
-                            try
-                            {
-                                var objetoEdicion = data.Where(y => y.id_entidad == item.id_entidad && y.id_antecedente == item.id_antecedente).FirstOrDefault()
-                                    ?? throw new Exception("Relación no existente.");
+                            var objetoEdicion = data.Where(y => y.id_entidad == item.id_entidad && y.id_antecedente == item.id_antecedente).FirstOrDefault()
+                                ?? throw new Exception("Relación no existente.");
 
-                                item.descripcion_observacion = objetoEdicion.descripcion_observacion;
-                                item.fecha_respuesta_entidad = objetoEdicion.fecha_respuesta_entidad;
-                                item.verificacion_exitosa = objetoEdicion.verificacion_exitosa;
-                                _context.Entry(item).State = EntityState.Modified;
-                            }
-                            catch (Exception ex)
-                            {
-                                var entidad = await _context.GENTEMAR_ENTIDAD.Where(x => x.id_entidad == item.id_entidad).Select(y => y.entidad).FirstOrDefaultAsync();
-                                _logger.Error($"No se encuentra el antecedente {item.id_antecedente} con la entidad {entidad}", ex);
-                                continue;
-                            }
+                            item.descripcion_observacion = objetoEdicion.descripcion_observacion;
+                            item.fecha_respuesta_entidad = objetoEdicion.fecha_respuesta_entidad;
+                            item.verificacion_exitosa = objetoEdicion.verificacion_exitosa;
+                            _context.Entry(item).State = EntityState.Modified;
                         }
-                        await SaveAllAsync();
-                        await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(antecedenteId);
-                        trassaction.Commit();
+                        catch (Exception ex)
+                        {
+                            var entidad = await _context.GENTEMAR_ENTIDAD_ANTECEDENTE.Where(x => x.id_entidad == item.id_entidad).Select(y => y.entidad).FirstOrDefaultAsync();
+                            _logger.Error($"No se encuentra el antecedente {item.id_antecedente} con la entidad {entidad}", ex);
+                            continue;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, data[1]);
-                    }
+                    await SaveAllAsync();
+                    await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(antecedenteId);
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, data[1]);
                 }
             }
-
-
         }
 
         public async Task EditarObservacionesEntidadCascade(IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data, GENTEMAR_OBSERVACIONES_ANTECEDENTES observacion,
             GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
+                    _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.RemoveRange(_context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES
+                        .Where(x => x.id_antecedente == observacion.id_antecedente).ToList());
+
+                    _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.AddRange(data);
+
+                    _context.GENTEMAR_OBSERVACIONES_ANTECEDENTES.Add(observacion);
+
+                    if (repositorio != null)
                     {
-                        _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.RemoveRange(_context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES
-                            .Where(x => x.id_antecedente == observacion.id_antecedente).ToList());
-
-                        _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.AddRange(data);
-
-                        _context.GENTEMAR_OBSERVACIONES_ANTECEDENTES.Add(observacion);
-
-                        if (repositorio != null)
-                        {
-                            repositorio.IdModulo = observacion.id_observacion.ToString();
-                            repositorio.IdUsuarioCreador = observacion.usuario_creador_registro;
-                            repositorio.FechaHoraCreacion = observacion.fecha_hora_creacion;
-                            _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
-                        }
-
-                        await SaveAllAsync();
-
-                        trassaction.Commit();
+                        repositorio.IdModulo = observacion.id_observacion.ToString();
+                        repositorio.IdUsuarioCreador = observacion.usuario_creador_registro;
+                        repositorio.FechaHoraCreacion = observacion.fecha_hora_creacion;
+                        _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                     }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, data[1]);
-                    }
+
+                    await SaveAllAsync();
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, data[1]);
                 }
             }
         }
 
         public async Task CrearObservacionPorEntidad(GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES dataActual)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        await Update(dataActual);
-                        await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(dataActual.id_antecedente);
-                        trassaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, dataActual);
-                    }
+                    await Update(dataActual);
+                    await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(dataActual.id_antecedente);
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, dataActual);
                 }
             }
         }

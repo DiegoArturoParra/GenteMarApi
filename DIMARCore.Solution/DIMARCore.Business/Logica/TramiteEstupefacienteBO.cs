@@ -8,10 +8,10 @@ using DIMARCore.Utilities.Middleware;
 
 namespace DIMARCore.Business.Logica
 {
-    public class TramiteEstupefacienteBO : IGenericCRUD<GENTEMAR_TIPO_TRAMITE, int>
+    public class TramiteEstupefacienteBO : IGenericCRUD<GENTEMAR_TRAMITE_ANTECEDENTE, int>
     {
 
-        public IEnumerable<GENTEMAR_TIPO_TRAMITE> GetAll(bool? activo = true)
+        public IEnumerable<GENTEMAR_TRAMITE_ANTECEDENTE> GetAll(bool? activo = true)
         {
             using (var repo = new TramiteEstupefacienteRepository())
             {
@@ -32,20 +32,20 @@ namespace DIMARCore.Business.Logica
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra el tipo de tramite indicado"));
             return Responses.SetOkResponse(entidad);
         }
-        public async Task<Respuesta> ActualizarAsync(GENTEMAR_TIPO_TRAMITE entidad)
+        public async Task<Respuesta> ActualizarAsync(GENTEMAR_TRAMITE_ANTECEDENTE entidad)
         {
             await ExisteByNombreAsync(entidad.descripcion_tipo_tramite.Trim(), entidad.id_tipo_tramite);
 
             var respuesta = await GetByIdAsync(entidad.id_tipo_tramite);
 
-            var obj = (GENTEMAR_TIPO_TRAMITE)respuesta.Data;
+            var obj = (GENTEMAR_TRAMITE_ANTECEDENTE)respuesta.Data;
             obj.descripcion_tipo_tramite = entidad.descripcion_tipo_tramite;
             await new TramiteEstupefacienteRepository().Update(obj);
 
             return Responses.SetUpdatedResponse(obj);
         }
 
-        public async Task<Respuesta> CrearAsync(GENTEMAR_TIPO_TRAMITE entidad)
+        public async Task<Respuesta> CrearAsync(GENTEMAR_TRAMITE_ANTECEDENTE entidad)
         {
             await ExisteByNombreAsync(entidad.descripcion_tipo_tramite.Trim().ToUpper());
             entidad.descripcion_tipo_tramite = entidad.descripcion_tipo_tramite.Trim();
@@ -75,7 +75,7 @@ namespace DIMARCore.Business.Logica
             string mensaje;
             var obj = await GetByIdAsync(Id);
 
-            var entidad = (GENTEMAR_TIPO_TRAMITE)obj.Data;
+            var entidad = (GENTEMAR_TRAMITE_ANTECEDENTE)obj.Data;
             entidad.activo = !entidad.activo;
             await new TramiteEstupefacienteRepository().Update(entidad);
             if (entidad.activo)

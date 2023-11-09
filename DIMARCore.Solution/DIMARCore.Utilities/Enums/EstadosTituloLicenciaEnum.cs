@@ -4,13 +4,13 @@ namespace DIMARCore.Utilities.Enums
 {
     public enum EstadosTituloLicenciaEnum
     {
-        [Description("Vigente")]
+        [Description("VIGENTE")]
         VIGENTE = 1,
-        [Description("NoVigente")]
+        [Description("NO VIGENTE")]
         NOVIGENTE = 2,
-        [Description("Proceso")]
+        [Description("EN PROCESO")]
         PROCESO = 3,
-        [Description("Cancelado")]
-        CANCELADO = 4,
+        [Description("CANCELADO")]
+        CANCELADO = 4
     }
 }

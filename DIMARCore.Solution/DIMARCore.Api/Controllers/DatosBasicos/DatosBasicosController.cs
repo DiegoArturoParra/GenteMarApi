@@ -50,7 +50,7 @@ namespace DIMARCore.Api.Controllers
         [HttpPost]
         [Route("paginar")]
         [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult PaginarDatosBasicos([FromBody] DatosBasicosQueryFilter filtro)
+        public async Task<IHttpActionResult> PaginarDatosBasicosAsync([FromBody] DatosBasicosQueryFilter filtro)
         {
             if (filtro == null)
             {
@@ -59,8 +59,8 @@ namespace DIMARCore.Api.Controllers
                     Paginacion = new ParametrosPaginacion()
                 };
             }
-            var queryable = _service.GetDatosBasicosQueryable(filtro);
-            var listado = GetPaginacion(filtro.Paginacion, queryable);
+            var queryable = _service.GetDatosBasicosQueryable(filtro);            
+            var listado = await GetPaginacion(filtro.Paginacion, queryable);
             var paginador = Paginador<ListadoDatosBasicosDTO>.CrearPaginador(queryable.Count(), listado, filtro.Paginacion);
             return Ok(paginador);
         }
@@ -270,7 +270,7 @@ namespace DIMARCore.Api.Controllers
         [HttpPost]
         [Route("por-filtro")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM,
-            RolesEnum.AdministradorVCITE,RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE)]
+            RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE)]
         public async Task<IHttpActionResult> GetPersonaByIdentificacionOrId(ParametrosGenteMarDTO parametrosGenteMar)
         {
             var data = await _service.ValidationsStatusPersona(parametrosGenteMar);

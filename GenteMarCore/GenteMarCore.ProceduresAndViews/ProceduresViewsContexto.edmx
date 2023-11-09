@@ -45,79 +45,13 @@
     <edmx:ConceptualModels>
       <Schema Namespace="Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="ProceduresViewsContexto" annotation:LazyLoadingEnabled="true" >
-          <EntitySet Name="DIM_PERSONAS" EntityType="Model.DIM_PERSONAS" />
-          <EntitySet Name="t_nav_med" EntityType="Model.t_nav_med" />
         </EntityContainer>
-        <EntityType Name="DIM_PERSONAS">
-          <Key>
-            <PropertyRef Name="id_gentemar" />
-          </Key>
-          <Property Name="id_gentemar" Type="Int32" Nullable="false" />
-          <Property Name="id_usuario" Type="Int32" Nullable="false" />
-          <Property Name="foto" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="huella" Type="String" Nullable="false" MaxLength="600" FixedLength="false" Unicode="false" />
-          <Property Name="firma" Type="String" Nullable="false" MaxLength="600" FixedLength="false" Unicode="false" />
-          <Property Name="firma_bin" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="firma_formato" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_edicion_captura" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="idDim_impresion" Type="Int32" Nullable="false" />
-          <Property Name="id_origen_huella" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="t_nav_med">
-          <Key>
-            <PropertyRef Name="identi" />
-          </Key>
-          <Property Name="identi" Type="String" Nullable="false" MaxLength="20" FixedLength="true" Unicode="false" />
-          <Property Name="eslora" Type="Decimal" Precision="7" Scale="2" />
-          <Property Name="manga" Type="Decimal" Precision="7" Scale="2" />
-          <Property Name="puntal" Type="Decimal" Precision="7" Scale="2" />
-          <Property Name="calado" Type="Decimal" Precision="7" Scale="2" />
-          <Property Name="trb" Type="Decimal" Precision="8" Scale="2" />
-          <Property Name="trn" Type="Decimal" Precision="8" Scale="2" />
-          <Property Name="tpm" Type="Decimal" Precision="8" Scale="2" />
-          <Property Name="franco_bordo" Type="Decimal" Precision="7" Scale="2" />
-          <Property Name="cod_andino" Type="Decimal" Precision="3" Scale="0" />
-          <Property Name="tacarreo" Type="Decimal" Precision="7" Scale="2" />
-        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="ModelStoreContainer" CdmEntityContainer="ProceduresViewsContexto" >
-          <EntitySetMapping Name="DIM_PERSONAS">
-            <EntityTypeMapping TypeName="Model.DIM_PERSONAS">
-              <MappingFragment StoreEntitySet="DIM_PERSONAS">
-                <ScalarProperty Name="id_origen_huella" ColumnName="id_origen_huella" />
-                <ScalarProperty Name="idDim_impresion" ColumnName="idDim impresion" />
-                <ScalarProperty Name="fecha_edicion_captura" ColumnName="fecha_edicion_captura" />
-                <ScalarProperty Name="firma_formato" ColumnName="firma_formato" />
-                <ScalarProperty Name="firma_bin" ColumnName="firma_bin" />
-                <ScalarProperty Name="firma" ColumnName="firma" />
-                <ScalarProperty Name="huella" ColumnName="huella" />
-                <ScalarProperty Name="foto" ColumnName="foto" />
-                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
-                <ScalarProperty Name="id_gentemar" ColumnName="id_gentemar" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="t_nav_med">
-            <EntityTypeMapping TypeName="Model.t_nav_med">
-              <MappingFragment StoreEntitySet="t_nav_med">
-                <ScalarProperty Name="tacarreo" ColumnName="tacarreo" />
-                <ScalarProperty Name="cod_andino" ColumnName="cod_andino" />
-                <ScalarProperty Name="franco_bordo" ColumnName="franco_bordo" />
-                <ScalarProperty Name="tpm" ColumnName="tpm" />
-                <ScalarProperty Name="trn" ColumnName="trn" />
-                <ScalarProperty Name="trb" ColumnName="trb" />
-                <ScalarProperty Name="calado" ColumnName="calado" />
-                <ScalarProperty Name="puntal" ColumnName="puntal" />
-                <ScalarProperty Name="manga" ColumnName="manga" />
-                <ScalarProperty Name="eslora" ColumnName="eslora" />
-                <ScalarProperty Name="identi" ColumnName="identi" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

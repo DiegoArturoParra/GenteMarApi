@@ -77,25 +77,22 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task CrearActividadSeccion(GENTEMAR_SECCION_LICENCIAS entidad, IList<GENTEMAR_ACTIVIDAD> actividad)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
-                        entidad.activo = true;
-                        _context.GENTEMAR_SECCION_LICENCIAS.Add(entidad);
-                        await SaveAllAsync();
-                        await CrateInCascadeActividadSeccion(actividad, entidad.id_seccion);
-                        trassaction.Commit();
+                    entidad.activo = true;
+                    _context.GENTEMAR_SECCION_LICENCIAS.Add(entidad);
+                    await SaveAllAsync();
+                    await CrateInCascadeActividadSeccion(actividad, entidad.id_seccion);
+                    transaction.Commit();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }
@@ -110,31 +107,28 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task ActualizarActividadSeccion(GENTEMAR_SECCION_LICENCIAS entidad, IList<GENTEMAR_ACTIVIDAD> actividad)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
-                        _context.GENTEMAR_SECCION_LICENCIAS.Attach(entidad);
-                        var entry = _context.Entry(entidad);
-                        entry.State = EntityState.Modified;
-                        await SaveAllAsync();
-                        //elimina los registos ya creados 
-                        _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.RemoveRange(
-                            _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.Where(x => x.id_seccion == entidad.id_seccion)
-                        );
-                        //agrega nuevamente los registros  
-                        await CrateInCascadeActividadSeccion(actividad, entidad.id_seccion);
-                        trassaction.Commit();
+                    _context.GENTEMAR_SECCION_LICENCIAS.Attach(entidad);
+                    var entry = _context.Entry(entidad);
+                    entry.State = EntityState.Modified;
+                    await SaveAllAsync();
+                    //elimina los registos ya creados 
+                    _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.RemoveRange(
+                        _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.Where(x => x.id_seccion == entidad.id_seccion)
+                    );
+                    //agrega nuevamente los registros  
+                    await CrateInCascadeActividadSeccion(actividad, entidad.id_seccion);
+                    transaction.Commit();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }

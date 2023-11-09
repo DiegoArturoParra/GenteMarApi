@@ -66,7 +66,6 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\APLICACIONES_ESTADO_TRAMITE.cs" />
     <Compile Include="Models\APLICACIONES_TIPO_REFRENDO.cs" />
-    <Compile Include="Models\GENTEMAR_ACLARACION_ANTECEDENTES.cs" />
     <Compile Include="Models\GENTEMAR_ESTADO_ANTECEDENTES.cs" />
     <Compile Include="Models\GENTEMAR_ESTADO_LICENCIAS.cs" />
     <Compile Include="Models\GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.cs" />
@@ -104,7 +103,7 @@
     <Compile Include="Models\GENTEMAR_ANTECEDENTES.cs" />
     <Compile Include="Models\GENTEMAR_ANTECEDENTES_DATOSBASICOS.cs" />
     <Compile Include="Models\GENTEMAR_CAPACIDAD.cs" />
-    <Compile Include="Models\GENTEMAR_CARGO_HABILITACION.cs" />
+    <Compile Include="Models\GENTEMAR_REGLA_CARGO_HABILITACION.cs" />
     <Compile Include="Models\GENTEMAR_CARGO_LICENCIA.cs" />
     <Compile Include="Models\GENTEMAR_CARGO_LICENCIA_CATEGORIA.cs" />
     <Compile Include="Models\GENTEMAR_CARGO_LIMITACION.cs" />
@@ -117,7 +116,7 @@
     <Compile Include="Models\GENTEMAR_CLASE_LICENCIAS.cs" />
     <Compile Include="Models\GENTEMAR_CLASE_TITULOS.cs" />
     <Compile Include="Models\GENTEMAR_DATOSBASICOS.cs" />
-    <Compile Include="Models\GENTEMAR_ENTIDAD.cs" />
+    <Compile Include="Models\GENTEMAR_ENTIDAD_ANTECEDENTE.cs" />
     <Compile Include="Models\GENTEMAR_ESTADO.cs" />
     <Compile Include="Models\GENTEMAR_ESTADO_ANTECEDENTE.cs" />
     <Compile Include="Models\GENTEMAR_ESTADO_LICENCIA.cs" />
@@ -137,13 +136,12 @@
     <Compile Include="Models\GENTEMAR_SECCION_CLASE.cs" />
     <Compile Include="Models\GENTEMAR_SECCION_LICENCIAS.cs" />
     <Compile Include="Models\GENTEMAR_SECCION_TITULOS.cs" />
-    <Compile Include="Models\GENTEMAR_TERRITORIO.cs" />
     <Compile Include="Models\GENTEMAR_TIPO_LICENCIA.cs" />
-    <Compile Include="Models\GENTEMAR_TIPO_TRAMITE.cs" />
+    <Compile Include="Models\GENTEMAR_TRAMITE_ANTECEDENTE.cs" />
     <Compile Include="Models\GENTEMAR_TITULOS.cs" />
     <Compile Include="Models\GENTEMAR_REPOSITORIO_ARCHIVOS.cs" />
-    <Compile Include="Models\GENTEMAR_TITULO_CARGO_FUNCION.cs" />
-    <Compile Include="Models\GENTEMAR_TITULO_CARGO_HABILITACION.cs" />
+    <Compile Include="Models\GENTEMAR_TITULO_REGLA_CARGOS_FUNCION.cs" />
+    <Compile Include="Models\GENTEMAR_TITULO_REGLA_CARGOS_HABILITACION.cs" />
     <Compile Include="Models\GENTEMAR_TITULO_REGLA_CARGOS.cs" />
     <Compile Include="Models\NAVES_BASE.cs" />
     <Compile Include="Models\PAISES.cs" />
@@ -161,12 +159,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DIMARCore.Solution\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
-      <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
-      <Name>DIMARCore.Utilities</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -174,6 +166,12 @@
     <EmbeddedResource Include="Migrations\202307020253242_Initial.resx">
       <DependentUpon>202307020253242_Initial.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DIMARCore.Solution\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
+      <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
+      <Name>DIMARCore.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -68,8 +68,12 @@
             text-align: center;
         }
         .photo-user{
-            width: 112px;
-            height: 112px;
+            width: 80px;
+            height: 80px;
+        }
+        .firma{
+            width: 200px;
+            height: 80px;  
         }
     </style>
 </head>
@@ -184,14 +188,22 @@
                 I.D. N°
             </div>
         </div>
-        <div class="m-15">
-            <img src="{url}/RepositorioArchivos/{Foto}" class="photo-user" />
-            <br>
+        <div class="m-15 flex">
             <div class="m-10">
+                <img src="{url}/RepositorioArchivos/{Foto}" class="photo-user" />
+                <br>
                 Título No. : {Documento} <br>
                 Certificate No. <br>
                 Expedido el : {FechaExpedicion} <br>
                 Issued on
+            </div>
+            <div class="m-10 tx-center">
+                <div class="firma">
+                    <img class="firma" src="data:image/png;base64,{FirmaBase64}" alt="Firma">
+                </div>                
+                <hr>
+                <span class="negrita f-400"> Firma del Titular</span> <br>
+                <span class="f-400"> Signature of the holder of the certificate</span>
             </div>
         </div>
     </div>

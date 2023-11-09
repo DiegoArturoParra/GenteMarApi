@@ -152,8 +152,6 @@ namespace DIMARCore.Business
             var existeRol = await firstCompletedTask;
             if (!existeRol)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el rol."));
-
-
         }
 
         public async Task<Respuesta> UpdateUserTriton(UsuarioTritonDTO usuarioTriton)
@@ -161,10 +159,8 @@ namespace DIMARCore.Business
             using (var repositorio = new UsuarioRepository())
             {
                 await ValidacionCrearUsuarioTriton(usuarioTriton, true);
-                var data = await repositorio.GetById(usuarioTriton.LoginId);
-                if (data == null)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el usuario."));
-
+                var data = await repositorio.GetById(usuarioTriton.LoginId)
+                    ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el usuario."));
                 data.CORREO = usuarioTriton.Correo.Trim();
                 data.LOGIN_NAME = usuarioTriton.LoginName.Trim();
                 data.FECHA_MODIFICACION = DateTime.Now;
@@ -183,11 +179,8 @@ namespace DIMARCore.Business
             using (var repo = new UsuarioRepository())
             {
                 var entidad = await repo.GetById(id) ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el usuario"));
-
-
                 bool activoOretiro = await repo.InactivarOActivarUsuario(entidad.ID_LOGIN);
-
-
+                
                 if (activoOretiro)
                     return Responses.SetOkResponse(entidad, $"Se inactivo el usuario {entidad.LOGIN_NAME}");
 

@@ -4,10 +4,10 @@ namespace GenteMarCore.Entities.Models
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    [Table("GENTEMAR_TIPO_TRAMITE", Schema = "DBA")]
-    public partial class GENTEMAR_TIPO_TRAMITE
+    [Table("GENTEMAR_TRAMITE_ANTECEDENTE", Schema = "DBA")]
+    public partial class GENTEMAR_TRAMITE_ANTECEDENTE
     {
-        public GENTEMAR_TIPO_TRAMITE()
+        public GENTEMAR_TRAMITE_ANTECEDENTE()
         {
             GENTEMAR_ANTECEDENTES = new HashSet<GENTEMAR_ANTECEDENTES>();
         }

@@ -13,7 +13,6 @@ namespace DIMARCore.Business.Logica
 {
     public class CargoTituloBO
     {
-
         public async Task<IEnumerable<ListadoCargoTituloDTO>> GetAllByFilter(CargoTituloFilter Filtro)
         {
             using (var repo = new CargoTituloRepository())
@@ -73,7 +72,7 @@ namespace DIMARCore.Business.Logica
         {
             var data = await new CargoTituloRepository().GetAllWithConditionAsync(x => x.id_seccion == seccionId && x.activo == true);
             if (!data.Any())
-                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existen cargos del titulo para la seccion seleccionada.");
+                throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existen cargos para la sección seleccionada.");
             return data;
         }
 
@@ -81,7 +80,7 @@ namespace DIMARCore.Business.Logica
         {
             var existeCargoTitulo = await new CargoTituloRepository().ExisteCargoTituloById(cargoId);
             if (!existeCargoTitulo)
-                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"No existe el cargo del titulo.");
+                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"No existe el cargo del título.");
             return Responses.SetOkResponse();
         }
 

@@ -48,9 +48,6 @@ namespace DIMARCore.Api.Controllers
         public async Task<IHttpActionResult> Login([FromBody] LoginRequest login)
         {
             Respuesta respuesta;
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-            _logger.Info("Inicio metodo login...");
             // Se valida que el id de la aplicación sea valido
             await new AplicacionBO().GetAplicacion(login.Aplicacion);
             // Se busca y valida el usuario
@@ -59,13 +56,9 @@ namespace DIMARCore.Api.Controllers
             {
                 var user = (UserSesionDTO)respuesta.Data;
                 // se obtiene el token
-                _logger.Info("Genera token del usuario...");
                 String token = TokenGenerator.GenerarTokenJwt(user);
                 respuesta = _seguridadService.ResultadoAutenticacion(user, token);
-
             }
-            _logger.Info($"{nameof(AccountController)} Login Tiempo de duración: {stopwatch.Elapsed.TotalSeconds}");
-            stopwatch.Stop();
             return ResultadoStatus(respuesta);
         }
 
@@ -86,10 +79,7 @@ namespace DIMARCore.Api.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> LoginTest([FromBody] LoginRequest login)
         {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
             Respuesta respuesta;
-            _logger.Info("Inicio metodo login...");
             // Se valida que el id de la aplicación sea valido
             await new AplicacionBO().GetAplicacion(login.Aplicacion);
             // Se busca y valida el usuario
@@ -102,8 +92,6 @@ namespace DIMARCore.Api.Controllers
                 String token = TokenGenerator.GenerarTokenJwt(user);
                 respuesta = _seguridadService.ResultadoAutenticacion(user, token);
             }
-            _logger.Info($"{nameof(AccountController)} login-test Tiempo de duración: {stopwatch.Elapsed.TotalSeconds}");
-            stopwatch.Stop();
             return ResultadoStatus(respuesta);
 
         }
@@ -123,13 +111,8 @@ namespace DIMARCore.Api.Controllers
         [Route("roles")]
         public async Task<IHttpActionResult> GetRolesByAutenticacion()
         {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-            _logger.Info("Inicio metodo login...");
             string loginName = GetLoginName();
             List<int> roles = await new UsuarioBO().GetRolesByLoginName(loginName);
-            _logger.Info($"{nameof(AccountController)} GetRolesByAutenticacion Tiempo de duración: {stopwatch.Elapsed.TotalSeconds}");
-            stopwatch.Stop();
             return Ok(roles);
         }
     }

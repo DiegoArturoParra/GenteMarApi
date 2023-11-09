@@ -95,6 +95,7 @@ namespace DIMARCore.Business.Logica
                 if (validate == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("La formación no existe."));
                 validate.activo = !validate.activo;
+                await repo.Update(validate);
                 return Responses.SetUpdatedResponse(validate);
             }
         }

@@ -16,6 +16,7 @@ using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
 using DIMARCore.Api.Core.Models;
+using System.Threading;
 
 namespace DIMARCore.Api.Controllers.Estupefacientes
 {
@@ -51,7 +52,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [Route("filtro")]
         [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
             RolesEnum.ConsultasVCITE)]
-        public IHttpActionResult Paginar([FromBody] EstupefacientesFilter filtro)
+        public async Task<IHttpActionResult> PaginarAsync([FromBody] EstupefacientesFilter filtro)
         {
             if (filtro == null)
             {
@@ -64,10 +65,15 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
             var queryable = _serviceEstupefacientes.GetEstupefacientesByFiltro(filtro);
             if (!queryable.Any())
             {
-                return Content(HttpStatusCode.OK, Responses.SetOkResponse(null, "No no se encontraron resultados."));
-            }
+                if (filtro.EstadoId == 0)
+                    return ResultadoStatus(Responses.SetOkResponse(null,
+                    $"No hay estupefacientes en estado" +
+                    $" {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)}" +
+                    $" y {EnumConfig.GetDescription(EstadoEstupefacienteEnum.Consulta)}"));
 
-            var listado = GetPaginacion(filtro.Paginacion, queryable);
+                return Content(HttpStatusCode.OK, Responses.SetOkResponse(null, "No se encontraron resultados."));
+            }
+            var listado = await GetPaginacion(filtro.Paginacion, queryable);
             var paginador = Paginador<ListadoEstupefacientesDTO>.CrearPaginador(queryable.Count(), listado, filtro.Paginacion);
             return Ok(paginador);
 
@@ -91,7 +97,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [Route("datos-gentemar-por-cedula")]
         public async Task<IHttpActionResult> GetGenteMarEstupefaciente([FromUri] CedulaDTO obj)
         {
-            var respuesta = await _serviceEstupefacientes.GetDatosGenteMarEstupefaciente(obj.IdentificacionConPuntos);
+            var respuesta = await _serviceEstupefacientes.GetDatosGenteMarEstupefacienteValidations(obj.Identificacion);
             return Ok(respuesta);
         }
 
@@ -165,7 +171,6 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         {
             var dataEstupefaciente = Mapear<EstupefacienteCrearDTO, GENTEMAR_ANTECEDENTES>(estupefaciente);
             var datosBasicos = Mapear<EstupefacienteDatosBasicosDTO, GENTEMAR_ANTECEDENTES_DATOSBASICOS>(estupefaciente.DatosBasicos);
-
             dataEstupefaciente.id_capitania = GetIdCapitania();
             var response = await _serviceEstupefacientes.CrearAsync(dataEstupefaciente, datosBasicos);
             return ResultadoStatus(response);
@@ -205,16 +210,13 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
                 estupefaciente.Observacion.Archivo = archivo;
 
             ValidateModelAndThrowIfInvalid(estupefaciente);
-
             estupefaciente.CapitaniaId = GetIdCapitania();
-
             var dataEstupefaciente = Mapear<EditInfoEstupefacienteDTO, GENTEMAR_ANTECEDENTES>(estupefaciente);
             var datosBasicos = Mapear<EstupefacienteDatosBasicosDTO, GENTEMAR_ANTECEDENTES_DATOSBASICOS>(estupefaciente.DatosBasicos);
-
-
             respuesta = await _serviceEstupefacientes.EditarAsync(dataEstupefaciente, datosBasicos, PathActual);
             return ResultadoStatus(respuesta);
         }
+
         /// <summary>
         /// Servicio para editar masivamente estados de estupefacientes
         /// </summary>
@@ -258,7 +260,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [Route("radicados-sgdea-titulos")]
         public async Task<IHttpActionResult> GetRadicadosTitulos([FromUri] CedulaDTO obj)
         {
-            var respuesta = await _serviceEstupefacientes.GetRadicadosTitulosByDocumento(obj.IdentificacionConPuntos);
+            var respuesta = await _serviceEstupefacientes.GetRadicadosTitulosByDocumento(obj.Identificacion);
             return Ok(respuesta);
         }
 
@@ -280,7 +282,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [Route("radicados-sgdea-licencias")]
         public async Task<IHttpActionResult> GetRadicadosLicencias([FromUri] CedulaDTO obj)
         {
-            var respuesta = await _serviceEstupefacientes.GetRadicadosLicenciasByDocumento(obj.IdentificacionConPuntos);
+            var respuesta = await _serviceEstupefacientes.GetRadicadosLicenciasByDocumento(obj.Identificacion);
             return Ok(respuesta);
         }
     }

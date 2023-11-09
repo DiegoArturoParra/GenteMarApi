@@ -1,4 +1,5 @@
-﻿using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Enums;
@@ -106,7 +107,9 @@ namespace DIMARCore.Business.Logica
                         catch (Exception ex)
                         {
                             Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
-                            return Responses.SetInternalServerErrorResponse(ex);
+                            respuesta = Responses.SetInternalServerErrorResponse(ex);
+                            _ = new DbLogger().InsertLogToDatabase(respuesta);
+                            return respuesta;            
                         }
                     }
                 }
@@ -198,7 +201,9 @@ namespace DIMARCore.Business.Logica
                         catch (Exception ex)
                         {
                             Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
-                            return Responses.SetInternalServerErrorResponse(ex);
+                            respuesta = Responses.SetInternalServerErrorResponse(ex);
+                            _ = new DbLogger().InsertLogToDatabase(respuesta);
+                            return respuesta;
                         }
                     }
                 }
@@ -221,25 +226,25 @@ namespace DIMARCore.Business.Logica
             {
                 if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.VIGENTE).ToList().Count > 0)
                 {
-                    await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ACTIVO);
+                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ACTIVO);
                     return;
 
                 }
                 if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.PROCESO).ToList().Count > 0)
                 {
-                    await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ENPROCESO);
+                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ENPROCESO);
                     return;
 
                 }
                 if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.NOVIGENTE).ToList().Count > 0)
                 {
-                    await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
+                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
                     return;
 
                 }
                 if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.CANCELADO).ToList().Count > 0)
                 {
-                    await repo.cambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
+                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
                     return;
 
                 }
@@ -261,7 +266,7 @@ namespace DIMARCore.Business.Logica
 
                     var validate = await repo.GetAllWithConditionAsync(x => x.fecha_vencimiento <= DateTime.Now
                     && x.id_estado_licencia != (int)EstadosTituloLicenciaEnum.NOVIGENTE && x.id_estado_licencia != (int)EstadosTituloLicenciaEnum.CANCELADO);
-                    if (validate.Count() > 0)
+                    if (validate.Any())
                     {
                         foreach (GENTEMAR_LICENCIAS item in validate)
                         {

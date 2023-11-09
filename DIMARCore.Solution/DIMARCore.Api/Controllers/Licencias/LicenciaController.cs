@@ -131,7 +131,7 @@ namespace DIMARCore.Api.Controllers.Licencias
             ValidateModelAndThrowIfInvalid(datos);
             var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
             respuesta = await new LicenciaBO().CrearLicencia(data, PathActual);
-            return Ok(respuesta);
+            return ResultadoStatus(respuesta);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace DIMARCore.Api.Controllers.Licencias
             ValidateModelAndThrowIfInvalid(datos);
             var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
             respuesta = await _service.ModificarLicencia(data, PathActual);
-            return Ok(respuesta);
+            return ResultadoStatus(respuesta);
         }
 
 

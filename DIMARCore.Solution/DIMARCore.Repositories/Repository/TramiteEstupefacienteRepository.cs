@@ -2,7 +2,7 @@
 
 namespace DIMARCore.Repositories.Repository
 {
-    public class TramiteEstupefacienteRepository : GenericRepository<GENTEMAR_TIPO_TRAMITE>
+    public class TramiteEstupefacienteRepository : GenericRepository<GENTEMAR_TRAMITE_ANTECEDENTE>
     {
     }
 }

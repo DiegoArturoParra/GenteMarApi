@@ -11,6 +11,12 @@ namespace DIMARCore.Utilities.Enums
         [Description("VERIFICACIÓN NEGATIVA")]
         Negativa = 3,
         [Description("POR ENVIAR")]
-        ParaEnviar = 4
+        ParaEnviar = 4,
+        [Description("N/A")]
+        Ninguno = 5,
+        [Description("VCITE POSTERIOR")]
+        VcitePosterior = 6,
+        [Description("AMPLIACIÓN ACLARADA")]
+        AmpliacionAclarada = 7
     }
 }

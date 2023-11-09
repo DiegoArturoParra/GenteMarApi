@@ -151,7 +151,6 @@
     <Compile Include="DTOs\Reports\FileTocsvDTO.cs" />
     <Compile Include="DTOs\SeccionDTO.cs" />
     <Compile Include="DTOs\CamposTablasMaestrasDTO.cs" />
-    <Compile Include="DTOs\TerritorioDTO.cs" />
     <Compile Include="DTOs\TipoDocumentoDTO.cs" />
     <Compile Include="DTOs\TipoLicenciaDTO.cs" />
     <Compile Include="DTOs\TipoRefrendoDTO.cs" />
@@ -170,6 +169,7 @@
     <Compile Include="QueryFilters\ExpedienteFilter.cs" />
     <Compile Include="QueryFilters\DocumentFilter.cs" />
     <Compile Include="QueryFilters\IdentificatorFilter.cs" />
+    <Compile Include="QueryFilters\RadicadoSGDEAFilter.cs" />
     <Compile Include="QueryFilters\Reports\DatosBasicosReportFilter.cs" />
     <Compile Include="Requests\LoginRequest.cs" />
   </ItemGroup>

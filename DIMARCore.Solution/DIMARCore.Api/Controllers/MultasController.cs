@@ -32,7 +32,7 @@ namespace DIMARCore.Api.Controllers
         [Authorize]
         public async Task<IHttpActionResult> GetMultasPorUsuario([FromUri] CedulaDTO cedula)
         {
-            var data = await new MultasBO().GetMultasPorUsuario(cedula.IdentificacionConPuntos);
+            var data = await new MultasBO().GetMultasPorUsuario(cedula.Identificacion);
             return Ok(data);
         }
     }

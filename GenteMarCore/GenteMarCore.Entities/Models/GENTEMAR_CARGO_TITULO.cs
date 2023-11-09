@@ -14,6 +14,7 @@ namespace GenteMarCore.Entities.Models
 
         [Key]
         public int id_cargo_titulo { get; set; }
+        [MaxLength(500, ErrorMessage = "El campo Descripción debe tener máximo 500 caracteres")]
         public string cargo { get; set; }
         public int id_clase { get; set; }
         public int id_seccion { get; set; }

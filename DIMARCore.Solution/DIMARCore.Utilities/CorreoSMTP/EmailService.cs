@@ -28,11 +28,19 @@ namespace DIMARCore.Utilities.CorreoSMTP
             _port = Convert.ToInt16(ConfigurationManager.AppSettings[SmtpConfig.PORT]);
         }
 
+        public EMailService(string from, string password, string host, int port)
+        {
+            _from = from;
+            _password = password;
+            _host = host;
+            _port = port;
+        }
+
         public async Task SendMail(string[] correosDestino, string mensaje, string body, string title = "GDM", string footer = "por favor comuniquese con el administrador.")
         {
             try
             {
-                string ruta = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, "Recursos\\PlantillaCorreo.html");
+                string ruta = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, "\\Recursos\\PlantillaCorreo.html");
                 var Emailtemplate = new StreamReader(ruta);
                 var strBody = string.Format(Emailtemplate.ReadToEnd());
                 Emailtemplate.Close();
@@ -52,13 +60,13 @@ namespace DIMARCore.Utilities.CorreoSMTP
                 strBody = strBody.Replace("@FOOTER", footer);
 
                 mailMessage.Body = strBody;
-
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Priority = MailPriority.Normal;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                 using (var client = new SmtpClient(_host, _port))
                 {
-
-                    client.EnableSsl = false;
+                    client.EnableSsl = true;
                     client.UseDefaultCredentials = false;
                     // Pass SMTP credentials
                     client.Credentials = new NetworkCredential(_from, _password);

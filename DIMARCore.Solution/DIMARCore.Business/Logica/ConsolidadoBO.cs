@@ -10,15 +10,22 @@ using GenteMarCore.Entities.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Business.Logica
 {
     public class ConsolidadoBO
     {
+        private readonly int _numeroDeLotes;
+        public ConsolidadoBO()
+        {
+            _numeroDeLotes = int.Parse(ConfigurationManager.AppSettings[Constantes.NUMERO_DE_LOTES]);
+        }
         private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public async Task<IEnumerable<GENTEMAR_CONSOLIDADO>> GetConsolidados()
         {
@@ -53,17 +60,19 @@ namespace DIMARCore.Business.Logica
                         entidad.id_estado_antecedente = (int)EstadoEstupefacienteEnum.Consulta;
                         return entidad;
                     }).ToList();
-                    if (!consolidadoDTO.IsNew)
+                    if (consolidadoDTO.IsNew)
                     {
-                        var consolidado = await ConsolidadoRepository.GetById(int.Parse(consolidadoDTO.Consolidado))
-                            ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el consolidado.");
-                        numeroConsolidado = consolidado.numero_consolidado.ToString();
-                        await repository.EditBulkWithconsolidated(datosAEditar, 100, consolidado.id_consolidado.ToString(), consolidadoDTO.ArrayExpedientesEntidad, false);
+                        consolidadoDTO.Consolidado = $"{Constantes.SIGLA_CONSOLIDADO}{consolidadoDTO.Consolidado.Trim()}";
+                        numeroConsolidado = consolidadoDTO.Consolidado;
+                        await repository.EditBulkWithconsolidated(datosAEditar, _numeroDeLotes, consolidadoDTO.Consolidado, consolidadoDTO.ArrayExpedientesEntidad, true);
                     }
                     else
                     {
-                        numeroConsolidado = consolidadoDTO.Consolidado.ToString();
-                        await repository.EditBulkWithconsolidated(datosAEditar, 100, consolidadoDTO.Consolidado, consolidadoDTO.ArrayExpedientesEntidad, true);
+                        int consolidadoId = int.Parse(consolidadoDTO.Consolidado);
+                        var consolidado = await ConsolidadoRepository.GetById(consolidadoId)
+                       ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el consolidado.");
+                        numeroConsolidado = consolidado.numero_consolidado;
+                        await repository.EditBulkWithconsolidated(datosAEditar, _numeroDeLotes, consolidado.id_consolidado.ToString(), consolidadoDTO.ArrayExpedientesEntidad, false);
                     }
                 }
             }
@@ -157,7 +166,7 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> GetConsolidadosEnUso()
         {
-           var data = await new ConsolidadoEstupefacienteRepository().GetConsolidadosEnUso();
+            var data = await new ConsolidadoEstupefacienteRepository().GetConsolidadosEnUso();
             return Responses.SetOkResponse(data);
         }
 
@@ -167,5 +176,51 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(data);
         }
 
+        public async Task<Respuesta> GetConsolidadoNext()
+        {
+            var lastConsolidado = await new ConsolidadoEstupefacienteRepository().GetLastConsolidado();
+            if (lastConsolidado == null)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No hay consolidados registrados."));
+
+            var nextConsolidado = ObtenerNumeroDesdeCadena(lastConsolidado);
+            if (nextConsolidado != -1)
+            {
+                nextConsolidado++;
+                return Responses.SetOkResponse(new ConsolidadoDTO
+                {
+                    Descripcion = nextConsolidado.ToString(),
+                });
+            }
+            return Responses.SetOkResponse();
+        }
+
+        static string ObtenerSoloNumeros(string cadena)
+        {
+            StringBuilder soloNumerosBuilder = new StringBuilder();
+
+            foreach (char caracter in cadena)
+            {
+                if (char.IsDigit(caracter))
+                {
+                    soloNumerosBuilder.Append(caracter);
+                }
+            }
+
+            return soloNumerosBuilder.ToString();
+        }
+        static int ObtenerNumeroDesdeCadena(string cadena)
+        {
+            string soloNumeros = ObtenerSoloNumeros(cadena);
+
+            if (!string.IsNullOrEmpty(soloNumeros))
+            {
+                if (int.TryParse(soloNumeros, out int numero))
+                {
+                    return numero;
+                }
+            }
+
+            return -1; // Valor predeterminado si no se puede convertir la cadena en un número.
+        }
     }
 }

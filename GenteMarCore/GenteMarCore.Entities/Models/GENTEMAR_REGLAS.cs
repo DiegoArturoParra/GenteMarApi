@@ -15,12 +15,15 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public int id_regla { get; set; }
 
-        [StringLength(20)]
+        [StringLength(150)]
         public string nombre_regla { get; set; }
 
         public bool activo { get; set; } = true;
 
         public virtual ICollection<GENTEMAR_REGLAS_CARGO> GENTEMAR_CARGO_REGLAS { get; set; }
+
+        [NotMapped]
+        public List<string> Funciones { get; set; }
 
     }
 

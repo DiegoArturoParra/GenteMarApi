@@ -75,6 +75,8 @@ namespace DIMARCore.Business.Logica
                             templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPILOTO;
                         }
                         break;
+                    default:
+                        throw new HttpStatusCodeException(Responses.SetConflictResponse("La licencia solicitada no tiene permitido generar prevista"));
                 }
 
                 // repmplaza las variables en el archivo html
@@ -90,10 +92,8 @@ namespace DIMARCore.Business.Logica
             }
             catch (Exception ex)
             {
-                throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error al generar la prevista PDF"));
+                throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error al generar la prevista PDF."));
             }
-
-
         }
 
 

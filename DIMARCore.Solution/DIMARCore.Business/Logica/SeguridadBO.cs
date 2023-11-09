@@ -39,7 +39,7 @@ namespace DIMARCore.Business
         private static void ValidacionesDeNegocio(UserSesionDTO usuario)
         {
             if (usuario == null)
-                throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("La combinación usuario/contraseña es incorrecta."));
+                throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("El usuario no tiene permisos para acceder a este aplicativo."));
 
             else if (!usuario.Roles.Any())
                 throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("No cuenta con roles asignados en el aplicativo de Gente De Mar, comuniquese con el administrador."));

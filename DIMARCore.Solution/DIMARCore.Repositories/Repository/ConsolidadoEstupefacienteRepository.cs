@@ -1,5 +1,6 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using GenteMarCore.Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -28,6 +29,11 @@ namespace DIMARCore.Repositories.Repository
                           where expedienteObservacion.id_consolidado == consolidadoId
                           group expedienteObservacion by new { expedienteObservacion.id_antecedente } into grupo
                           select grupo.Key.id_antecedente).ToListAsync();
+        }
+
+        public async Task<string> GetLastConsolidado()
+        {
+            return await Table.OrderByDescending(x => x.id_consolidado).Select(x => x.numero_consolidado).FirstOrDefaultAsync();
         }
     }
 }

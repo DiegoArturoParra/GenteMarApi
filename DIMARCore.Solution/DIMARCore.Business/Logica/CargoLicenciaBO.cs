@@ -71,68 +71,42 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_CARGO_LICENCIA entidad)
         {
             Respuesta respuesta = new Respuesta();
-            try
-            {
-                using (var repo = _repository)
-                {
-                    var data = await repo.GetWithCondition(x => x.id_cargo_licencia == entidad.id_cargo_licencia);
-                    if (data != null)
-                    {
-                        var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithCondition(x => x.id_actividad == entidad.IdActividad && x.id_seccion == entidad.IdSeccion);
-                        var seccionClase = await new SeccionClaseRepository().GetWithCondition(x => x.id_seccion == entidad.IdSeccion && x.id_clase == entidad.IdClase);
-                        if (actividadSeccion != null)
-                        {
-                            if (seccionClase != null)
-                            {   
-                                data.cargo_licencia = entidad.cargo_licencia;
-                                data.vigencia = entidad.vigencia;
-                                data.IdTipoLicencia = entidad.IdTipoLicencia;
-                                data.IdActividad = entidad.IdActividad;
-                                data.IdSeccion = entidad.IdSeccion;
-                                data.IdClase = entidad.IdClase;
-                                data.id_actividad_seccion_licencia = actividadSeccion.id_actividad_seccion_licencia;
-                                data.id_seccion_clase = seccionClase.id_seccion_clase;
-                                data.IdCategoria = entidad.IdCategoria;
-                                data.IdLimitacion = entidad.IdLimitacion;
-                                data.IdLimitante = entidad.IdLimitante;
-                                await _repository.ModificarCargoLimitacion(data);
-                                respuesta.StatusCode = HttpStatusCode.OK;
-                                respuesta.Mensaje = ConstantesBO.EDITADO_OK;
-                                respuesta.Estado = true;
-                            }
-                            else
-                            {
-                                respuesta.MensajeIngles = "User already registered";
-                                respuesta.StatusCode = HttpStatusCode.Conflict;
-                                respuesta.Mensaje = "La relación de sección y clase no existe.";
-                                respuesta.Estado = false;
-                            }
-                        }
-                        else
-                        {
-                            respuesta.MensajeIngles = "User already registered";
-                            respuesta.StatusCode = HttpStatusCode.Conflict;
-                            respuesta.Mensaje = "La relación de actividad y sección no existe.";
-                            respuesta.Estado = false;
-                        }
-                    }
-                    else
-                    {
-                        respuesta.MensajeIngles = "User already registered";
-                        respuesta.StatusCode = HttpStatusCode.Conflict;
-                        respuesta.Mensaje = $"El cargo licencia {entidad.cargo_licencia} ya se encuentra registrado.";
-                        respuesta.Estado = false;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                respuesta.StatusCode = HttpStatusCode.InternalServerError;
-                respuesta.MensajeExcepcion = ex.Message;
-                respuesta.Mensaje = string.Empty;
-            }
 
-            return respuesta;
+            using (var repo = _repository)
+            {
+                var existeCargoLicencia = await repo.AnyWithCondition(x => x.cargo_licencia.Equals(entidad.cargo_licencia)
+                && x.id_cargo_licencia != entidad.id_cargo_licencia);
+
+                if (existeCargoLicencia)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El cargo licencia {entidad.cargo_licencia} ya se encuentra registrado."));
+
+                var data = await repo.GetById(entidad.id_cargo_licencia);
+
+                var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithCondition(x => x.id_actividad
+                     == entidad.IdActividad && x.id_seccion == entidad.IdSeccion);
+                if (actividadSeccion == null)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La relación de actividad y sección no existe."));
+
+                var seccionClase = await new SeccionClaseRepository().GetWithCondition(x => x.id_seccion == entidad.IdSeccion
+                && x.id_clase == entidad.IdClase);
+
+                if (seccionClase == null)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La relación de sección y clase no existe."));
+
+                data.cargo_licencia = entidad.cargo_licencia;
+                data.vigencia = entidad.vigencia;
+                data.IdTipoLicencia = entidad.IdTipoLicencia;
+                data.IdActividad = entidad.IdActividad;
+                data.IdSeccion = entidad.IdSeccion;
+                data.IdClase = entidad.IdClase;
+                data.id_actividad_seccion_licencia = actividadSeccion.id_actividad_seccion_licencia;
+                data.id_seccion_clase = seccionClase.id_seccion_clase;
+                data.IdCategoria = entidad.IdCategoria;
+                data.IdLimitacion = entidad.IdLimitacion;
+                data.IdLimitante = entidad.IdLimitante;
+                await _repository.ModificarCargoLimitacion(data);
+                return Responses.SetUpdatedResponse();
+            }
         }
 
         /// <summary>
@@ -145,58 +119,31 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearAsync(GENTEMAR_CARGO_LICENCIA entidad)
         {
             Respuesta respuesta = new Respuesta();
-            try
-            {
-                using (var repo = _repository)
-                {
-                    var data = await repo.GetWithCondition(x => x.cargo_licencia == entidad.cargo_licencia);
-                    if (data == null)
-                    {
-                        var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithCondition(x => x.id_actividad == entidad.IdActividad && x.id_seccion == entidad.IdSeccion);
-                        var seccionClase = await new SeccionClaseRepository().GetWithCondition(x => x.id_seccion == entidad.IdSeccion && x.id_clase == entidad.IdClase);
-                        if (actividadSeccion != null)
-                        {
-                            if (seccionClase != null)
-                            {
-                                entidad.id_actividad_seccion_licencia = actividadSeccion.id_actividad_seccion_licencia;
-                                entidad.id_seccion_clase = seccionClase.id_seccion_clase;
-                                await repo.CrearCargoLimitacion(entidad);
-                                entidad.codigo_licencia = await codigoLicenciaAsync(entidad, 0);
-                                await _repository.Update(entidad);
-                                respuesta.StatusCode = HttpStatusCode.Created;
-                                respuesta.Mensaje = ConstantesBO.CREADO_OK;
-                                respuesta.Estado = true;
-                            }
-                            else
-                            {
-                                respuesta.MensajeIngles = "User already registered";
-                                respuesta.StatusCode = HttpStatusCode.Conflict;
-                                respuesta.Mensaje = "La relacion de seccion y clase no existe";
-                            }
-                        }
-                        else
-                        {
-                            respuesta.MensajeIngles = "User already registered";
-                            respuesta.StatusCode = HttpStatusCode.Conflict;
-                            respuesta.Mensaje = "La relacion de actividad y seccion no existe";
-                        }
-                    }
-                    else
-                    {
-                        respuesta.MensajeIngles = "User already registered";
-                        respuesta.StatusCode = HttpStatusCode.Conflict;
-                        respuesta.Mensaje = $"El cargo licencia {entidad.cargo_licencia} ya se encuentra registrado.";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                respuesta.StatusCode = HttpStatusCode.InternalServerError;
-                respuesta.MensajeExcepcion = ex.Message;
-                respuesta.Mensaje = string.Empty;
-            }
 
-            return respuesta;
+            using (var repo = _repository)
+            {
+                var data = await repo.AnyWithCondition(x => x.cargo_licencia.Equals(entidad.cargo_licencia));
+                if (data)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El cargo licencia {entidad.cargo_licencia} ya se encuentra registrado."));
+
+                var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithCondition(x => x.id_actividad
+                == entidad.IdActividad && x.id_seccion == entidad.IdSeccion);
+                if (actividadSeccion == null)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La relación de actividad y sección no existe."));
+
+                var seccionClase = await new SeccionClaseRepository().GetWithCondition(x => x.id_seccion == entidad.IdSeccion
+                && x.id_clase == entidad.IdClase);
+
+                if (seccionClase == null)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La relación de sección y clase no existe."));
+
+                entidad.id_actividad_seccion_licencia = actividadSeccion.id_actividad_seccion_licencia;
+                entidad.id_seccion_clase = seccionClase.id_seccion_clase;
+                await repo.CrearCargoLimitacion(entidad);
+                entidad.codigo_licencia = await CodigoLicenciaAsync(entidad, 0);
+                await _repository.Update(entidad);
+                return Responses.SetCreatedResponse();
+            }
         }
 
 
@@ -206,7 +153,7 @@ namespace DIMARCore.Business.Logica
         /// <returns>codigo licencia generado  </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        private async Task<string> codigoLicenciaAsync(GENTEMAR_CARGO_LICENCIA licencia, int fecha)
+        private async Task<string> CodigoLicenciaAsync(GENTEMAR_CARGO_LICENCIA licencia, int fecha)
         {
             var codigo = "";
             if (fecha == 0)
@@ -221,7 +168,7 @@ namespace DIMARCore.Business.Logica
             var data = await _repository.AnyWithCondition(x => x.codigo_licencia == codigo);
             if (data)
             {
-                codigo = await codigoLicenciaAsync(licencia, fecha);
+                codigo = await CodigoLicenciaAsync(licencia, fecha);
             }
 
             return codigo;
@@ -259,7 +206,7 @@ namespace DIMARCore.Business.Logica
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambiarCargoLicencia(int id)
+        public async Task<Respuesta> CambiarCargoLicencia(int id)
         {
             using (var repo = _repository)
             {

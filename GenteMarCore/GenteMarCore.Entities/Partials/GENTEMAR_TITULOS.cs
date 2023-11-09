@@ -10,6 +10,10 @@ namespace GenteMarCore.Entities.Models
         public GENTEMAR_OBSERVACIONES_TITULOS Observacion { get; set; }
         [NotMapped]
         public List<CargosTitulo> Cargos { get; set; }
+        [NotMapped]
+        public List<string> Funciones { get; set; }
+        [NotMapped]
+        public int CargoReglaId { get; set; }
 
     }
     public class CargosTitulo

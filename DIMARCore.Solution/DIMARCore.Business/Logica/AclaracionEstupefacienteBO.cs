@@ -8,6 +8,7 @@ using GenteMarCore.Entities.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -37,7 +38,6 @@ namespace DIMARCore.Business.Logica
                     string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_ACLARACION_EXPEDIENTE}";
                     var nombreArchivo = $"{Guid.NewGuid()}.{aclaracionEdit.Extension}";
                     var response = Reutilizables.GuardarArchivoDeBytes(aclaracionEdit.FileBytes, pathActual, path, nombreArchivo);
-
                     archivo = (Archivo)response.Data;
                     if (archivo != null)
                     {
@@ -48,16 +48,18 @@ namespace DIMARCore.Business.Logica
                             TipoDocumento = Constantes.CARPETA_ACLARACION_EXPEDIENTE,
                             FechaCargue = DateTime.Now,
                             NombreArchivo = nombreArchivo,
+                            Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
                             RutaArchivo = archivo.PathArchivo,
+                            DescripcionDocumento = Reutilizables.DescribirDocumento(Path.GetExtension(archivo.NombreArchivo))
                         };
 
 
-                        aclaracionEdit.ObservacionAnterior = new ObservacionAnteriorDTO()
-                        {
-                            DetalleAnterior = expedienteObservacion.descripcion_observacion,
-                            VerificacionExitosaBefore = expedienteObservacion.verificacion_exitosa.Value,
-                            VerificacionExitosaAfter = aclaracionEdit.VerificacionExitosa
-                        };
+                            aclaracionEdit.ObservacionAnterior = new ObservacionAnteriorDTO()
+                            {
+                                DetalleAnterior = expedienteObservacion.descripcion_observacion,
+                                VerificacionExitosaBefore = expedienteObservacion.verificacion_exitosa.Value,
+                                VerificacionExitosaAfter = aclaracionEdit.VerificacionExitosa
+                            };
 
                         var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
                         {
@@ -104,6 +106,10 @@ namespace DIMARCore.Business.Logica
                             if (respuestaBuscarArchivo != null && respuestaBuscarArchivo.Estado && !string.IsNullOrEmpty(archivoBase64))
                             {
                                 item.ArchivoBase.ArchivoBase64 = archivoBase64;
+                            }
+                            else
+                            {
+                                _ = new DbLogger().InsertLogToDatabase(respuestaBuscarArchivo);
                             }
                         }
                     }

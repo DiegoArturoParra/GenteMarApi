@@ -3,6 +3,7 @@ using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -33,7 +34,8 @@ namespace DIMARCore.Business.Helpers
                             STATUS_CODE = (int)response.StatusCode,
                             USER_SESSION = loginName,
                             DATE_CREATED = DateTime.Now,
-                            SEVERITY_LEVEL = (int)response.StatusCode >= 400 && (int)response.StatusCode < 500 ? "WARNING" : "ERROR"
+                            SEVERITY_LEVEL = (int)response.StatusCode >= 400 && (int)response.StatusCode < 500 ? "WARNING" : "ERROR",
+                            STACK_TRACE = response.Data != null ? JsonConvert.SerializeObject(response.Data) : null
                         };
                         await logRepository.Create(log);
                     }

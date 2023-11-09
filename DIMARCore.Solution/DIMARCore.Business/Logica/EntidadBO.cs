@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
-    public class EntidadBO : IGenericCRUD<GENTEMAR_ENTIDAD, int>
+    public class EntidadBO : IGenericCRUD<GENTEMAR_ENTIDAD_ANTECEDENTE, int>
     {
-        public async Task<Respuesta> ActualizarAsync(GENTEMAR_ENTIDAD objeto)
+        public async Task<Respuesta> ActualizarAsync(GENTEMAR_ENTIDAD_ANTECEDENTE objeto)
         {
 
             await ExisteByNombreAsync(objeto.entidad.Trim().ToUpper(), objeto.id_entidad);
 
             var respuesta = await GetByIdAsync(objeto.id_entidad);
 
-            var obj = (GENTEMAR_ENTIDAD)respuesta.Data;
+            var obj = (GENTEMAR_ENTIDAD_ANTECEDENTE)respuesta.Data;
             obj.entidad = objeto.entidad;
             await new EntidadEstupefacienteRepository().Update(obj);
 
@@ -29,7 +29,7 @@ namespace DIMARCore.Business.Logica
 
             var obj = await GetByIdAsync(Id);
 
-            var entidad = (GENTEMAR_ENTIDAD)obj.Data;
+            var entidad = (GENTEMAR_ENTIDAD_ANTECEDENTE)obj.Data;
             entidad.activo = !entidad.activo;
             await new EntidadEstupefacienteRepository().Update(entidad);
             if (entidad.activo)
@@ -43,7 +43,7 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, respuesta.Mensaje);
         }
 
-        public async Task<Respuesta> CrearAsync(GENTEMAR_ENTIDAD entidad)
+        public async Task<Respuesta> CrearAsync(GENTEMAR_ENTIDAD_ANTECEDENTE entidad)
         {
             await ExisteByNombreAsync(entidad.entidad.Trim().ToUpper());
 
@@ -69,7 +69,7 @@ namespace DIMARCore.Business.Logica
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la entidad {nombre}"));
         }
 
-        public IEnumerable<GENTEMAR_ENTIDAD> GetAll(bool? activo = true)
+        public IEnumerable<GENTEMAR_ENTIDAD_ANTECEDENTE> GetAll(bool? activo = true)
         {
             using (var repo = new EntidadEstupefacienteRepository())
             {

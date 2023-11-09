@@ -11,21 +11,8 @@ namespace DIMARCore.UIEntities.QueryFilters
         /// parametros de la paginación
         /// </summary>
         public ParametrosPaginacion Paginacion { get; set; }
-        /// <summary>
-        /// propiedad para la identificacion
-        /// </summary>
-
-        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
-        [StringLength(16, ErrorMessage = "Debe tener una longitud mínima de {2} y una longitud máxima de {1}.", MinimumLength = 4)]
+        [StringLength(22, ErrorMessage = "Debe tener una longitud mínima de {2} y una longitud máxima de {1}.", MinimumLength = 4)]
         public string Identificacion { get; set; }
-        /// <summary>
-        /// propiedad que devuelve la identificacion con puntos
-        /// </summary>
-        [JsonIgnore]
-        public string IdentificacionConPuntos
-        {
-            get => Reutilizables.ConvertirStringApuntosDeMil(Identificacion);
-        }
         public string Radicado { get; set; }
         public int EstadoId { get; set; }
         public int TramiteId { get; set; }

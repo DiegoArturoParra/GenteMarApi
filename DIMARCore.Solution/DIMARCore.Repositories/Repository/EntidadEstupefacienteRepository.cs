@@ -2,7 +2,7 @@
 
 namespace DIMARCore.Repositories.Repository
 {
-    public class EntidadEstupefacienteRepository : GenericRepository<GENTEMAR_ENTIDAD>
+    public class EntidadEstupefacienteRepository : GenericRepository<GENTEMAR_ENTIDAD_ANTECEDENTE>
     {
     }
 }

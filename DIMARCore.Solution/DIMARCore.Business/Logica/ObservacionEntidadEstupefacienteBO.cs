@@ -1,9 +1,16 @@
-﻿using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
+using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +18,11 @@ namespace DIMARCore.Business.Logica
 {
     public class ObservacionEntidadEstupefacienteBO
     {
+        private readonly int _numeroDeLotes;
+        public ObservacionEntidadEstupefacienteBO()
+        {
+            _numeroDeLotes = int.Parse(ConfigurationManager.AppSettings[Constantes.NUMERO_DE_LOTES]);
+        }
         #region agregar observación a un expediente de estupefaciente por entidad
         public async Task<Respuesta> CrearObservacionPorEntidad(GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES data)
         {
@@ -100,6 +112,97 @@ namespace DIMARCore.Business.Logica
             return await new ObservacionEntidadEstupefacienteRepository().GetObservacionesEntidadPorEstupefacienteId(estupefacienteId);
         }
 
+        public async Task<Respuesta> EdicionParcialDeEstupefacientes(EditBulkPartialEstupefacientesDTO observacionDeEstupefacientes, string pathInitial)
+        {
+            using (var observacionExpedienteRepository = new ExpedienteObservacionEstupefacienteRepository())
+            {
+                var antecedentes = await new EstupefacienteRepository().GetAllWithConditionAsync
+                    (x => observacionDeEstupefacientes.EstupefacientesId.Contains(x.id_antecedente));
+                if (!antecedentes.Any())
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encontraron los ids de los estupefacientes."));
 
+                antecedentes = antecedentes.Select(entidad =>
+                {
+                    // Realizar los cambios necesarios en cada objeto de la lista se cambia el estado
+                    entidad.fecha_aprobacion = observacionDeEstupefacientes.ObservacionEntidad.FechaAprobacion;
+                    entidad.fecha_vigencia = observacionDeEstupefacientes.ObservacionEntidad.FechaVigencia;
+                    return entidad;
+                }).ToList();
+
+                var expedientes = await observacionExpedienteRepository
+                      .GetAllWithConditionAsync(x => observacionDeEstupefacientes.EstupefacientesId.Contains(x.id_antecedente)
+                      && x.id_entidad == observacionDeEstupefacientes.ObservacionEntidad.EntidadId
+                      && x.id_expediente == observacionDeEstupefacientes.ObservacionEntidad.ExpedienteId
+                      && x.id_consolidado == observacionDeEstupefacientes.ConsolidadoId);
+
+                expedientes = expedientes.Select(entidad =>
+                {
+                    // Realizar los cambios necesarios en cada objeto de la lista se cambia el estado
+                    entidad.verificacion_exitosa = observacionDeEstupefacientes.EstadoAntecedenteId == (int)EstadoEstupefacienteEnum.Exitosa;
+                    entidad.descripcion_observacion = observacionDeEstupefacientes.ObservacionEntidad.Observacion;
+                    entidad.fecha_respuesta_entidad = observacionDeEstupefacientes.ObservacionEntidad.FechaRespuestaEntidad;
+                    entidad.descripcion_observacion = Constantes.SIN_OBSERVACION;
+                    return entidad;
+                }).ToList();
+                Archivo archivo = null;
+                try
+                {
+
+                    string rutaModulo = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_ACLARACION_EXPEDIENTE}";
+                    var nombreArchivo = $"{Guid.NewGuid()}.{observacionDeEstupefacientes.ObservacionEntidad.Extension}";
+                    var respuesta = Reutilizables.GuardarArchivoDeBytes(observacionDeEstupefacientes.ObservacionEntidad.FileBytes, pathInitial, rutaModulo, nombreArchivo);
+                    archivo = (Archivo)respuesta.Data;
+                    if (archivo != null)
+                    {
+                        IList<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES> historialAclaracionDeExpedientes = new List<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES>();
+
+                        GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
+                        {
+                            IdAplicacion = Constantes.ID_APLICACION,
+                            NombreModulo = Constantes.CARPETA_MODULO_ESTUPEFACIENTES,
+                            TipoDocumento = Constantes.CARPETA_ACLARACION_EXPEDIENTE,
+                            FechaCargue = DateTime.Now,
+                            NombreArchivo = nombreArchivo,
+                            Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                            RutaArchivo = archivo.PathArchivo,
+                            DescripcionDocumento = Reutilizables.DescribirDocumento(Path.GetExtension(archivo.NombreArchivo))
+                        };
+                        var usuarioCreador = ClaimsHelper.GetNombreCompletoUsuario();
+                        foreach (var item in expedientes)
+                        {
+                            var json = new ObservacionAnteriorDTO()
+                            {
+                                DetalleAnterior = item.descripcion_observacion,
+                                VerificacionExitosaBefore = item.verificacion_exitosa.Value,
+                                VerificacionExitosaAfter = item.verificacion_exitosa.Value
+                            };
+                            var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
+                            {
+                                detalle_aclaracion = Constantes.SIN_ACLARACION,
+                                fecha_hora_creacion = DateTime.Now,
+                                usuario_creador_registro = usuarioCreador,
+                                id_expediente_observacion = item.id_expediente_observacion,
+                                ruta_archivo = archivo.PathArchivo,
+                                detalle_observacion_anterior_json = JsonConvert.SerializeObject(json)
+                            };
+                            historialAclaracionDeExpedientes.Add(dataAclaracion);
+                        }
+                        await observacionExpedienteRepository.EdicionObservacionParcialDeEstupefacientes(antecedentes, expedientes,
+                            historialAclaracionDeExpedientes, repositorio, _numeroDeLotes);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (archivo != null)
+                    {
+                        Reutilizables.EliminarArchivo(pathInitial, archivo.PathArchivo);
+                    }
+                    var response = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(response);
+                    return response;
+                }
+            }
+            return Responses.SetUpdatedResponse();
+        }
     }
 }

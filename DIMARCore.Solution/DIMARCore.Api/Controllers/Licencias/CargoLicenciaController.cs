@@ -94,7 +94,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         {
             var data = Mapear<CargoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>(cargo);
             var response = await _service.CrearAsync(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         {
             var data = Mapear<CargoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>(cargo);
             var response = await _service.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         [Route("inhabilitar/{id}")]
         public async Task<IHttpActionResult> CambiarCargoLicenciaAsync(int id)
         {
-            var respuesta = await _service.cambiarCargoLicencia(id);
+            var respuesta = await _service.CambiarCargoLicencia(id);
             return ResultadoStatus(respuesta);
         }
 

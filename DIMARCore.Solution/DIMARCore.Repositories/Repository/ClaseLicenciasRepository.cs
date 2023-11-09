@@ -76,25 +76,22 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task CrearClaseSeccion(GENTEMAR_CLASE_LICENCIAS entidad, IList<GENTEMAR_SECCION_LICENCIAS> seciones)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
-                        entidad.activo = true;
-                        _context.GENTEMAR_CLASE_LICENCIAS.Add(entidad);
-                        await SaveAllAsync();
-                        await CrateInCascadeClaseSeccion(seciones, entidad.id_clase);
-                        trassaction.Commit();
+                    entidad.activo = true;
+                    _context.GENTEMAR_CLASE_LICENCIAS.Add(entidad);
+                    await SaveAllAsync();
+                    await CrateInCascadeClaseSeccion(seciones, entidad.id_clase);
+                    transaction.Commit();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }
@@ -108,30 +105,27 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task ActualizarClaseSeccion(GENTEMAR_CLASE_LICENCIAS entidad, IList<GENTEMAR_SECCION_LICENCIAS> seciones)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
-                        _context.GENTEMAR_CLASE_LICENCIAS.Attach(entidad);
-                        var entry = _context.Entry(entidad);
-                        entry.State = EntityState.Modified;
-                        await SaveAllAsync();
-                        //elimina los registos ya creados 
-                        _context.GENTEMAR_SECCION_CLASE.RemoveRange(
-                            _context.GENTEMAR_SECCION_CLASE.Where(x => x.id_clase == entidad.id_clase)
-                        );
-                        //agrega nuevamente los registros  
-                        await CrateInCascadeClaseSeccion(seciones, entidad.id_clase);
-                        trassaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                    _context.GENTEMAR_CLASE_LICENCIAS.Attach(entidad);
+                    var entry = _context.Entry(entidad);
+                    entry.State = EntityState.Modified;
+                    await SaveAllAsync();
+                    //elimina los registos ya creados 
+                    _context.GENTEMAR_SECCION_CLASE.RemoveRange(
+                        _context.GENTEMAR_SECCION_CLASE.Where(x => x.id_clase == entidad.id_clase)
+                    );
+                    //agrega nuevamente los registros  
+                    await CrateInCascadeClaseSeccion(seciones, entidad.id_clase);
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }

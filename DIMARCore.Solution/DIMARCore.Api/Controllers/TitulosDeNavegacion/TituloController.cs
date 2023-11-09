@@ -53,7 +53,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpGet]
         [Route("pagination")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
-        public IHttpActionResult Paginar([FromUri] ParametrosPaginacion paginacion)
+        public async Task<IHttpActionResult> PaginarAsync([FromUri] ParametrosPaginacion paginacion)
         {
             if (paginacion == null)
                 paginacion = new ParametrosPaginacion();
@@ -62,7 +62,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             if (!queryable.Any())
                 return Ok(Responses.SetOkResponse(null, "No hay titulos"));
 
-            var listado = GetPaginacion(paginacion, queryable);
+            var listado = await GetPaginacion(paginacion, queryable);
             var paginador = Paginador<ListadoTituloDTO>.CrearPaginador(queryable.Count(), listado, paginacion);
             return Ok(paginador);
         }
@@ -110,8 +110,8 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
         public async Task<IHttpActionResult> GetTitulosByIdentificacion(DocumentFilter filtro)
         {
-            await _serviceTitulo.ExistePersonaByIdentificacion(filtro.IdentificacionConPuntos);
-            var query = await _serviceTitulo.GetTitulosFiltro(filtro.IdentificacionConPuntos);
+            await _serviceTitulo.ExistePersonaByIdentificacion(filtro.Identificacion);
+            var query = await _serviceTitulo.GetTitulosFiltro(filtro.Identificacion);
             return Ok(query);
         }
 

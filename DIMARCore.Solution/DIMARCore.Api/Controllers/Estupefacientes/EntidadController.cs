@@ -55,7 +55,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceEntidad.GetAll(dto != null ? dto.Activo : null);
-            var listado = Mapear<IEnumerable<GENTEMAR_ENTIDAD>, IEnumerable<EntidadDTO>>(query);
+            var listado = Mapear<IEnumerable<GENTEMAR_ENTIDAD_ANTECEDENTE>, IEnumerable<EntidadDTO>>(query);
             return Ok(listado);
         }
 
@@ -80,7 +80,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         {
             var entidad = await _serviceEntidad.GetByIdAsync(id);
 
-            var obj = Mapear<GENTEMAR_ENTIDAD, EntidadDTO>((GENTEMAR_ENTIDAD)entidad.Data);
+            var obj = Mapear<GENTEMAR_ENTIDAD_ANTECEDENTE, EntidadDTO>((GENTEMAR_ENTIDAD_ANTECEDENTE)entidad.Data);
             entidad.Data = obj;
 
             return ResultadoStatus(entidad);
@@ -107,7 +107,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] EntidadDTO Entidad)
         {
-            var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD>(Entidad);
+            var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD_ANTECEDENTE>(Entidad);
             var response = await _serviceEntidad.CrearAsync(data);
             return ResultadoStatus(response);
         }
@@ -133,7 +133,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Editar([FromBody] EntidadDTO Entidad)
         {
-            var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD>(Entidad);
+            var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD_ANTECEDENTE>(Entidad);
             var response = await _serviceEntidad.ActualizarAsync(data);
             return ResultadoStatus(response);
         }

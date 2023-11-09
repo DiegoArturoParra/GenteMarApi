@@ -72,6 +72,27 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
             return Ok(listado);
         }
 
+        // GET: numero del siguiente consolidado de estupefacientes que se va a usar
+        /// <summary>
+        ///  numero del siguiente consolidado de estupefacientes que se va a usar
+        /// </summary>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>03/10/2023</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. Devuelve el numero del siguiente consolidado de estupefacientes que se va a usar.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        [ResponseType(typeof(ResponseTypeSwagger<ConsolidadoDTO>))]
+        [HttpGet]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [Route("siguiente-a-asignar")]
+        public async Task<IHttpActionResult> GetConsolidadoNext()
+        {
+            var consolidadoNext = await _serviceConsolidado.GetConsolidadoNext();
+            return Ok(consolidadoNext);
+        }
+
         // GET: ids de estupefacientes por el numero de consolidado.
         /// <summary>
         /// ids de estupefacientes por el numero de consolidado.

@@ -129,7 +129,6 @@ namespace DIMARCore.Utilities.Seguridad
             catch (DirectoryServicesCOMException)
             {
                 return Responses.SetUnathorizedResponse("La combinación usuario/contraseña es incorrecta.");
-
             }
             catch (Exception ex)
             {

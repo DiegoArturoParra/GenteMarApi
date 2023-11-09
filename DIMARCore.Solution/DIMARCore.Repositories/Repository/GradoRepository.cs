@@ -75,77 +75,73 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task CrearGrados(GradoDTO data)
         {
-            using (_context)
-            {
-                using (var trassaction = _context.Database.BeginTransaction())
-                {
-                    //await Create(entidad);
-                    var grado = new APLICACIONES_GRADO();
-                    try
-                    {
-                        grado.grado = data.grado;
-                        grado.sigla = data.sigla;
-                        grado.id_rango = data.id_rango;
-                        grado.activo = data.activo;
-                        _context.APLICACIONES_GRADO.Add(grado);
-                        await SaveAllAsync();
-                        var formacionGrado = new GENTEMAR_FORMACION_GRADO
-                        {
-                            id_formacion = data.formacion.id_formacion,
-                            id_grado = grado.id_grado
-                        };
-                        _context.GENTEMAR_FORMACION_GRADO.Add(formacionGrado);
-                        await SaveAllAsync();
-                        trassaction.Commit();
 
-                    }
-                    catch (Exception ex)
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                //await Create(entidad);
+                var grado = new APLICACIONES_GRADO();
+                try
+                {
+                    grado.grado = data.grado;
+                    grado.sigla = data.sigla;
+                    grado.id_rango = data.id_rango;
+                    grado.activo = data.activo;
+                    _context.APLICACIONES_GRADO.Add(grado);
+                    await SaveAllAsync();
+                    var formacionGrado = new GENTEMAR_FORMACION_GRADO
                     {
-                        trassaction.Rollback();
-                        ObtenerException(ex, grado);
-                    }
+                        id_formacion = data.formacion.id_formacion,
+                        id_grado = grado.id_grado
+                    };
+                    _context.GENTEMAR_FORMACION_GRADO.Add(formacionGrado);
+                    await SaveAllAsync();
+                    transaction.Commit();
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, grado);
                 }
             }
         }
 
-      
+
         public async Task actualizarGrados(GradoDTO data)
         {
             var grado = new APLICACIONES_GRADO();
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
-                        grado.id_grado = (int)data.id_grado; //revisar excepcion que no salta cuando se genra un error  
-                        grado.grado = data.grado;
-                        grado.sigla = data.sigla;
-                        grado.id_rango = data.id_rango;
-                        grado.activo = data.activo;
+                    grado.id_grado = (int)data.id_grado; //revisar excepcion que no salta cuando se genra un error  
+                    grado.grado = data.grado;
+                    grado.sigla = data.sigla;
+                    grado.id_rango = data.id_rango;
+                    grado.activo = data.activo;
 
-                        _context.APLICACIONES_GRADO.Attach(grado);
-                        var entry = _context.Entry(grado);
-                        entry.State = EntityState.Modified;
-                        await SaveAllAsync();
-                        var formacionGrado = _context.GENTEMAR_FORMACION_GRADO.Where(x => x.id_formacion_grado == data.formacion.id_formacion_grado).FirstOrDefault();
-                        formacionGrado.id_formacion = data.formacion.id_formacion;
-                        formacionGrado.id_grado = grado.id_grado;
-                        _context.GENTEMAR_FORMACION_GRADO.Attach(formacionGrado);
-                        var entry2 = _context.Entry(formacionGrado);
-                        entry2.State = EntityState.Modified;
-                        await SaveAllAsync();
-                        trassaction.Commit();
+                    _context.APLICACIONES_GRADO.Attach(grado);
+                    var entry = _context.Entry(grado);
+                    entry.State = EntityState.Modified;
+                    await SaveAllAsync();
+                    var formacionGrado = _context.GENTEMAR_FORMACION_GRADO.Where(x => x.id_formacion_grado == data.formacion.id_formacion_grado).FirstOrDefault();
+                    formacionGrado.id_formacion = data.formacion.id_formacion;
+                    formacionGrado.id_grado = grado.id_grado;
+                    _context.GENTEMAR_FORMACION_GRADO.Attach(formacionGrado);
+                    var entry2 = _context.Entry(formacionGrado);
+                    entry2.State = EntityState.Modified;
+                    await SaveAllAsync();
+                    transaction.Commit();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, grado);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, grado);
                 }
             }
+
         }
     }
 }

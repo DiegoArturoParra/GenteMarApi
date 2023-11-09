@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +18,9 @@ namespace DIMARCore.UIEntities.DTOs
         public string NombreCompleto => $"{Nombres} {Apellidos}";
         public IEnumerable<RolSession> Roles { get; set; }
         public bool IsActiveOrInactive => IsActive && (Roles.Any());
+        [JsonIgnore]
+        public DateTime FechaCreacion { get; set; }
+        public bool IsNew => FechaCreacion.Date == DateTime.Now.Date;
 
     }
 }

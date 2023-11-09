@@ -13,37 +13,34 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task CreateUserTriton(APLICACIONES_LOGINS user, List<int> rolesId)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var transaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        _context.APLICACIONES_LOGINS.Add(user);
-                        await SaveAllAsync();
+                    _context.APLICACIONES_LOGINS.Add(user);
+                    await SaveAllAsync();
 
-                        if (rolesId.Count > 0)
-                        {
-                            foreach (var item in rolesId)
-                            {
-                                APLICACIONES_LOGIN_ROL rol = new APLICACIONES_LOGIN_ROL
-                                {
-                                    FECHA_ASIGNACION = DateTime.Now,
-                                    ID_ESTADO = 1,
-                                    ID_LOGIN = user.ID_LOGIN,
-                                    ID_ROL = item,
-                                };
-                                _context.APLICACIONES_LOGIN_ROL.Add(rol);
-                            }
-                        }
-                        await SaveAllAsync();
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
+                    if (rolesId.Count > 0)
                     {
-                        transaction.Rollback();
-                        ObtenerException(ex, user);
+                        foreach (var item in rolesId)
+                        {
+                            APLICACIONES_LOGIN_ROL rol = new APLICACIONES_LOGIN_ROL
+                            {
+                                FECHA_ASIGNACION = DateTime.Now,
+                                ID_ESTADO = 1,
+                                ID_LOGIN = user.ID_LOGIN,
+                                ID_ROL = item,
+                            };
+                            _context.APLICACIONES_LOGIN_ROL.Add(rol);
+                        }
                     }
+                    await SaveAllAsync();
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, user);
                 }
             }
         }
@@ -188,7 +185,9 @@ namespace DIMARCore.Repositories.Repository
                     Nombres = grupo.FirstOrDefault().login.NOMBRES,
                     Apellidos = grupo.FirstOrDefault().login.APELLIDOS,
                     LoginName = grupo.Key,
-                    IsActive = grupo.FirstOrDefault().login.ID_TIPO_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO,
+                    FechaCreacion = grupo.FirstOrDefault().login.FECHA_CREACION,
+                    IsActive = grupo.FirstOrDefault().login.ID_TIPO_ESTADO == (int)EstadoUsuarioLoginEnum.ACTIVO
+                    || grupo.FirstOrDefault().login.ID_TIPO_ESTADO == (int)EstadoUsuarioLoginEnum.USUARIONUEVO,
                     Correo = grupo.FirstOrDefault().login.CORREO,
                     Capitania = (from logins in _context.APLICACIONES_LOGINS
                                  join capitania in _context.APLICACIONES_CAPITANIAS on logins.ID_CAPITANIA equals capitania.ID_CAPITANIA

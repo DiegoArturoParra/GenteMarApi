@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Utilities.Core.ValidAttributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Web;
@@ -51,6 +52,7 @@ namespace DIMARCore.UIEntities.DTOs
         public string CarpetaFisico { get; set; }
         public bool? Antecedente { get; set; }
         public string FotoBase64 { get; set; }
+        [JsonIgnore]
         public string UrlArchivo { get; set; }
         public List<HistorialDocumentoDTO> HistorialDocumento { get; set; }
         [ValidExtensionFile("JPG", "JPEG", "PNG")]

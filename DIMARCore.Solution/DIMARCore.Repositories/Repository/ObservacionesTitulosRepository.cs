@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
@@ -13,29 +14,26 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task CrearObservacion(GENTEMAR_OBSERVACIONES_TITULOS entidad, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
+                    _context.GENTEMAR_OBSERVACIONES_TITULOS.Add(entidad);
+                    await SaveAllAsync();
+                    if (repositorio != null)
                     {
-                        _context.GENTEMAR_OBSERVACIONES_TITULOS.Add(entidad);
+                        repositorio.IdModulo = entidad.id_observacion.ToString();
+                        repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
+                        repositorio.FechaHoraCreacion = DateTime.Now;
+                        _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                         await SaveAllAsync();
-                        if (repositorio != null)
-                        {
-                            repositorio.IdModulo = entidad.id_observacion.ToString();
-                            repositorio.IdUsuarioCreador = entidad.usuario_creador_registro;
-                            repositorio.FechaHoraCreacion = entidad.fecha_hora_creacion;
-                            _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
-                            await SaveAllAsync();
-                        }
-                        trassaction.Commit();
                     }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }

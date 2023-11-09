@@ -41,21 +41,17 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>23/03/2022</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         [ResponseType(typeof(IEnumerable<ListadoDetalleCargoReglaDTO>))]
-        [HttpGet]
+        [HttpPost]
         [Route("listado")]
-        public IHttpActionResult GetDetalles([FromUri] DetalleReglaFilter filtro)
+        public async Task<IHttpActionResult> GetListarCargosReglaAsync([FromBody] DetalleReglaFilter filtro)
         {
-            if (filtro == null)
-            {
-                filtro = new DetalleReglaFilter();
-            }
-            var query = _service.GetListado(filtro);
+            var query = await _service.GetListadoAsync(filtro);
             return Ok(query);
         }
 
@@ -82,6 +78,29 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         }
 
         /// <summary>
+        ///  Se obtiene el listado de cargos por sección.
+        /// </summary>
+        /// <param name="SeccionId"> parametro que contiene el id de la sección</param>
+        /// <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>23/05/2022</Fecha>
+        /// </remarks>
+        [ResponseType(typeof(List<CargoTituloDTO>))]
+        [HttpGet]
+        [Route("lista-by-seccion/{SeccionId}")]
+        public async Task<IHttpActionResult> GetCargoTitulosBySeccionId(int SeccionId)
+        {
+            var query = await _service.GetCargosTituloBySeccionId(SeccionId);
+            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloDTO>>(query);
+            return Ok(listado);
+        }
+
+        /// <summary>
         ///  Creación cargo regla
         /// </summary>
         /// <remarks>
@@ -103,7 +122,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         {
             var data = Mapear<CargoReglaDTO, GENTEMAR_REGLAS_CARGO>(obj);
             var respuesta = await _service.CrearCargoRegla(data);
-            return ResultadoStatus(respuesta);
+            return Created(string.Empty, respuesta);
         }
 
         /// <summary>
@@ -128,7 +147,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         {
             var data = Mapear<CargoReglaDTO, GENTEMAR_REGLAS_CARGO>(obj);
             var respuesta = await _service.EditarCargoRegla(data);
-            return ResultadoStatus(respuesta);
+            return Ok(respuesta);
         }
     }
 }

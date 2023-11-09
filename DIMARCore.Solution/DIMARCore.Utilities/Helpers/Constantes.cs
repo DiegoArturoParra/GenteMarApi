@@ -43,8 +43,10 @@ namespace DIMARCore.Utilities.Helpers
         public const string KEY_ENVIRONMENT = "Environment";
         public const string KEY_EXPIRATION_CACHE = "ExpirationCache";
         public const string SIN_OBSERVACION = "SIN OBSERVACIÓN";
+        public const string SIN_ACLARACION = "SIN ACLARACIÓN";
         public const string OBSERVACION_PENDIENTE = "Observación Pendiente";
         public const string OBSERVACION_REGISTRADA = "Observación Registrada";
-
+        public const string SIGLA_CONSOLIDADO = "C-";
+        public const string NUMERO_DE_LOTES = "NumeroDeLotes";
     }
 }

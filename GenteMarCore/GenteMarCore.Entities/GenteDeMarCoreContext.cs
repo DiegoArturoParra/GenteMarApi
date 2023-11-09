@@ -56,7 +56,7 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_ANTECEDENTES> GENTEMAR_ANTECEDENTES { get; set; }
         public virtual DbSet<GENTEMAR_ANTECEDENTES_DATOSBASICOS> GENTEMAR_ANTECEDENTES_DATOSBASICOS { get; set; }
         public virtual DbSet<GENTEMAR_CAPACIDAD> GENTEMAR_CAPACIDAD { get; set; }
-        public virtual DbSet<GENTEMAR_CARGO_HABILITACION> GENTEMAR_CARGO_HABILITACION { get; set; }
+        public virtual DbSet<GENTEMAR_REGLA_CARGO_HABILITACION> GENTEMAR_REGLA_CARGO_HABILITACION { get; set; }
         public virtual DbSet<GENTEMAR_CARGO_LICENCIA> GENTEMAR_CARGO_LICENCIA { get; set; }
         public virtual DbSet<GENTEMAR_CARGO_LIMITACION> GENTEMAR_CARGO_LIMITACION { get; set; }
         public virtual DbSet<GENTEMAR_REGLAS_CARGO> GENTEMAR_REGLAS_CARGO { get; set; }
@@ -64,7 +64,7 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_CLASE_TITULOS> GENTEMAR_CLASE_TITULOS { get; set; }
         public virtual DbSet<GENTEMAR_CLASE_LICENCIAS> GENTEMAR_CLASE_LICENCIAS { get; set; }
         public virtual DbSet<GENTEMAR_DATOSBASICOS> GENTEMAR_DATOSBASICOS { get; set; }
-        public virtual DbSet<GENTEMAR_ENTIDAD> GENTEMAR_ENTIDAD { get; set; }
+        public virtual DbSet<GENTEMAR_ENTIDAD_ANTECEDENTE> GENTEMAR_ENTIDAD_ANTECEDENTE { get; set; }
         public virtual DbSet<GENTEMAR_ESTADO> GENTEMAR_ESTADO { get; set; }
         public virtual DbSet<GENTEMAR_ESTADO_ANTECEDENTE> GENTEMAR_ESTADO_ANTECEDENTES { get; set; }
         public virtual DbSet<GENTEMAR_ESTADO_LICENCIA> GENTEMAR_ESTADO_LICENCIAS { get; set; }
@@ -83,9 +83,8 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_REGLAS> GENTEMAR_REGLAS { get; set; }
         public virtual DbSet<GENTEMAR_SECCION_TITULOS> GENTEMAR_SECCION_TITULOS { get; set; }
         public virtual DbSet<GENTEMAR_SECCION_LICENCIAS> GENTEMAR_SECCION_LICENCIAS { get; set; }
-        public virtual DbSet<GENTEMAR_TERRITORIO> GENTEMAR_TERRITORIO { get; set; }
         public virtual DbSet<GENTEMAR_TIPO_LICENCIA> GENTEMAR_TIPO_LICENCIA { get; set; }
-        public virtual DbSet<GENTEMAR_TIPO_TRAMITE> GENTEMAR_TIPO_TRAMITE { get; set; }
+        public virtual DbSet<GENTEMAR_TRAMITE_ANTECEDENTE> GENTEMAR_TRAMITE_ANTECEDENTE { get; set; }
         public virtual DbSet<GENTEMAR_TITULOS> GENTEMAR_TITULOS { get; set; }
         public virtual DbSet<GENTEMAR_REPOSITORIO_ARCHIVOS> GENTEMAR_REPOSITORIO_ARCHIVOS { get; set; }
         public virtual DbSet<PAISES> TABLA_NAV_BAND { get; set; }
@@ -105,8 +104,8 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_LICENCIA_NAVES> GENTEMAR_LICENCIA_NAVES { get; set; }
         public virtual DbSet<NAVES_BASE> NAVES_BASE { get; set; }
         public virtual DbSet<GENTEMAR_TITULO_REGLA_CARGOS> GENTEMAR_TITULO_REGLA_CARGOS { get; set; }
-        public virtual DbSet<GENTEMAR_TITULO_CARGO_HABILITACION> GENTEMAR_TITULO_CARGO_HABILITACION { get; set; }
-        public virtual DbSet<GENTEMAR_TITULO_CARGO_FUNCION> GENTEMAR_TITULO_CARGO_FUNCION { get; set; }
+        public virtual DbSet<GENTEMAR_TITULO_REGLA_CARGOS_HABILITACION> GENTEMAR_TITULO_REGLA_CARGOS_HABILITACION { get; set; }
+        public virtual DbSet<GENTEMAR_TITULO_REGLA_CARGOS_FUNCION> GENTEMAR_TITULO_REGLA_CARGOS_FUNCION { get; set; }
         public virtual DbSet<GENTEMAR_CONSOLIDADO> GENTEMAR_CONSOLIDADO { get; set; }
         public virtual DbSet<GENTEMAR_EXPEDIENTE> GENTEMAR_EXPEDIENTE { get; set; }
         public virtual DbSet<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES> GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES { get; set; }
@@ -136,11 +135,12 @@ namespace GenteMarCore.Entities
 
         private void ProcesarAuditoria()
         {
+            string usuario = ClaimsHelper.GetNombreCompletoUsuario();
             foreach (var item in ChangeTracker.Entries()
                          .Where(e => e.State == EntityState.Added && e.Entity is GENTEMAR_CAMPOS_AUDITORIA))
             {
                 var entidad = item.Entity as GENTEMAR_CAMPOS_AUDITORIA;
-                entidad.usuario_creador_registro = ClaimsHelper.GetNombreCompletoUsuario();
+                entidad.usuario_creador_registro = usuario;
                 entidad.fecha_hora_creacion = DateTime.Now;
             }
 
@@ -148,7 +148,7 @@ namespace GenteMarCore.Entities
                          .Where(e => e.State == EntityState.Modified && e.Entity is GENTEMAR_CAMPOS_AUDITORIA))
             {
                 var entidad = item.Entity as GENTEMAR_CAMPOS_AUDITORIA;
-                entidad.usuario_actualiza_registro = ClaimsHelper.GetNombreCompletoUsuario();
+                entidad.usuario_actualiza_registro = usuario;
                 entidad.fecha_hora_actualizacion = DateTime.Now;
             }
         }
@@ -384,7 +384,7 @@ namespace GenteMarCore.Entities
                 .Property(e => e.usuario_actualiza_registro)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_ENTIDAD>()
+            modelBuilder.Entity<GENTEMAR_ENTIDAD_ANTECEDENTE>()
                 .Property(e => e.entidad)
                 .IsUnicode(false);
 
@@ -517,15 +517,11 @@ namespace GenteMarCore.Entities
                 .Property(e => e.actividad_a_bordo)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_TERRITORIO>()
-                .Property(e => e.territorio)
-                .IsUnicode(false);
-
             modelBuilder.Entity<GENTEMAR_TIPO_LICENCIA>()
                 .Property(e => e.tipo_licencia)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_TIPO_TRAMITE>()
+            modelBuilder.Entity<GENTEMAR_TRAMITE_ANTECEDENTE>()
                 .Property(e => e.descripcion_tipo_tramite)
                 .IsUnicode(false);
 
@@ -582,7 +578,7 @@ namespace GenteMarCore.Entities
                 .Property(e => e.tipo_tramite)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_CARGO_HABILITACION>()
+            modelBuilder.Entity<GENTEMAR_REGLA_CARGO_HABILITACION>()
                 .HasKey(x => new { x.id_habilitacion, x.id_cargo_regla });
 
             modelBuilder.Entity<GENTEMAR_REGLA_FUNCION>()
@@ -600,10 +596,10 @@ namespace GenteMarCore.Entities
                 .Property(e => e.usuario_actualiza_registro)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_TITULO_CARGO_HABILITACION>()
+            modelBuilder.Entity<GENTEMAR_TITULO_REGLA_CARGOS_HABILITACION>()
              .HasKey(x => new { x.id_titulo_cargo_regla, x.id_habilitacion });
 
-            modelBuilder.Entity<GENTEMAR_TITULO_CARGO_FUNCION>()
+            modelBuilder.Entity<GENTEMAR_TITULO_REGLA_CARGOS_FUNCION>()
              .HasKey(x => new { x.id_titulo_cargo_regla, x.id_funcion });
 
             modelBuilder.Entity<GENTEMAR_CONSOLIDADO>()
@@ -625,6 +621,26 @@ namespace GenteMarCore.Entities
             modelBuilder.Entity<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES>()
                 .Property(e => e.usuario_creador_registro)
                 .IsUnicode(false);
+
+            modelBuilder.Entity<GENTEMAR_LOGS>()
+                .Property(e => e.MESSAGE_WARNING)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<GENTEMAR_LOGS>()
+                .Property(e => e.MESSAGE_EXCEPTION)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<GENTEMAR_LOGS>()
+               .Property(e => e.USER_SESSION)
+               .IsUnicode(false);
+
+            modelBuilder.Entity<GENTEMAR_LOGS>()
+               .Property(e => e.SEVERITY_LEVEL)
+               .IsUnicode(false);
+
+            modelBuilder.Entity<GENTEMAR_LOGS>()
+               .Property(e => e.STACK_TRACE)
+               .IsUnicode(false);
         }
 
         #endregion

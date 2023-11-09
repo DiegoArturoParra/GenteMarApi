@@ -18,7 +18,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
     /// <Fecha>20/10/2022</Fecha>
     /// </summary>
     [EnableCors("*", "*", "*")]
-    [RoutePrefix("api/observaciones-entidad-por-estupefaciente")]
+    [RoutePrefix("api/observacion-entidad")]
     public class ObservacionEntidadEstupefacienteController : BaseApiController
     {
         private readonly ObservacionEntidadEstupefacienteBO _service;
@@ -45,7 +45,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
 
         [ResponseType(typeof(List<DetalleExpedienteObservacionEstupefacienteDTO>))]
         [HttpGet]
-        [Route("lista/{EstupefacienteId}")]
+        [Route("estupefaciente/lista/{EstupefacienteId}")]
         [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> GetObservacionesEntidadPorEstupefaciente(long EstupefacienteId)
         {
@@ -69,7 +69,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
-        [Route("crear-masivo")]
+        [Route("estupefaciente/crear-masivo")]
         [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> CrearMasivo([FromBody] ObservacionesEntidadBulkDTO observacionesPorEntidad)
         {
@@ -93,7 +93,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
-        [Route("crear")]
+        [Route("estupefaciente/crear")]
         [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] CrearObservacionEntidadVciteDTO obj)
         {
@@ -101,6 +101,30 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
             data.id_antecedente = obj.AntecedenteId;
             var response = await _service.CrearObservacionPorEntidad(data);
             return Created(string.Empty, response);
+        }
+
+        /// <summary>
+        /// Servicio para editar la observación a verificación exitosa de varios estupefacientes
+        /// </summary>
+        /// <param name="observacionDeEstupefacientes"></param>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>08/07/2022</Fecha>
+        /// </remarks>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la observación del estupefaciente por cada entidad.</response>   
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [HttpPut]
+        [Route("edicion-masiva-parcial-de-estupefacientes")]
+        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        public async Task<IHttpActionResult> EdicionParcialDeEstupefacientesIds([FromBody] EditBulkPartialEstupefacientesDTO observacionDeEstupefacientes)
+        {
+            ValidateModelAndThrowIfInvalid(observacionDeEstupefacientes.ObservacionEntidad);
+            var response = await _service.EdicionParcialDeEstupefacientes(observacionDeEstupefacientes, PathActual);
+            return Ok(response);
         }
     }
 }

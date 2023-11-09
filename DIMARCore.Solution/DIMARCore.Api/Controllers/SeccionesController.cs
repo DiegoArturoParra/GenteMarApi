@@ -1,10 +1,10 @@
 ﻿
+using DIMARCore.Api.Core.Atributos;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;
-using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -16,14 +16,11 @@ namespace DIMARCore.Api.Controllers
     /// <summary>
     /// servicios de Secciones, para titulos y licencias
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/secciones")]
     public class SeccionesController : BaseApiController
     {
         #region secciones de titulos
-
-
         /// <summary>
         /// Listado de secciones por titulos con información basica
         /// </summary>
@@ -37,6 +34,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<SeccionDTO>))]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("lista-por-titulos")]
         public async Task<IHttpActionResult> GetSeccionesTitulos([FromUri] ActivoDTO dto)
@@ -56,18 +54,17 @@ namespace DIMARCore.Api.Controllers
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+
         [ResponseType(typeof(ResponseTypeSwagger<SeccionDTO>))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("por-titulo/{id}")]
         public async Task<IHttpActionResult> GetSeccionTitulo(int id)
         {
             var seccion = await new SeccionBO().GetSeccionTitulo(id);
-            if (seccion.Estado)
-            {
-                var obj = Mapear<GENTEMAR_SECCION_TITULOS, SeccionDTO>((GENTEMAR_SECCION_TITULOS)seccion.Data);
-                seccion.Data = obj;
-            }
-            return ResultadoStatus(seccion);
+            var obj = Mapear<GENTEMAR_SECCION_TITULOS, SeccionDTO>((GENTEMAR_SECCION_TITULOS)seccion.Data);
+            seccion.Data = obj;
+            return Ok(seccion);
         }
 
         /// <summary>
@@ -83,13 +80,14 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. Ya existe el nombre de la sección del titulo de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPost]
         [Route("crear-por-titulo")]
         public async Task<IHttpActionResult> CrearSeccionTitulo([FromBody] SeccionDTO seccion)
         {
             var data = Mapear<SeccionDTO, GENTEMAR_SECCION_TITULOS>(seccion);
             var response = await new SeccionBO().CrearSeccionTitulo(data);
-            return ResultadoStatus(response);
+            return Created(string.Empty, response);
         }
 
 
@@ -107,13 +105,14 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. Ya existe el nombre de la sección de un titulo de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("editar-por-titulo")]
         public async Task<IHttpActionResult> EditarSeccionTitulo([FromBody] SeccionDTO seccion)
         {
             var data = Mapear<SeccionDTO, GENTEMAR_SECCION_TITULOS>(seccion);
             var response = await new SeccionBO().EditarSeccionTitulo(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -129,6 +128,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("anula-or-activa-por-titulo/{id}")]
         public async Task<IHttpActionResult> InactivarSeccionTitulo(int id)
@@ -151,6 +151,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<SeccionDTO>))]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("lista-por-licencias")]
         public IHttpActionResult GetSeccionesLicencias()
@@ -171,6 +172,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<SeccionDTO>))]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("lista-por-licencias-activas")]
         public IHttpActionResult GetSeccionesLicenciasActivas()
@@ -193,6 +195,8 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<SeccionDTO>))]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("lista-secciones-actividad-licencias/{id}")]
         public async Task<IHttpActionResult> GetSeccionesActividadId(int id)
@@ -213,6 +217,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseTypeSwagger<SeccionDTO>))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("por-licencia/{id}")]
         public async Task<IHttpActionResult> GetSeccionLicencia(int id)
@@ -238,6 +243,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. Ya existe el nombre de la seccion de la licencia de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPost]
         [Route("crear-por-licencia")]
         public async Task<IHttpActionResult> CrearSeccionLicencia([FromBody] SeccionDTO seccion)
@@ -263,6 +269,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. Ya existe el nombre de la sección de la licencia de navegación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("editar-por-licencia")]
         public async Task<IHttpActionResult> EditarSeccionLicencia([FromBody] SeccionDTO seccion)
@@ -287,6 +294,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("inactivar-por-licencia/{id}")]
         public async Task<IHttpActionResult> InactivarSeccionLicencia(int id)
@@ -294,7 +302,6 @@ namespace DIMARCore.Api.Controllers
             var obj = await new SeccionBO().InactivarSeccionLicencia(id);
             return Ok(obj);
         }
-
         #endregion
 
     }

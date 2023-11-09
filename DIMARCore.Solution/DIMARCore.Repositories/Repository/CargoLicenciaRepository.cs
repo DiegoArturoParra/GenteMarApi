@@ -37,40 +37,37 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task ModificarCargoLimitacion(GENTEMAR_CARGO_LICENCIA entidad)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
-                        _context.GENTEMAR_CARGO_LICENCIA.Attach(entidad);
-                        var entry = _context.Entry(entidad);
-                        entry.State = EntityState.Modified;
-                        await SaveAllAsync();
-                        // elimina los resgistros de las limitaciones
-                        _context.GENTEMAR_CARGO_LIMITACION.RemoveRange(
-                            _context.GENTEMAR_CARGO_LIMITACION.Where(x => x.id_cargo_licencia == entidad.id_cargo_licencia)
-                        );
-                        // elimina los resgistros de las limitantes
-                        _context.GENTEMAR_CARGO_LICENCIA_LIMITANTE.RemoveRange(
-                            _context.GENTEMAR_CARGO_LICENCIA_LIMITANTE.Where(x => x.id_cargo_licencia == entidad.id_cargo_licencia)
-                        );
-                        // elimina los registros de las categotias
-                        _context.GENTEMAR_CARGO_LICENCIA_CATEGORIA.RemoveRange(_context.GENTEMAR_CARGO_LICENCIA_CATEGORIA
-                            .Where(x => x.id_cargo_licencia == entidad.id_cargo_licencia));
-                        await CrateInCascadeLimitacion(entidad.IdLimitacion, entidad.id_cargo_licencia);
-                        await CrateInCascadeCategoria(entidad.IdCategoria, entidad.id_cargo_licencia);
-                        await CrateInCascadeLimitante(entidad.IdLimitante, entidad.id_cargo_licencia);
+                    _context.GENTEMAR_CARGO_LICENCIA.Attach(entidad);
+                    var entry = _context.Entry(entidad);
+                    entry.State = EntityState.Modified;
+                    await SaveAllAsync();
+                    // elimina los resgistros de las limitaciones
+                    _context.GENTEMAR_CARGO_LIMITACION.RemoveRange(
+                        _context.GENTEMAR_CARGO_LIMITACION.Where(x => x.id_cargo_licencia == entidad.id_cargo_licencia)
+                    );
+                    // elimina los resgistros de las limitantes
+                    _context.GENTEMAR_CARGO_LICENCIA_LIMITANTE.RemoveRange(
+                        _context.GENTEMAR_CARGO_LICENCIA_LIMITANTE.Where(x => x.id_cargo_licencia == entidad.id_cargo_licencia)
+                    );
+                    // elimina los registros de las categotias
+                    _context.GENTEMAR_CARGO_LICENCIA_CATEGORIA.RemoveRange(_context.GENTEMAR_CARGO_LICENCIA_CATEGORIA
+                        .Where(x => x.id_cargo_licencia == entidad.id_cargo_licencia));
+                    await CrateInCascadeLimitacion(entidad.IdLimitacion, entidad.id_cargo_licencia);
+                    await CrateInCascadeCategoria(entidad.IdCategoria, entidad.id_cargo_licencia);
+                    await CrateInCascadeLimitante(entidad.IdLimitante, entidad.id_cargo_licencia);
 
-                        trassaction.Commit();
+                    transaction.Commit();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }
@@ -82,28 +79,25 @@ namespace DIMARCore.Repositories.Repository
         /// <returns></returns>
         public async Task CrearCargoLimitacion(GENTEMAR_CARGO_LICENCIA entidad)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                //await Create(entidad);
+                try
                 {
-                    //await Create(entidad);
-                    try
-                    {
 
-                        entidad.activo = true;
-                        _context.GENTEMAR_CARGO_LICENCIA.Add(entidad);
-                        await SaveAllAsync();
-                        await CrateInCascadeLimitacion(entidad.IdLimitacion, entidad.id_cargo_licencia);
-                        await CrateInCascadeCategoria(entidad.IdCategoria, entidad.id_cargo_licencia);
-                        await CrateInCascadeLimitante(entidad.IdLimitante, entidad.id_cargo_licencia);
-                        trassaction.Commit();
+                    entidad.activo = true;
+                    _context.GENTEMAR_CARGO_LICENCIA.Add(entidad);
+                    await SaveAllAsync();
+                    await CrateInCascadeLimitacion(entidad.IdLimitacion, entidad.id_cargo_licencia);
+                    await CrateInCascadeCategoria(entidad.IdCategoria, entidad.id_cargo_licencia);
+                    await CrateInCascadeLimitante(entidad.IdLimitante, entidad.id_cargo_licencia);
+                    transaction.Commit();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
         }
@@ -360,9 +354,6 @@ namespace DIMARCore.Repositories.Repository
         {
             var query = await (from licencia in _context.GENTEMAR_LICENCIAS
                                join datosBasicos in _context.GENTEMAR_DATOSBASICOS on licencia.id_gentemar equals datosBasicos.id_gentemar
-                               join archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS on datosBasicos.id_gentemar.ToString() equals archivo.IdModulo
-                                into fo
-                               from subFoto in fo.DefaultIfEmpty()
                                join ciuExpDoc in _context.TABLA_NAV_BAND on datosBasicos.cod_pais equals ciuExpDoc.cod_pais
                                join munExpDoc in _context.APLICACIONES_MUNICIPIO on datosBasicos.id_municipio_expedicion equals munExpDoc.ID_MUNICIPIO
                                join cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA on licencia.id_cargo_licencia equals cargoLicencia.id_cargo_licencia
@@ -373,7 +364,12 @@ namespace DIMARCore.Repositories.Repository
                                select new PlantillaLicenciaDTO
                                {
                                    TipoLicencia = tipoLicencia,
-                                   Foto = subFoto.RutaArchivo,
+                                   Foto = (from archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS
+                                           where archivo.IdModulo == datosBasicos.id_gentemar.ToString()
+                                           select new
+                                           {
+                                               archivo
+                                           }).OrderByDescending(x => x.archivo.FechaHoraCreacion).Select(x => x.archivo.RutaArchivo).FirstOrDefault(),
                                    NombreCompleto = datosBasicos.nombres + " " + datosBasicos.apellidos,
                                    Documento = datosBasicos.documento_identificacion,
                                    FechaNacimiento = datosBasicos.fecha_nacimiento,

@@ -5,8 +5,10 @@ using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using log4net;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.ModelBinding;
@@ -101,11 +103,11 @@ namespace DIMARCore.Api.Controllers
         /// <param name="paginacionDTO"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        protected List<TEntidad> GetPaginacion<TEntidad>(ParametrosPaginacion paginacionDTO,
+        protected async Task<IEnumerable<TEntidad>> GetPaginacion<TEntidad>(ParametrosPaginacion paginacionDTO,
             IQueryable<TEntidad> queryable)
             where TEntidad : class
         {
-            return queryable.Paginar(paginacionDTO).ToList();
+            return await queryable.Paginar(paginacionDTO).ToListAsync();
         }
 
         #region Claims

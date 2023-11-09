@@ -40,13 +40,20 @@ namespace DIMARCore.Api.Core
                  .ForMember(x => x.Id, o => o.MapFrom(s => s.ID_TIPO_SOLICITUD))
                  .ForMember(x => x.Descripcion, o => o.MapFrom(s => s.DESCRIPCION)).ReverseMap();
 
+                cfg.CreateMap<CreatedUpdateCargoTituloDTO, GENTEMAR_CARGO_TITULO>()
+                 .ForMember(ent => ent.id_cargo_titulo, dto => dto.MapFrom(s => s.Id))
+                 .ForMember(ent => ent.id_seccion, dto => dto.MapFrom(s => s.SeccionId))
+                 .ForMember(ent => ent.id_clase, dto => dto.MapFrom(s => s.ClaseId))
+                 .ForMember(ent => ent.cargo, dto => dto.MapFrom(s => s.Descripcion));
+
                 cfg.CreateMap<GENTEMAR_CARGO_TITULO, CargoTituloDTO>()
                  .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_cargo_titulo))
                  .ForMember(ent => ent.SeccionId, dto => dto.MapFrom(s => s.id_seccion))
                  .ForMember(ent => ent.ClaseId, dto => dto.MapFrom(s => s.id_clase))
                  .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.cargo)).ReverseMap();
 
-                cfg.CreateMap<GENTEMAR_CARGO_HABILITACION, HabilitacionDTO>()
+
+                cfg.CreateMap<GENTEMAR_REGLA_CARGO_HABILITACION, HabilitacionDTO>()
                  .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.GENTEMAR_HABILITACIONES.id_habilitacion))
                  .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.GENTEMAR_HABILITACIONES.habilitacion)).ReverseMap();
 
@@ -74,7 +81,7 @@ namespace DIMARCore.Api.Core
                  .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.GENTEMAR_NIVEL.id_nivel))
                  .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.GENTEMAR_NIVEL.nivel)).ReverseMap();
 
-                cfg.CreateMap<GENTEMAR_TIPO_TRAMITE, TramiteEstupefacienteDTO>()
+                cfg.CreateMap<GENTEMAR_TRAMITE_ANTECEDENTE, TramiteEstupefacienteDTO>()
                 .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_tipo_tramite))
                 .ForMember(ent => ent.IsActive, dto => dto.MapFrom(s => s.activo))
                 .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.descripcion_tipo_tramite)).ReverseMap();
@@ -84,7 +91,7 @@ namespace DIMARCore.Api.Core
                 .ForMember(ent => ent.IsActive, dto => dto.MapFrom(s => s.activo))
                 .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.descripcion_estado_antecedente)).ReverseMap();
 
-                cfg.CreateMap<GENTEMAR_ENTIDAD, EntidadDTO>()
+                cfg.CreateMap<GENTEMAR_ENTIDAD_ANTECEDENTE, EntidadDTO>()
                  .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_entidad))
                  .ForMember(ent => ent.IsActive, dto => dto.MapFrom(s => s.activo))
                  .ForMember(ent => ent.Descripcion, dto => dto.MapFrom(s => s.entidad)).ReverseMap();
@@ -208,11 +215,6 @@ namespace DIMARCore.Api.Core
                    .ForMember(ent => ent.limitaciones, dto => dto.MapFrom(s => s.Limitaciones))
                     .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
                     .ReverseMap();
-                cfg.CreateMap<TerritorioDTO, GENTEMAR_TERRITORIO>()
-                  .ForMember(ent => ent.id_territorio, dto => dto.MapFrom(s => s.IdTerritorio))
-                  .ForMember(ent => ent.territorio, dto => dto.MapFrom(s => s.Territorio))
-                  .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
-                   .ReverseMap();
 
                 cfg.CreateMap<TipoLicenciaDTO, GENTEMAR_TIPO_LICENCIA>()
                   .ForMember(ent => ent.id_tipo_licencia, dto => dto.MapFrom(s => s.IdTipoLicencia))
@@ -316,6 +318,7 @@ namespace DIMARCore.Api.Core
                 .ForMember(ent => ent.id_estado_antecedente, dto => dto.MapFrom(s => s.EstadoId))
                 .ForMember(ent => ent.id_gentemar_antecedente, dto => dto.MapFrom(s => s.GenteDeMarId))
                 .ForMember(ent => ent.fecha_vigencia, dto => dto.MapFrom(s => s.FechaVigencia))
+                .ForMember(ent => ent.fecha_solicitud_sede_central, dto => dto.MapFrom(s => s.FechaSolicitudSedeCentral))
                 .ForMember(ent => ent.id_tipo_tramite, dto => dto.MapFrom(s => s.TramiteId))
                 .ForMember(ent => ent.id_capitania, dto => dto.MapFrom(s => s.CapitaniaId))
                 .ForMember(ent => ent.fecha_aprobacion, dto => dto.MapFrom(s => s.FechaAprobacion));

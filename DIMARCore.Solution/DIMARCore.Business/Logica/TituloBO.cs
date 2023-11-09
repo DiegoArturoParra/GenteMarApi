@@ -1,4 +1,5 @@
-﻿using DIMARCore.Business.Interfaces;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Business.Interfaces;
 using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
@@ -55,14 +56,12 @@ namespace DIMARCore.Business.Logica
                                     DescripcionDocumento = "observación de titulos.",
                                 };
                                 await repo.CrearTitulo(entidad, repositorio);
+                                return Responses.SetCreatedResponse();
                             }
                         }
                     }
-                    else
-                    {
-                        await repo.CrearTitulo(entidad);
-                    }
-                    respuesta = Responses.SetCreatedResponse(entidad);
+                    await repo.CrearTitulo(entidad);
+                    return Responses.SetCreatedResponse();
                 }
             }
             catch (Exception ex)
@@ -73,8 +72,9 @@ namespace DIMARCore.Business.Logica
                     Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
                 }
                 respuesta = Responses.SetInternalServerErrorResponse(ex);
+                _ = new DbLogger().InsertLogToDatabase(respuesta);
+                return respuesta;
             }
-            return respuesta;
         }
 
         public async Task ExistById(long id)
@@ -139,15 +139,14 @@ namespace DIMARCore.Business.Logica
                                     DescripcionDocumento = Reutilizables.DescribirDocumento(archivo.NombreArchivo),
                                 };
                                 await repo.ActualizarTitulo(tituloActual, repositorio);
-                                respuesta = Responses.SetUpdatedResponse(repositorio);
+                                respuesta = Responses.SetUpdatedResponse();
                             }
                         }
                     }
-                    else
-                    {
-                        await repo.ActualizarTitulo(tituloActual);
-                        respuesta = Responses.SetUpdatedResponse();
-                    }
+
+                    await repo.ActualizarTitulo(tituloActual);
+                    return Responses.SetUpdatedResponse();
+
                 }
                 catch (Exception ex)
                 {
@@ -157,9 +156,10 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
+                    return respuesta;
                 }
             }
-            return respuesta;
         }
 
         private async Task ValidacionesDeNegocio(GENTEMAR_TITULOS entidad, bool isEdit = false)

@@ -26,6 +26,7 @@ namespace DIMARCore.UIEntities.DTOs
         public bool? Activo { get; set; }
         public string FormacionGrado { get; set; }
         public string CarpetaFisico { get; set; }
+        public DateTime FechaRegistro { get; set; }
 
         public String FechaExpedicionFormato
         {

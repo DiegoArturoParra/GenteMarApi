@@ -15,5 +15,6 @@ namespace GenteMarCore.Entities.Models
         public DateTime DATE_CREATED { get; set; }
         public string USER_SESSION { get; set; }
         public string SEVERITY_LEVEL { get; set; }
+        public string STACK_TRACE { get; set; }
     }
 }

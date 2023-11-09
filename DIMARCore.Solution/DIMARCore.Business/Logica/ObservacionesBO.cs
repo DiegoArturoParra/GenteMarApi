@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using DIMARCore.Business.Helpers;
 
 namespace DIMARCore.Business.Logica
 {
@@ -61,6 +62,11 @@ namespace DIMARCore.Business.Logica
                             {
                                 item.ArchivoBase.ArchivoBase64 = archivoBase64;
                             }
+                            else
+                            {
+                                _ = new DbLogger().InsertLogToDatabase(respuestaBuscarArchivo);
+                            }
+
                         }
                     }
                 }
@@ -122,6 +128,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -180,6 +187,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -240,6 +248,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -299,6 +308,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;

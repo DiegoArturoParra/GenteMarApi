@@ -658,6 +658,21 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ObservacionEntidadEstupefacienteController.EdicionParcialDeEstupefacientesIds(DIMARCore.UIEntities.DTOs.EditBulkPartialEstupefacientesDTO)">
+            <summary>
+            Servicio para editar la observación a verificación exitosa de varios estupefacientes
+            </summary>
+            <param name="observacionDeEstupefacientes"></param>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>08/07/2022</Fecha>
+            </remarks>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="201">Created. la solicitud ha tenido éxito y ha llevado a la creación de la observación del estupefaciente por cada entidad.</response>   
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+            <returns></returns>
+        </member>
         <member name="T:DIMARCore.Api.Controllers.Estupefacientes.ExpedienteController">
             <summary>
             Servicios para los expedientes de estupefacientes
@@ -736,6 +751,18 @@
             <Fecha>01/08/2023</Fecha>
             </remarks>
             <response code="200">OK. Devuelve el listado de consolidados.</response>        
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ConsolidadoController.GetConsolidadoNext">
+            <summary>
+             numero del siguiente consolidado de estupefacientes que se va a usar
+            </summary>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>03/10/2023</Fecha>
+            </remarks>
+            <response code="200">OK. Devuelve el numero del siguiente consolidado de estupefacientes que se va a usar.</response>        
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -1064,7 +1091,7 @@
             ctor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.EstupefacienteController.Paginar(DIMARCore.UIEntities.QueryFilters.EstupefacientesFilter)">
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.EstupefacienteController.PaginarAsync(DIMARCore.UIEntities.QueryFilters.EstupefacientesFilter)">
             <summary>
             Listado de estupefacientes dependiendo el filtro.
             </summary>
@@ -1448,7 +1475,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.DatosBasicosController.PaginarDatosBasicos(DIMARCore.UIEntities.QueryFilters.DatosBasicosQueryFilter)">
+        <member name="M:DIMARCore.Api.Controllers.DatosBasicosController.PaginarDatosBasicosAsync(DIMARCore.UIEntities.QueryFilters.DatosBasicosQueryFilter)">
             <summary>
             Metodo para paginar datos basicos
             </summary>
@@ -2764,7 +2791,7 @@
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.SGDEAController.GetRadicadosParaEstupefacientes(System.Boolean)">
+        <member name="M:DIMARCore.Api.Controllers.SGDEAController.GetRadicadosParaEstupefacientes(DIMARCore.UIEntities.QueryFilters.RadicadoSGDEAFilter,System.Threading.CancellationToken)">
             <summary>
              Listado de radicados con información si es titulo o licencia
             </summary>
@@ -2904,59 +2931,6 @@
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        </member>
-        <member name="T:DIMARCore.Api.Controllers.TerritorioController">
-            <summary>
-            Api Territorios
-            </summary>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.TerritorioController.GetTerritorio">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.TerritorioController.GetTerritorioActivo">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.TerritorioController.GetTerritorioId(System.Int32)">
-            <summary>
-            Retorna una territorio dado un Id
-            </summary>
-            <returns>Retorna una Limitacón dado un Id</returns>
-            <Autor>Victor Fuentes</Autor>
-            <Fecha>2021/12/21</Fecha>
-            <UltimaActualizacion>2021/12/21 - Victor Fuentes - Creación del servicio</UltimaActualizacion>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.TerritorioController.CrearTerritorio(DIMARCore.UIEntities.DTOs.TerritorioDTO)">
-            <summary>
-            Crea una territorio
-            </summary>
-            <returns>Crea una Limitación</returns>
-            <Autor>Victor Fuentes</Autor>
-            <Fecha>2021/12/21</Fecha>
-            <UltimaActualizacion>2021/12/21 - Victor Fuentes - Creación del servicio</UltimaActualizacion>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.TerritorioController.EditarTerritorio(DIMARCore.UIEntities.DTOs.TerritorioDTO)">
-            <summary>
-            Edita / Modifica un territorio
-            </summary>
-            <returns>Edita / Modifica una Limitación</returns>
-            <Autor>Victor Fuentes</Autor>
-            <Fecha>2021/12/21</Fecha>
-            <UltimaActualizacion>2021/12/21 - Victor Fuentes - Creación del servicio</UltimaActualizacion>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.TerritorioController.CambiarTerritorioAsync(System.Int32)">
-            <summary>
-            cambia ek estado de un territorio 
-            </summary>
-            <param name="id"></param>
-            <returns></returns>
-            /// <Fecha>2022/02/22</Fecha>
-            <UltimaActualizacion>2021/12/21 - Camilo Vargas - Creación del servicio</UltimaActualizacion>
         </member>
         <member name="T:DIMARCore.Api.Controllers.SeccionesController">
             <summary>
@@ -3180,7 +3154,7 @@
             <response code="409">Conflict. Ya existe el nombre de la clase del titulo de navegación.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.ClasesController.EditarSeccionTitulo(DIMARCore.UIEntities.DTOs.ClaseDTO)">
+        <member name="M:DIMARCore.Api.Controllers.ClasesController.EditarClaseTitulo(DIMARCore.UIEntities.DTOs.ClaseDTO)">
             <summary>
             Servicio para editar una clase de un titulo
             </summary>
@@ -3206,20 +3180,6 @@
             </remarks>
             <response code="200">OK. Devuelve el mensaje de tipo respuesta.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.ClasesController.InactivarClaseLicencia(System.Int32)">
-            <summary>
-            Servicio para Inactivar una clase de una licencia
-            </summary>
-            <param name="id"></param>
-            <remarks>
-            <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
-            </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
@@ -3644,7 +3604,7 @@
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Crear(DIMARCore.UIEntities.DTOs.CargoTituloDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Crear(DIMARCore.UIEntities.DTOs.CreatedUpdateCargoTituloDTO)">
             <summary>
             Servicio para crear un cargo
             </summary>        
@@ -3660,7 +3620,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Editar(DIMARCore.UIEntities.DTOs.CargoTituloDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.Editar(DIMARCore.UIEntities.DTOs.CreatedUpdateCargoTituloDTO)">
             <summary>
             Servicio para editar un cargo
             </summary>
@@ -3703,7 +3663,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController.GetDetalles(DIMARCore.UIEntities.QueryFilters.DetalleReglaFilter)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController.GetListarCargosReglaAsync(DIMARCore.UIEntities.QueryFilters.DetalleReglaFilter)">
             <summary>
              Se obtiene el listado del detalle de reglas cargo.
             </summary>
@@ -3711,8 +3671,8 @@
             <Autor>Diego Parra</Autor>
             <Fecha>23/03/2022</Fecha>
             </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
@@ -3730,6 +3690,21 @@
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
+        </member>
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController.GetCargoTitulosBySeccionId(System.Int32)">
+            <summary>
+             Se obtiene el listado de cargos por sección.
+            </summary>
+            <param name="SeccionId"> parametro que contiene el id de la sección</param>
+            <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+            <returns></returns>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>23/05/2022</Fecha>
+            </remarks>
         </member>
         <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaCargoController.CrearCargoRegla(DIMARCore.UIEntities.DTOs.CargoReglaDTO)">
             <summary>
@@ -4190,7 +4165,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.Paginar(DIMARCore.Utilities.Helpers.ParametrosPaginacion)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.TituloController.PaginarAsync(DIMARCore.Utilities.Helpers.ParametrosPaginacion)">
             <summary>
             Metodo para paginar titulos
             </summary>

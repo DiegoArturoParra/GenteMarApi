@@ -24,12 +24,15 @@ namespace DIMARCore.UIEntities.DTOs
     public class EstupefacienteDatosBasicosDTO
     {
         public bool IsExist { get; set; }
+        [Required(ErrorMessage = "Nombre requerido.")]
         public string Nombres { get; set; }
         public string Apellidos { get; set; }
+        [Required(ErrorMessage = "Identificación requerida.")]
         public string Identificacion { get; set; }
         [DataType(DataType.Date)]
         [MinAge(15)]
         public DateTime FechaNacimiento { get; set; }
+        [Required(ErrorMessage = "tipo documento requerido.")]
         public int TipoDocumentoId { get; set; }
     }
 }

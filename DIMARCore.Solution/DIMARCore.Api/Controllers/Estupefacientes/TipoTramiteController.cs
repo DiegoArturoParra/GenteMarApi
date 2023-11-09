@@ -55,7 +55,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         public IHttpActionResult Listado([FromUri] ActivoDTO dto)
         {
             var query = _serviceTramite.GetAll(dto != null ? dto.Activo : null);
-            var listado = Mapear<IEnumerable<GENTEMAR_TIPO_TRAMITE>, IEnumerable<TramiteEstupefacienteDTO>>(query);
+            var listado = Mapear<IEnumerable<GENTEMAR_TRAMITE_ANTECEDENTE>, IEnumerable<TramiteEstupefacienteDTO>>(query);
             return Ok(listado);
         }
 
@@ -80,7 +80,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         {
             var tramite = await _serviceTramite.GetByIdAsync(id);
 
-            var obj = Mapear<GENTEMAR_TIPO_TRAMITE, TramiteEstupefacienteDTO>((GENTEMAR_TIPO_TRAMITE)tramite.Data);
+            var obj = Mapear<GENTEMAR_TRAMITE_ANTECEDENTE, TramiteEstupefacienteDTO>((GENTEMAR_TRAMITE_ANTECEDENTE)tramite.Data);
             tramite.Data = obj;
 
             return ResultadoStatus(tramite);
@@ -106,7 +106,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] TramiteEstupefacienteDTO tramite)
         {
-            var data = Mapear<TramiteEstupefacienteDTO, GENTEMAR_TIPO_TRAMITE>(tramite);
+            var data = Mapear<TramiteEstupefacienteDTO, GENTEMAR_TRAMITE_ANTECEDENTE>(tramite);
             var response = await _serviceTramite.CrearAsync(data);
             return ResultadoStatus(response);
         }
@@ -131,7 +131,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Editar([FromBody] TramiteEstupefacienteDTO tramite)
         {
-            var data = Mapear<TramiteEstupefacienteDTO, GENTEMAR_TIPO_TRAMITE>(tramite);
+            var data = Mapear<TramiteEstupefacienteDTO, GENTEMAR_TRAMITE_ANTECEDENTE>(tramite);
             var response = await _serviceTramite.ActualizarAsync(data);
             return ResultadoStatus(response);
         }

@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Utilities.Helpers;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
@@ -14,6 +15,9 @@ namespace DIMARCore.Utilities.Middleware
         /// 
         /// </summary>
         public HttpStatusCode StatusCode { get; set; }
+        public string StackTraced { get; set; }
+        public string MessageException { get; set; }
+        public string MessageEnglish { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -36,6 +40,9 @@ namespace DIMARCore.Utilities.Middleware
            : base(response.Mensaje)
         {
             this.StatusCode = response.StatusCode;
+            this.MessageException = response.MensajeExcepcion;
+            this.MessageEnglish = response.MensajeIngles;
+            this.StackTraced = JsonConvert.SerializeObject(response.Data);
         }
 
         /// <summary>

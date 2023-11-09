@@ -15,7 +15,6 @@ namespace GenteMarCore.Entities.Models
         [Required]
         public string detalle_aclaracion { get; set; }
 
-        [Required]
         public string detalle_observacion_anterior_json { get; set; }
 
         public string ruta_archivo { get; set; }

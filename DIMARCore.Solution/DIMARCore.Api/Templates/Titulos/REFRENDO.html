@@ -70,8 +70,13 @@
         }
 
         .photo-user {
-            width: 112px;
-            height: 112px;
+            width: 80px;
+            height: 80px;
+        }
+
+        .firma {
+            width: 200px;
+            height: 80px;
         }
     </style>
 </head>
@@ -166,7 +171,7 @@
         </div>
 
         <div class="m-15 tx-justify f-400">
-            Refrendo-Endorsement No.{Documento}  expedido el-issued on {FechaExpedicion} <br>
+            Refrendo-Endorsement No.{Documento} expedido el-issued on {FechaExpedicion} <br>
             De conformidad con el párrafo 11 de la regla I/2 del Convenio, el original del presente título deberá estar
             disponible mientras el titular presta servicio a bordo de un buque.
         </div>
@@ -186,14 +191,22 @@
                 I.D. N°
             </div>
         </div>
-        <div class="m-15">
-            <img src="{url}/RepositorioArchivos/{Foto}" class="photo-user" />
-            <br>
+        <div class="m-15 flex">
             <div class="m-10">
+                <img src="{url}/RepositorioArchivos/{Foto}" class="photo-user" />
+                <br>
                 Título No. : {Documento} <br>
                 Certificate No. <br>
                 Expedido el : {FechaExpedicion} <br>
                 Issued on
+            </div>
+            <div class="m-10 tx-center">
+                <div class="firma">
+                    <img class="firma" src="data:image/png;base64,{FirmaBase64}" alt="Firma">
+                </div>  
+                <hr>
+                <span class="negrita f-400"> Firma del Titular</span> <br>
+                <span class="f-400"> Signature of the holder of the certificate</span>
             </div>
         </div>
     </div>

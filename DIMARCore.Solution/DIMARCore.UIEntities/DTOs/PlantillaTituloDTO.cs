@@ -20,5 +20,6 @@ namespace DIMARCore.UIEntities.DTOs
         public List<string> Reglas { get; set; }
         public dynamic Cargo { get; set; }
         public dynamic Funcion { get; set; }
+        public string FirmaBase64 { get; set; }
     }
 }

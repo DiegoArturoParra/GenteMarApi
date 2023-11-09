@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
+using System.Web.UI;
 
 namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
 {
@@ -21,7 +22,6 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/cargo-titulos")]
-
     public class CargoTituloController : BaseApiController
     {
 
@@ -57,7 +57,6 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloDTO>>(query);
             return Ok(listado);
         }
-
 
         /// <summary>
         /// Listado de cargos de titulos de navegación
@@ -129,13 +128,15 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpPost]
         [Route("crear")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> Crear([FromBody] CargoTituloDTO cargo)
+        public async Task<IHttpActionResult> Crear([FromBody] CreatedUpdateCargoTituloDTO cargo)
         {
-            var data = Mapear<CargoTituloDTO, GENTEMAR_CARGO_TITULO>(cargo);
+            var data = Mapear<CreatedUpdateCargoTituloDTO, GENTEMAR_CARGO_TITULO>(cargo);
             var response = await _service.CrearAsync(data);
             return Created(string.Empty, response);
         }
 
+
+       
 
         /// <summary>
         /// Servicio para editar un cargo
@@ -155,9 +156,9 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpPut]
         [Route("editar")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> Editar([FromBody] CargoTituloDTO cargo)
+        public async Task<IHttpActionResult> Editar([FromBody] CreatedUpdateCargoTituloDTO cargo)
         {
-            var data = Mapear<CargoTituloDTO, GENTEMAR_CARGO_TITULO>(cargo);
+            var data = Mapear<CreatedUpdateCargoTituloDTO, GENTEMAR_CARGO_TITULO>(cargo);
             var response = await _service.ActualizarAsync(data);
             return Ok(response);
         }

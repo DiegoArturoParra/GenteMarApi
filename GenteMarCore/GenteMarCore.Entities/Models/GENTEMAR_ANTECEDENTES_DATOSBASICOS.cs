@@ -11,10 +11,9 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public long id_gentemar_antecedente { get; set; }
         public int id_tipo_documento { get; set; }
-        [StringLength(20)]
         public string identificacion { get; set; }
         public string nombres { get; set; }
         public string apellidos { get; set; }
-        public DateTime fecha_nacimiento { get; set; }     
+        public DateTime fecha_nacimiento { get; set; }
     }
 }

@@ -10,6 +10,7 @@ using GenteMarCore.Entities.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -30,7 +31,6 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearAsync(GENTEMAR_DATOSBASICOS entidad, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-            entidad.documento_identificacion = Reutilizables.ConvertirStringApuntosDeMil(entidad.documento_identificacion);
             using (var repo = new DatosBasicosRepository())
             {
                 var validate = await repo.AnyWithCondition(x => x.documento_identificacion.Equals(entidad.documento_identificacion));
@@ -55,7 +55,9 @@ namespace DIMARCore.Business.Logica
                                 TipoDocumento = Constantes.CARPETA_IMAGENES,
                                 FechaCargue = DateTime.Now,
                                 NombreArchivo = entidad.Archivo.FileName,
+                                Nombre = entidad.Archivo.FileName,
                                 RutaArchivo = archivo.PathArchivo,
+                                DescripcionDocumento = Reutilizables.DescribirDocumento(Path.GetExtension(archivo.NombreArchivo))
                             };
                             await repo.CrearDatosBasicos(entidad, repositorio);
                             respuesta = Responses.SetCreatedResponse();
@@ -88,7 +90,6 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_DATOSBASICOS entidad, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-            entidad.documento_identificacion = Reutilizables.ConvertirStringApuntosDeMil(entidad.documento_identificacion);
             using (var repo = new DatosBasicosRepository())
             {
                 var existeDocumento = await repo.AnyWithCondition(x => x.documento_identificacion.Equals(entidad.documento_identificacion)
@@ -150,7 +151,7 @@ namespace DIMARCore.Business.Logica
         #region metodo que actualiza el estado del usuario y dependiendo el estado actualiza el estado de los titulos y licencias
         public async Task<Respuesta> ChangeStatus(GENTEMAR_DATOSBASICOS datos, string rutaInicial)
         {
-            
+
             using (var repo = new DatosBasicosRepository())
             {
                 var data = await repo.GetWithCondition(x => x.id_gentemar == datos.id_gentemar);
@@ -284,13 +285,17 @@ namespace DIMARCore.Business.Logica
                 {
                     data.FotoBase64 = archivoBase64;
                 }
+                else
+                {
+                    new DbLogger().InsertLogToDatabase(respuestaBuscarArchivo);
+                }
             }
             return data;
         }
 
         public IQueryable<ListadoDatosBasicosDTO> GetDatosBasicosQueryable(DatosBasicosQueryFilter filtro)
         {
-            var datos = new DatosBasicosRepository().GetDatosBasicosQueryable(filtro);
+            var datos = new DatosBasicosRepository().GetDatosBasicosQueryable(filtro).OrderByDescending(x => x.FechaRegistro);
             return datos;
         }
 
@@ -311,9 +316,7 @@ namespace DIMARCore.Business.Logica
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
         public LicenciasTitulosDTO GetlicenciaTituloDocumentoUsuario(string documento)
         {
-
-            var dataDocumento = Reutilizables.ConvertirStringApuntosDeMil(documento);
-            return new DatosBasicosRepository().GetlicenciaTituloDocumentoUsuario(dataDocumento);
+            return new DatosBasicosRepository().GetlicenciaTituloDocumentoUsuario(documento);
         }
 
 
@@ -326,16 +329,21 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> ValidationsStatusPersona(ParametrosGenteMarDTO parametrosGenteMar)
         {
             var datos = await new DatosBasicosRepository()
-                .GetPersonaByIdentificacionOrId(parametrosGenteMar.IdentificacionConPuntos, parametrosGenteMar.Id) 
+                .GetPersonaByIdentificacionOrId(parametrosGenteMar.Identificacion, parametrosGenteMar.Id)
                 ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la persona en Datos Básicos.");
-           
+
             if (!datos.IsCreateTituloOrLicencia && (!parametrosGenteMar.IsModuleEstupefacientes))
-                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $@"El usuario está en estado {datos.NombreEstado} 
-                                                                           no puede generar títulos y licencias de navegación.");
-            
+                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"El usuario está en estado {datos.NombreEstado}" +
+                                                                            "no puede generar títulos y licencias de navegación.");
+
             if (!parametrosGenteMar.IsModuleEstupefacientes && datos.ContieneEstupefacienteVigente)
-                throw new HttpStatusCodeException(HttpStatusCode.Conflict, $@"El usuario contiene verificación de carencia de informe por Trafico de Estupefacientes (VCITE), 
-                                                                            por lo tanto no puede generar títulos y licencias de navegación.");
+                throw new HttpStatusCodeException(HttpStatusCode.Conflict, "El usuario contiene verificación de carencia de informe por Trafico de Estupefacientes (VCITE)," +
+                                                                           "por lo tanto no puede generar títulos y licencias de navegación.");
+
+            bool isExistInGenteDeMar = datos != null;
+
+            if (parametrosGenteMar.IsModuleEstupefacientes)
+                await new EstupefacienteBO().GetDatosGenteMarEstupefacienteValidations(parametrosGenteMar.Identificacion, isExistInGenteDeMar);
 
             return Responses.SetOkResponse(datos);
         }
@@ -345,7 +353,7 @@ namespace DIMARCore.Business.Logica
         /// </summary>
         /// <param name="datos"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambioEstadoIdUsuario(long idUsuario, int idEstado)
+        public async Task<Respuesta> CambioEstadoIdUsuario(long idUsuario, int idEstado)
         {
             using (var repo = new DatosBasicosRepository())
             {

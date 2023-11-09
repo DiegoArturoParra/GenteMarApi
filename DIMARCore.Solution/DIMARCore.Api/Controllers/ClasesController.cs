@@ -116,11 +116,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-titulo")]
-        public async Task<IHttpActionResult> EditarSeccionTitulo([FromBody] ClaseDTO clase)
+        public async Task<IHttpActionResult> EditarClaseTitulo([FromBody] ClaseDTO clase)
         {
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_TITULOS>(clase);
             var response = await _serviceClaseTitulos.ActualizarAsync(data);
-            return ResultadoStatus(response);
+            return Ok(response);
         }
 
         /// <summary>
@@ -135,34 +135,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa-por-titulo/{id}")]
         public async Task<IHttpActionResult> InactivarClaseTitulo(int id)
         {
             var obj = await _serviceClaseTitulos.AnulaOrActivaAsync(id);
-            return ResultadoStatus(obj);
-        }
-
-
-        /// <summary>
-        /// Servicio para Inactivar una clase de una licencia
-        /// </summary>
-        /// <param name="id"></param>
-        /// <remarks>
-        /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
-        /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
-        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [HttpPut]
-        [Route("anula-or-activa-por-titulo/{id}")]
-        public async Task<IHttpActionResult> InactivarClaseLicencia(int id)
-        {
-            var obj = await _serviceClaseTitulos.AnulaOrActivaAsync(id);
-            return ResultadoStatus(obj);
+            return Ok(obj);
         }
         #endregion
 

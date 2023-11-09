@@ -17,6 +17,7 @@ namespace GenteMarCore.Entities.Models
         public long id_gentemar { get; set; }
 
         [StringLength(16)]
+        [RegularExpression(@"^[0-9.]+$", ErrorMessage = "Solo se permiten números y puntos.")]
         public string documento_identificacion { get; set; }
 
         public int id_tipo_documento { get; set; }

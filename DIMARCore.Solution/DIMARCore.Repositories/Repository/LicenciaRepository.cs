@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
 using System;
@@ -189,37 +190,34 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task CrearLicencia(GENTEMAR_LICENCIAS datos, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
+                    datos.id_estado_licencia = (int)EstadosTituloLicenciaEnum.PROCESO;
+                    _context.GENTEMAR_LICENCIAS.Add(datos);
+                    await SaveAllAsync();
+                    await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
+                    if (datos.Observacion != null)
                     {
-                        datos.id_estado_licencia = (int)EstadosTituloLicenciaEnum.PROCESO;
-                        _context.GENTEMAR_LICENCIAS.Add(datos);
+                        datos.Observacion.id_licencia = (int)datos.id_licencia;
+                        _context.GENTEMAR_OBSERVACIONES_LICENCIAS.Add(datos.Observacion);
                         await SaveAllAsync();
-                        await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
-                        if (datos.Observacion != null)
+                        if (repositorio != null)
                         {
-                            datos.Observacion.id_licencia = (int)datos.id_licencia;
-                            _context.GENTEMAR_OBSERVACIONES_LICENCIAS.Add(datos.Observacion);
+                            repositorio.IdModulo = datos.Observacion.id_observacion.ToString();
+                            repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
+                            repositorio.FechaHoraCreacion = DateTime.Now;
+                            _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                             await SaveAllAsync();
-                            if (repositorio != null)
-                            {
-                                repositorio.IdModulo = datos.Observacion.id_observacion.ToString();
-                                repositorio.IdUsuarioCreador = datos.Observacion.usuario_creador_registro;
-                                repositorio.FechaHoraCreacion = (DateTime)datos.Observacion.fecha_hora_creacion;
-                                _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
-                                await SaveAllAsync();
-                            }
                         }
-                        trassaction.Commit();
                     }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, datos);
-                    }
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, datos);
                 }
             }
         }
@@ -242,46 +240,43 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task ActualizarLicencia(GENTEMAR_LICENCIAS datos, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
+                    _context.GENTEMAR_LICENCIAS.Attach(datos);
+                    var entry = _context.Entry(datos);
+                    entry.State = EntityState.Modified;
+                    await SaveAllAsync();
+                    if (datos.ListaNaves.Count() > 0)
                     {
-                        _context.GENTEMAR_LICENCIAS.Attach(datos);
-                        var entry = _context.Entry(datos);
-                        entry.State = EntityState.Modified;
+                        // elimina los resgistros de las naves existente 
+                        _context.GENTEMAR_LICENCIA_NAVES.RemoveRange(
+                            _context.GENTEMAR_LICENCIA_NAVES.Where(x => x.id_licencia == datos.id_licencia)
+                        );
+                        //crea ls nuevas naves
+                        await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
+                    }
+                    if (datos.Observacion != null)
+                    {
+                        datos.Observacion.id_licencia = (int)datos.id_licencia;
+                        _context.GENTEMAR_OBSERVACIONES_LICENCIAS.Add(datos.Observacion);
                         await SaveAllAsync();
-                        if (datos.ListaNaves.Count() > 0)
+                        if (repositorio != null)
                         {
-                            // elimina los resgistros de las naves existente 
-                            _context.GENTEMAR_LICENCIA_NAVES.RemoveRange(
-                                _context.GENTEMAR_LICENCIA_NAVES.Where(x => x.id_licencia == datos.id_licencia)
-                            );
-                            //crea ls nuevas naves
-                            await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
-                        }
-                        if (datos.Observacion != null)
-                        {
-                            datos.Observacion.id_licencia = (int)datos.id_licencia;
-                            _context.GENTEMAR_OBSERVACIONES_LICENCIAS.Add(datos.Observacion);
+                            repositorio.IdModulo = datos.Observacion.id_observacion.ToString();
+                            repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
+                            repositorio.FechaHoraCreacion = DateTime.Now;
+                            _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                             await SaveAllAsync();
-                            if (repositorio != null)
-                            {
-                                repositorio.IdModulo = datos.Observacion.id_observacion.ToString();
-                                repositorio.IdUsuarioCreador = datos.Observacion.usuario_creador_registro;
-                                repositorio.FechaHoraCreacion = datos.Observacion.fecha_hora_creacion;
-                                _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
-                                await SaveAllAsync();
-                            }
                         }
-                        trassaction.Commit();
                     }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, datos);
-                    }
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, datos);
                 }
             }
         }

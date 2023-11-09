@@ -1,6 +1,8 @@
 ﻿using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -64,10 +66,11 @@ namespace DIMARCore.Api.Controllers
 
         [ResponseType(typeof(List<RadicadoInfoDTO>))]
         [HttpGet]
-        [Route("radicados-info-estupefacientes/{isTitulo}")]
-        public async Task<IHttpActionResult> GetRadicadosParaEstupefacientes(bool isTitulo)
+        [Route("radicados-info-estupefacientes")]
+        public async Task<IHttpActionResult> GetRadicadosParaEstupefacientes([FromUri] RadicadoSGDEAFilter sgdeaFilter, CancellationToken cancellationToken)
         {
-            var respuesta = await _SGDEAService.GetRadicadosInfoPersonaParaEstupefacientes(isTitulo);
+
+            var respuesta = await _SGDEAService.GetRadicadosInfoPersonaParaEstupefacientes(sgdeaFilter, cancellationToken);
             return Ok(respuesta);
         }
 

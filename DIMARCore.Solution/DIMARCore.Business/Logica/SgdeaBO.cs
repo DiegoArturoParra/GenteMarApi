@@ -1,9 +1,11 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Business.Logica
@@ -20,9 +22,14 @@ namespace DIMARCore.Business.Logica
             return await new SGDEARepository().GetRadicadosLicenciaByCedula(cedula);
         }
 
-        public async Task<IEnumerable<RadicadoInfoDTO>> GetRadicadosInfoPersonaParaEstupefacientes(bool isTitulo)
+        public async Task<IEnumerable<RadicadoInfoDTO>> GetRadicadosInfoPersonaParaEstupefacientes(RadicadoSGDEAFilter filter, CancellationToken cancellationToken)
         {
-            return await new SGDEARepository().GetRadicadosInfoPersonaParaEstupefacientes(isTitulo);
+
+            using (var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                var data = await new SGDEARepository().GetRadicadosInfoPersonaParaEstupefacientes(filter, tokenSource);
+                return data;
+            }
         }
         /// <summary>
         /// Obtiene las previstas por el numero de rtadicado el estado y tipo de tramite 

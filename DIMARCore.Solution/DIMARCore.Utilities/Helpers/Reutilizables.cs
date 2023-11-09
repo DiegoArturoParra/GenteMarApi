@@ -28,36 +28,36 @@ namespace DIMARCore.Utilities.Helpers
     public static class Reutilizables
     {
         private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public static string ConvertirStringApuntosDeMil(object identificacion)
-        {
-            string documento = string.Empty;
+        //public static string ConvertirStringApuntosDeMil(object identificacion)
+        //{
+        //    string documento = string.Empty;
 
-            try
-            {
-                if (identificacion != null)
-                {
-                    documento = Convert.ToString(identificacion);
-                    if (!string.IsNullOrWhiteSpace(documento))
-                    {
-                        if (documento.Contains("."))
-                        {
-                            return documento;
-                        }
+        //    try
+        //    {
+        //        if (identificacion != null)
+        //        {
+        //            documento = Convert.ToString(identificacion);
+        //            if (!string.IsNullOrWhiteSpace(documento))
+        //            {
+        //                if (documento.Contains("."))
+        //                {
+        //                    return documento;
+        //                }
 
-                        var replace = Regex.Replace(documento, Constantes.REGEXPUNTOSMIL, Constantes.SEPARADORDOCUMENTO);
-                        return replace;
+        //                var replace = Regex.Replace(documento, Constantes.REGEXPUNTOSMIL, Constantes.SEPARADORDOCUMENTO);
+        //                return replace;
 
-                    }
-                }
+        //            }
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex.Message);
 
-            }
-            return documento;
-        }
+        //    }
+        //    return documento;
+        //}
 
         /// <summary>
         /// Descarga el archivo del repositorio carpeta alojada en el servidor
@@ -70,6 +70,7 @@ namespace DIMARCore.Utilities.Helpers
             archivoBase64 = null;
             if (string.IsNullOrEmpty(rutaNombreArchivo))
             {
+                _logger.Error($"Error, la ruta del archivo no es valida. Por favor contacte al administrador del sistema.");
                 return Responses.SetConflictResponse("Error, la ruta del archivo no es valida. Por favor contacte al administrador del sistema.");
             }
             try
@@ -108,50 +109,38 @@ namespace DIMARCore.Utilities.Helpers
 
         public static Respuesta GuardarArchivoDeBytes(byte[] archivoBytes, string rutaInicial, string rutaModuloTipoDocumento, string nombreArchivo = "")
         {
-            try
+
+            rutaInicial = string.IsNullOrEmpty(rutaInicial) ? rutaInicial.Trim() : rutaInicial;
+            nombreArchivo = string.IsNullOrEmpty(nombreArchivo) ? nombreArchivo.Trim() : nombreArchivo;
+
+            if (string.IsNullOrEmpty(rutaInicial))
+                throw new HttpStatusCodeException(Responses.SetConflictResponse("Error, la ruta no es valida. Por favor contacte al administrador del sistema."));
+            // valida existencia ruta inicial
+            bool rutaInicialExiste = Directory.Exists(rutaInicial);
+
+            if (!rutaInicialExiste)
+                throw new HttpStatusCodeException(Responses.SetConflictResponse("Error. No se encuentra la ruta principal. Por favor contacte al administrador del sistema."));
+
+            // arma la ruta
+            var rutaCompletaModuloTipoDocumento = $@"{rutaInicial}\{rutaModuloTipoDocumento}";
+            bool rutaModuloExiste = Directory.Exists(rutaCompletaModuloTipoDocumento);
+            if (!rutaModuloExiste)
             {
-                rutaInicial = string.IsNullOrEmpty(rutaInicial) ? rutaInicial.Trim() : rutaInicial;
-                nombreArchivo = string.IsNullOrEmpty(nombreArchivo) ? nombreArchivo.Trim() : nombreArchivo;
-                if (string.IsNullOrEmpty(rutaInicial))
-                {
-                    string mensaje = "Error, la ruta no es valida. Por favor contacte al administrador del sistema.";
-                    _logger.Error(mensaje);
-                    return Responses.SetConflictResponse(mensaje);
-                }
-                // valida existencia ruta inicial
-                bool rutaInicialExiste = Directory.Exists(rutaInicial);
-                if (!rutaInicialExiste)
-                {
-                    string mensaje = "Error. No se encuentra la ruta principal. Por favor contacte al administrador del sistema.";
-                    _logger.Error(mensaje);
-                    return Responses.SetConflictResponse(mensaje);
-                }
-                // arma la ruta
-                var rutaCompletaModuloTipoDocumento = $@"{rutaInicial}\{rutaModuloTipoDocumento}";
-                bool rutaModuloExiste = Directory.Exists(rutaCompletaModuloTipoDocumento);
-                if (!rutaModuloExiste)
-                {
-                    Directory.CreateDirectory(rutaCompletaModuloTipoDocumento);
-                }
-                if (string.IsNullOrEmpty(nombreArchivo))
-                {
-                    nombreArchivo = Guid.NewGuid().ToString();
-                    nombreArchivo = $"{nombreArchivo}{Path.GetExtension(nombreArchivo)}";
-                }
-                // arma la ruta del archivo
-                var rutaNombreArchivo = $@"{rutaCompletaModuloTipoDocumento}\{nombreArchivo}";
-                File.WriteAllBytes(rutaNombreArchivo, archivoBytes);
-                return Responses.SetOkResponse(new Archivo
-                {
-                    NombreArchivo = nombreArchivo,
-                    PathArchivo = $@"{rutaModuloTipoDocumento}\{nombreArchivo}",
-                });
+                Directory.CreateDirectory(rutaCompletaModuloTipoDocumento);
             }
-            catch (Exception ex)
+            if (string.IsNullOrEmpty(nombreArchivo))
             {
-                Responses.SetInternalServerErrorResponse(ex, "Error al guardar el archivo. Por favor contacte al administrador del sistema.");
-                throw new Exception("Error al guardar el archivo. Por favor contacte al administrador del sistema.");
+                nombreArchivo = Guid.NewGuid().ToString();
+                nombreArchivo = $"{nombreArchivo}{Path.GetExtension(nombreArchivo)}";
             }
+            // arma la ruta del archivo
+            var rutaNombreArchivo = $@"{rutaCompletaModuloTipoDocumento}\{nombreArchivo}";
+            File.WriteAllBytes(rutaNombreArchivo, archivoBytes);
+            return Responses.SetOkResponse(new Archivo
+            {
+                NombreArchivo = nombreArchivo,
+                PathArchivo = $@"{rutaModuloTipoDocumento}\{nombreArchivo}",
+            });
         }
 
         /// <summary>
@@ -165,29 +154,19 @@ namespace DIMARCore.Utilities.Helpers
         public static Respuesta GuardarArchivo(HttpPostedFile file, string rutaInicial, string rutaModuloTipoDocumento, string nombreArchivo = "")
         {
             Respuesta respuesta = null;
+            rutaInicial = string.IsNullOrEmpty(rutaInicial) ? rutaInicial.Trim() : rutaInicial;
+            nombreArchivo = string.IsNullOrEmpty(nombreArchivo) ? nombreArchivo.Trim() : nombreArchivo;
+
+            if (string.IsNullOrEmpty(rutaInicial))
+                throw new HttpStatusCodeException(Responses.SetConflictResponse("Error, la ruta no es valida. Por favor contacte al administrador del sistema."));
+
+            // valida existencia ruta inicial
+            bool rutaInicialExiste = Directory.Exists(rutaInicial);
+
+            if (!rutaInicialExiste)
+                throw new HttpStatusCodeException(Responses.SetConflictResponse("Error. No se encuentra la ruta principal. Por favor contacte al administrador del sistema."));
             try
             {
-                rutaInicial = string.IsNullOrEmpty(rutaInicial) ? rutaInicial.Trim() : rutaInicial;
-                nombreArchivo = string.IsNullOrEmpty(nombreArchivo) ? nombreArchivo.Trim() : nombreArchivo;
-
-                if (string.IsNullOrEmpty(rutaInicial))
-                {
-                    string mensaje = "Error, la ruta no es valida. Por favor contacte al administrador del sistema.";
-                    _logger.Error(mensaje);
-                    respuesta = Responses.SetConflictResponse(mensaje);
-                    return respuesta;
-                }
-
-                // valida existencia ruta inicial
-                bool rutaInicialExiste = Directory.Exists(rutaInicial);
-                if (!rutaInicialExiste)
-                {
-                    string mensaje = "Error. No se encuentra la ruta principal. Por favor contacte al administrador del sistema.";
-                    _logger.Error(mensaje);
-                    respuesta = Responses.SetConflictResponse(mensaje);
-                    return respuesta;
-                }
-
                 // arma la ruta
                 var rutaCompletaModuloTipoDocumento = $@"{rutaInicial}\{rutaModuloTipoDocumento}";
                 bool rutaModuloExiste = Directory.Exists(rutaCompletaModuloTipoDocumento);
@@ -217,7 +196,6 @@ namespace DIMARCore.Utilities.Helpers
             }
             catch (Exception ex)
             {
-
                 respuesta = Responses.SetInternalServerErrorResponse(ex, "Error al guardar el archivo.");
             }
             return respuesta;
@@ -286,11 +264,11 @@ namespace DIMARCore.Utilities.Helpers
             string[] images = { ".png", ".jpg", ".jpeg" };
             string[] archivos = { ".pdf", ".doc", ".docx", ".xlsx" };
 
-            if (images.Contains(extension.ToLower()))
+            if (archivos.Contains(extension.ToLower()))
             {
                 documento = $"El archivo es de tipo documento con extensión: {extension.ToLower()}";
             }
-            else if (archivos.Contains(extension.ToLower()))
+            else if (images.Contains(extension.ToLower()))
             {
                 documento = $"El archivo es de tipo Imagen con extensión: {extension.ToLower()}";
             }
@@ -340,7 +318,7 @@ namespace DIMARCore.Utilities.Helpers
                     byte[] pdfBytes = Convert.FromBase64String(base64Pdf);
 
                     // Abrir el documento PDF desde los bytes
-                    iTextSharp.text.pdf.PdfReader pdfReader = new iTextSharp.text.pdf.PdfReader(pdfBytes);
+                    PdfReader pdfReader = new PdfReader(pdfBytes);
                     for (int page = 1; page <= pdfReader.NumberOfPages; page++)
                     {
                         pdfCopy.AddPage(pdfCopy.GetImportedPage(pdfReader, page));

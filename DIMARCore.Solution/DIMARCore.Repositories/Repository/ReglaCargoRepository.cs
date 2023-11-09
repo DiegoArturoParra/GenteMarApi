@@ -44,7 +44,7 @@ namespace DIMARCore.Repositories.Repository
                 NivelId = m.nivel.id_nivel,
                 ReglaId = m.regla.id_regla,
                 SeccionId = m.seccionTitulo.id_seccion,
-                HabilitacionesId = (from cargoHabilitacion in _context.GENTEMAR_CARGO_HABILITACION
+                HabilitacionesId = (from cargoHabilitacion in _context.GENTEMAR_REGLA_CARGO_HABILITACION
                                     join habilitacion in _context.GENTEMAR_HABILITACION on cargoHabilitacion.id_habilitacion
                                     equals habilitacion.id_habilitacion
                                     where cargoHabilitacion.id_cargo_regla == m.cargoRegla.id_cargo_regla
@@ -69,39 +69,37 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task CrearRelacionReglaCargo(GENTEMAR_REGLAS_CARGO entidad)
         {
-            using (_context)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var trassaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
+                    _context.GENTEMAR_REGLAS_CARGO.Add(entidad);
+                    await SaveAllAsync();
+                    if (entidad.Habilitaciones.Count > 0)
                     {
-                        _context.GENTEMAR_REGLAS_CARGO.Add(entidad);
-                        await SaveAllAsync();
-                        if (entidad.Habilitaciones.Count > 0)
+                        foreach (var item in entidad.Habilitaciones)
                         {
-                            foreach (var item in entidad.Habilitaciones)
+                            var tablaIntermedia = new GENTEMAR_REGLA_CARGO_HABILITACION()
                             {
-                                var tablaIntermedia = new GENTEMAR_CARGO_HABILITACION()
-                                {
-                                    id_habilitacion = item,
-                                    id_cargo_regla = entidad.id_cargo_regla
-                                };
-                                _context.GENTEMAR_CARGO_HABILITACION.Add(tablaIntermedia);
-                            }
+                                id_habilitacion = item,
+                                id_cargo_regla = entidad.id_cargo_regla
+                            };
+                            _context.GENTEMAR_REGLA_CARGO_HABILITACION.Add(tablaIntermedia);
                         }
-                        await SaveAllAsync();
-                        trassaction.Commit();
                     }
-                    catch (Exception ex)
-                    {
-                        trassaction.Rollback();
-                        ObtenerException(ex, entidad);
-                    }
+                    await SaveAllAsync();
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ObtenerException(ex, entidad);
                 }
             }
+
         }
 
-        public IEnumerable<ListadoDetalleCargoReglaDTO> GetListado(DetalleReglaFilter filtro)
+        public async Task<IEnumerable<ListadoDetalleCargoReglaDTO>> GetListado(DetalleReglaFilter filtro)
         {
             var query = from cargoRegla in _context.GENTEMAR_REGLAS_CARGO
                         join reglas in _context.GENTEMAR_REGLAS on cargoRegla.id_regla equals reglas.id_regla
@@ -119,23 +117,33 @@ namespace DIMARCore.Repositories.Repository
                             capacidad
                         };
 
-            if (filtro.SeccionId > 0)
+            if (filtro != null)
             {
-                query = query.Where(x => x.seccionTitulo.id_seccion == filtro.SeccionId);
+                if (filtro.SeccionId.HasValue)
+                {
+                    query = query.Where(x => x.seccionTitulo.id_seccion == filtro.SeccionId.Value);
+                }
+                if (filtro.CargoTituloId.HasValue)
+                {
+                    query = query.Where(x => x.cargoRegla.id_cargo_titulo == filtro.CargoTituloId.Value);
+                }
+                if (filtro.ReglaId.HasValue)
+                {
+                    query = query.Where(x => x.cargoRegla.id_regla == filtro.ReglaId.Value);
+                }
+                if (filtro.NivelId.HasValue)
+                {
+                    query = query.Where(x => x.cargoRegla.id_nivel == filtro.NivelId.Value);
+                }
             }
-            if (filtro.CargoTituloId > 0)
+
+            var listado = query.GroupBy(x => new
             {
-                query = query.Where(x => x.cargoRegla.id_cargo_titulo == filtro.CargoTituloId);
-            }
-            if (filtro.ReglaId > 0)
-            {
-                query = query.Where(x => x.cargoRegla.id_regla == filtro.ReglaId);
-            }
-            if (filtro.NivelId > 0)
-            {
-                query = query.Where(x => x.cargoRegla.id_nivel == filtro.NivelId);
-            }
-            var listado = query.GroupBy(x => new { x.cargoRegla.id_regla, x.cargoRegla.id_cargo_titulo }).Select(m => new ListadoDetalleCargoReglaDTO
+                x.cargoRegla.id_regla,
+                x.cargoRegla.id_cargo_titulo,
+                x.cargoRegla.id_capacidad,
+                x.cargoRegla.id_nivel
+            }).Select(m => new ListadoDetalleCargoReglaDTO
             {
                 CargoReglaId = m.Select(x => x.cargoRegla.id_cargo_regla).FirstOrDefault(),
                 Seccion = m.Select(x => x.seccionTitulo.actividad_a_bordo).FirstOrDefault(),
@@ -147,42 +155,39 @@ namespace DIMARCore.Repositories.Repository
                              join funciones in _context.GENTEMAR_FUNCIONES on reglaFuncion.id_funcion equals funciones.id_funcion
                              where reglaFuncion.id_regla == m.Key.id_regla
                              select funciones.funcion).ToList(),
-                Habilitaciones = (from cargoHabilitacion in _context.GENTEMAR_CARGO_HABILITACION
+                Habilitaciones = (from cargoHabilitacion in _context.GENTEMAR_REGLA_CARGO_HABILITACION
                                   join habilitacion in _context.GENTEMAR_HABILITACION on cargoHabilitacion.id_habilitacion
                                   equals habilitacion.id_habilitacion
                                   where cargoHabilitacion.id_cargo_regla == m.Select(x => x.cargoRegla.id_cargo_regla).FirstOrDefault()
                                   select habilitacion.habilitacion).ToList(),
             });
-            return listado.ToList();
+            return await listado.ToListAsync();
         }
 
         public async Task ActualizarRelacionReglaCargo(GENTEMAR_REGLAS_CARGO data)
         {
-            using (_context)
+            try
             {
-                try
-                {
-                    _context.GENTEMAR_CARGO_HABILITACION.RemoveRange(_context.GENTEMAR_CARGO_HABILITACION
-                        .Where(x => x.id_cargo_regla == data.id_cargo_regla));
+                _context.GENTEMAR_REGLA_CARGO_HABILITACION.RemoveRange(_context.GENTEMAR_REGLA_CARGO_HABILITACION
+                    .Where(x => x.id_cargo_regla == data.id_cargo_regla));
 
-                    if (data.Habilitaciones.Count > 0)
-                    {
-                        foreach (var item in data.Habilitaciones)
-                        {
-                            var tablaIntermedia = new GENTEMAR_CARGO_HABILITACION()
-                            {
-                                id_habilitacion = item,
-                                id_cargo_regla = data.id_cargo_regla
-                            };
-                            _context.GENTEMAR_CARGO_HABILITACION.Add(tablaIntermedia);
-                        }
-                    }
-                    await Update(data);
-                }
-                catch (Exception ex)
+                if (data.Habilitaciones.Count > 0)
                 {
-                    ObtenerException(ex, data);
+                    foreach (var item in data.Habilitaciones)
+                    {
+                        var tablaIntermedia = new GENTEMAR_REGLA_CARGO_HABILITACION()
+                        {
+                            id_habilitacion = item,
+                            id_cargo_regla = data.id_cargo_regla
+                        };
+                        _context.GENTEMAR_REGLA_CARGO_HABILITACION.Add(tablaIntermedia);
+                    }
                 }
+                await Update(data);
+            }
+            catch (Exception ex)
+            {
+                ObtenerException(ex, data);
             }
         }
     }

@@ -9,21 +9,11 @@ namespace DIMARCore.UIEntities.DTOs
         public long Id { get; set; }
         public bool IsModuleEstupefacientes { get; set; }
         public string Identificacion { get; set; }
-        [JsonIgnore]
-        public string IdentificacionConPuntos
-        {
-            get => Reutilizables.ConvertirStringApuntosDeMil(Identificacion);
-        }
     }
 
     public class CedulaDTO
     {
         [Required(ErrorMessage = "El documento es requerido.")]
         public string Identificacion { get; set; }
-        [JsonIgnore]
-        public string IdentificacionConPuntos
-        {
-            get => Reutilizables.ConvertirStringApuntosDeMil(Identificacion);
-        }
     }
 }

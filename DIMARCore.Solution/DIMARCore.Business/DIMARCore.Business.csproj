@@ -126,7 +126,6 @@
     <Compile Include="Logica\SeccionBO.cs" />
     <Compile Include="Logica\ServiciosAplicacionesBO.cs" />
     <Compile Include="Logica\SgdeaBO.cs" />
-    <Compile Include="Logica\TerritorioBO.cs" />
     <Compile Include="Logica\TipoDocumentoBO.cs" />
     <Compile Include="Interfaces\IGenericCreateUpdate.cs" />
     <Compile Include="Logica\TituloBO.cs" />

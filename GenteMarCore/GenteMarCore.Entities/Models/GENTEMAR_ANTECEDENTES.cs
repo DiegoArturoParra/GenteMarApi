@@ -33,6 +33,6 @@ namespace GenteMarCore.Entities.Models
 
         public virtual GENTEMAR_ESTADO_ANTECEDENTE GENTEMAR_ESTADO_ANTECEDENTES { get; set; }
 
-        public virtual GENTEMAR_TIPO_TRAMITE GENTEMAR_TIPO_TRAMITE { get; set; }
+        public virtual GENTEMAR_TRAMITE_ANTECEDENTE GENTEMAR_TIPO_TRAMITE { get; set; }
     }
 }

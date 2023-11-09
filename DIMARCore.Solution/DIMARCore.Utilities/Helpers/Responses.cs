@@ -125,14 +125,28 @@ namespace DIMARCore.Utilities.Helpers
             };
             return pResponse;
         }
+
+        public static Respuesta SetRequestCanceledResponse(OperationCanceledException exception, string mensaje)
+        {
+            Respuesta pResponse = new Respuesta
+            {
+                StatusCode = HttpStatusCode.RequestTimeout,
+                Mensaje = mensaje,
+                MensajeExcepcion = exception.InnerException != null ? exception.InnerException.Message : exception.Message,
+                Data = exception.StackTrace,
+                MensajeIngles = "The operation has been canceled.",
+                Estado = false
+            };
+            return pResponse;
+        }
         public static Respuesta SetInternalServerErrorResponse(Exception exception, string mensaje = "Internal Server Error")
         {
             Respuesta pResponse = new Respuesta
             {
                 StatusCode = HttpStatusCode.InternalServerError,
-                MensajeExcepcion = exception.Message,
-                Data = exception.InnerException,
-                Mensaje = $"{mensaje} {exception.Message}",
+                MensajeExcepcion = exception.InnerException != null ? exception.InnerException.Message : exception.Message,
+                Data = exception.StackTrace,
+                Mensaje = mensaje,
                 MensajeIngles = "HTTP 500 Internal Server Error",
                 Estado = false
             };

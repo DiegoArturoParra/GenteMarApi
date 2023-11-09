@@ -57,7 +57,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             var existeRelacion = await new ReglaCargoBO().GetIdByTablasForaneas(items);
             int CargoReglaId = (int)existeRelacion.Data;
             var query = await _serviceHabilitacion.GetHabilitacionesByReglaCargoId(CargoReglaId);
-            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_HABILITACION>, IEnumerable<HabilitacionDTO>>(query);
+            var listado = Mapear<IEnumerable<GENTEMAR_REGLA_CARGO_HABILITACION>, IEnumerable<HabilitacionDTO>>(query);
             return Ok(listado);
         }
 

@@ -33,12 +33,9 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task Actualizar(GENTEMAR_REGLAS objeto)
         {
-            using (_context)
-            {
-                _context.GENTEMAR_REGLAS.Attach(objeto);
-                _context.Entry(objeto).State = EntityState.Modified;
-                await SaveAllAsync();
-            }
+            _context.GENTEMAR_REGLAS.Attach(objeto);
+            _context.Entry(objeto).State = EntityState.Modified;
+            await SaveAllAsync();
         }
     }
 }

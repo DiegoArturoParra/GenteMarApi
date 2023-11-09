@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIMARCore.Api", "DIMARCore.Api\DIMARCore.Api.csproj", "{589ABBFC-3EA6-448C-92B5-FEE16E4764EF}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenteMarCore.Entities", "..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj", "{E99819B7-D951-4C59-8928-220B258DBC9A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenteMarCore.ProceduresAndViews", "..\GenteMarCore\GenteMarCore.ProceduresAndViews\GenteMarCore.ProceduresAndViews.csproj", "{0CFEC2D2-964C-4F7F-8DC1-10608A31D6D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenteMarCore.Tests", "GenteMarCore.Tests\GenteMarCore.Tests.csproj", "{436F315D-914B-45BF-957A-9975C7F0DEA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,6 +110,16 @@ Global
 		{0CFEC2D2-964C-4F7F-8DC1-10608A31D6D5}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Debug|Any CPU
 		{0CFEC2D2-964C-4F7F-8DC1-10608A31D6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CFEC2D2-964C-4F7F-8DC1-10608A31D6D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.DIMARCore.Api.Desarrollo|Any CPU.ActiveCfg = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.DIMARCore.Api.Desarrollo|Any CPU.Build.0 = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.DIMARCore.Api.Produccion|Any CPU.ActiveCfg = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.DIMARCore.Api.Produccion|Any CPU.Build.0 = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.DIMARCore.Api.Pruebas|Any CPU.ActiveCfg = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.DIMARCore.Api.Pruebas|Any CPU.Build.0 = Debug|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{436F315D-914B-45BF-957A-9975C7F0DEA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

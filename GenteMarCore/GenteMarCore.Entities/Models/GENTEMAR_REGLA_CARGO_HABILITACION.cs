@@ -2,8 +2,8 @@ namespace GenteMarCore.Entities.Models
 {
     using System.ComponentModel.DataAnnotations.Schema;
 
-    [Table("GENTEMAR_CARGO_HABILITACION", Schema = "DBA")]
-    public partial class GENTEMAR_CARGO_HABILITACION
+    [Table("GENTEMAR_REGLA_CARGO_HABILITACION", Schema = "DBA")]
+    public partial class GENTEMAR_REGLA_CARGO_HABILITACION
     {
         public int id_habilitacion { get; set; }
 
