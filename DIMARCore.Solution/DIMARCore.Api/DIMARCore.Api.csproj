@@ -326,7 +326,7 @@
     <Compile Include="Controllers\DatosBasicos\GradoController.cs" />
     <Compile Include="Controllers\Licencias\CargoLicenciaController.cs" />
     <Compile Include="Controllers\Licencias\CategoriaController.cs" />
-    <Compile Include="Controllers\Licencias\EstadosLiceciasController.cs" />
+    <Compile Include="Controllers\Licencias\EstadosLicenciaController.cs" />
     <Compile Include="Controllers\Licencias\LicenciaController.cs" />
     <Compile Include="Controllers\Licencias\LimitacionesController.cs" />
     <Compile Include="Controllers\Licencias\LimitanteController.cs" />
@@ -358,6 +358,7 @@
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Core\Atributos\AuthorizeRolesAttribute.cs" />
+    <Compile Include="Core\Atributos\LogRequestFilter.cs" />
     <Compile Include="Core\Models\ResponseTypeSwagger.cs" />
     <Compile Include="Core\TokenGenerator.cs" />
     <Compile Include="Core\TokenValidationHandler.cs" />
@@ -366,7 +367,7 @@
     </Compile>
     <Compile Include="Core\CustomExceptionFilter.cs" />
     <Compile Include="Core\AutoMapperProfiles.cs" />
-    <Compile Include="Core\ValidationExceptionFilterAttribute.cs" />
+    <Compile Include="Core\Atributos\ValidationExceptionFilterAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

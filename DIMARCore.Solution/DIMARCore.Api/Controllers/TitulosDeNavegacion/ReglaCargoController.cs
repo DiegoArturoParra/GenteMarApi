@@ -4,6 +4,7 @@ using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -90,13 +91,13 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>23/05/2022</Fecha>
         /// </remarks>
-        [ResponseType(typeof(List<CargoTituloDTO>))]
+        [ResponseType(typeof(List<CargoTituloInfoDTO>))]
         [HttpGet]
         [Route("lista-by-seccion/{SeccionId}")]
         public async Task<IHttpActionResult> GetCargoTitulosBySeccionId(int SeccionId)
         {
             var query = await _service.GetCargosTituloBySeccionId(SeccionId);
-            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloDTO>>(query);
+            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloInfoDTO>>(query);
             return Ok(listado);
         }
 

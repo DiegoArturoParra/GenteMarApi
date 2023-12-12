@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Repositories
@@ -16,7 +15,7 @@ namespace DIMARCore.Repositories
         Task<T> GetWithCondition(Expression<Func<T, bool>> whereCondition);
         IEnumerable<T> GetAll();
         IEnumerable<T> GetAllWithCondition(Expression<Func<T, bool>> whereCondition);
-        Task<IList<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition);
+        Task<IEnumerable<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition);
         Task<bool> AnyWithCondition(Expression<Func<T, bool>> whereCondition);
     }
 }

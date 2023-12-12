@@ -14,7 +14,7 @@ namespace DIMARCore.Repositories.Repository
         /// <summary>
         /// Lista de las secciones por id de la actividad
         /// </summary>
-        /// <returns>Lista de los tipos de formacion</returns>
+        /// <returns>Lista de las secciones</returns>
         public async Task<IList<SeccionDTO>> GetSeccionActividad(int id)
         {
             return await (from actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
@@ -27,45 +27,56 @@ namespace DIMARCore.Repositories.Repository
                               Descripcion = seccion.actividad_a_bordo,
                               IsActive = seccion.activo,
                               IdActividaSeccion = actividadSeccion.id_actividad_seccion_licencia
-
                           }).ToListAsync();
         }
+
+        /// <summary>
+        /// Lista de las secciones por ids de la actividad
+        /// </summary>
+        /// <returns>Lista de las secciones</returns>
+        public async Task<IList<SeccionDTO>> GetSeccionesPorActividadesIds(List<int> ids)
+        {
+            return await (from actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
+                          join seccion in _context.GENTEMAR_SECCION_LICENCIAS on actividadSeccion.id_seccion equals
+                          seccion.id_seccion
+                          where ids.Contains(actividadSeccion.id_actividad) && seccion.activo == true
+                          group new { actividadSeccion, seccion } by new { actividadSeccion.id_seccion, seccion.actividad_a_bordo, seccion.activo } into g
+                          select new SeccionDTO
+                          {
+                              Id = g.Key.id_seccion,
+                              Descripcion = g.Key.actividad_a_bordo,
+                              IsActive = g.Key.activo
+                          }).ToListAsync();
+        }
+
 
         /// <summary>
         /// Lista de formacion con los grados asignados 
         /// </summary>
         /// <returns>Lista de los tipos de formacion</returns>
-        public IList<SeccionDTO> GetTableSeccion()
+        public async Task<IEnumerable<SeccionDTO>> GetTableSecciones()
         {
-            try
-            {
 
-                var resultado = (from seccion in _context.GENTEMAR_SECCION_LICENCIAS
-                                 select new SeccionDTO
-                                 {
-                                     Id = seccion.id_seccion,
-                                     Descripcion = seccion.actividad_a_bordo,
-                                     IsActive = seccion.activo,
-                                     Actividad = (from actividad in _context.GENTEMAR_ACTIVIDAD
-                                                  join seccionActividad in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA on
-                                                  actividad.id_actividad equals seccionActividad.id_actividad
-                                                  where seccionActividad.id_seccion == seccion.id_seccion
-                                                  select new ActividadDTO
-                                                  {
-                                                      Actividad = actividad.actividad,
-                                                      IdActividad = actividad.id_actividad,
-                                                      Activo = actividad.activo
-                                                  }
-                                                  ).ToList()
+            var resultado = await (from seccion in _context.GENTEMAR_SECCION_LICENCIAS
+                                   select new SeccionDTO
+                                   {
+                                       Id = seccion.id_seccion,
+                                       Descripcion = seccion.actividad_a_bordo,
+                                       IsActive = seccion.activo,
+                                       Actividad = (from actividad in _context.GENTEMAR_ACTIVIDAD
+                                                    join seccionActividad in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA on
+                                                    actividad.id_actividad equals seccionActividad.id_actividad
+                                                    where seccionActividad.id_seccion == seccion.id_seccion
+                                                    select new ActividadTipoLicenciaDTO
+                                                    {
+                                                        Actividad = actividad.actividad,
+                                                        IdActividad = actividad.id_actividad,
+                                                        Activo = actividad.activo
+                                                    }
+                                                    ).ToList()
 
-                                 }).ToList();
-
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+                                   }).ToListAsync();
+            return resultado;
         }
 
         /// <summary>

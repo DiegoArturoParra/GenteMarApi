@@ -1,5 +1,9 @@
-﻿using DIMARCore.Business.Logica;
+﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
+using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
+using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
@@ -13,7 +17,6 @@ namespace DIMARCore.Api.Controllers.Licencias
     /// <summary>
     /// Api Cargo
     /// </summary>
-    [AllowAnonymous]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/cargo-licencia")]
     public class CargoLicenciaController : BaseApiController
@@ -39,13 +42,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(List<CargoLicenciaDTO>))]
+        [ResponseType(typeof(List<CargoInfoLicenciaDTO>))]
         [HttpPost]
         [Route("lista")]
-        public IHttpActionResult CargoLicenciaList([FromBody] CargoLicenciaDTO filtro)
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public IHttpActionResult CargoLicenciaList([FromBody] CargoInfoLicenciaDTO filtro)
         {
-            var query = _service.GetCargoLicencia(filtro);
-            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_LICENCIA>, IEnumerable<CargoLicenciaDTO>>(query);
+            var query = _service.GetCargosLicencia(filtro);
+            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_LICENCIA>, IEnumerable<CargoInfoLicenciaDTO>>(query);
             return Ok(listado);
 
         }
@@ -62,15 +66,36 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(List<CargoLicenciaDTO>))]
+        [ResponseType(typeof(List<CargoInfoLicenciaDTO>))]
         [HttpGet]
-        [Route("lista-activos")]
-        public IHttpActionResult CargoLicenciaActivosList()
+        [Route("lista-activos-por-categoria-capitania")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> CargosLicenciaActivosPorCapitaniaCategoria()
         {
-            var query = _service.CargoLicenciaActivo();
-            //var listado = Mapear<IEnumerable<GENTEMAR_CARGO_LICENCIA>, IEnumerable<CargoLicenciaDTO>>(query);
+            var query = await _service.GetCargosLicenciaActivosPorCapitaniaCategoria();
             return Ok(query);
+        }
 
+        /// <summary>
+        ///  Se obtiene el listado de los cargos activos.
+        /// </summary>
+        /// <remarks>
+        /// <Autor>Camilo Varagas</Autor>
+        /// <Fecha>13/06/2022</Fecha>
+        /// </remarks>
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        [ResponseType(typeof(List<CargoLicenciaDTO>))]
+        [HttpPost]
+        [Route("lista-activos-filtro-reporte")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> CargosLicenciaActivos([FromBody] CargoLicenciaFilter cargoLicenciaFilter)
+        {
+            var query = await _service.GetCargosLicenciaActivosPorFiltro(cargoLicenciaFilter);
+            return Ok(query);
         }
 
         /// <summary>
@@ -90,9 +115,11 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        public async Task<IHttpActionResult> Crear([FromBody] CargoLicenciaDTO cargo)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+
+        public async Task<IHttpActionResult> Crear([FromBody] CargoInfoLicenciaDTO cargo)
         {
-            var data = Mapear<CargoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>(cargo);
+            var data = Mapear<CargoInfoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>(cargo);
             var response = await _service.CrearAsync(data);
             return Created(string.Empty, response);
         }
@@ -111,12 +138,13 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("actualizar")]
-        public async Task<IHttpActionResult> ACtializar([FromBody] CargoLicenciaDTO cargo)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> Actualizar([FromBody] CargoInfoLicenciaDTO cargo)
         {
-            var data = Mapear<CargoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>(cargo);
+            var data = Mapear<CargoInfoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>(cargo);
             var response = await _service.ActualizarAsync(data);
             return Ok(response);
         }
@@ -133,13 +161,13 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(List<CargoLicenciaDTO>))]
+        [ResponseType(typeof(List<CargoInfoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-id-detalle/{id}")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult CargoLicenciaIdDetalle(long id)
         {
             var query = _service.GetCargoLicenciaIdDetalle(id);
-            //var listado = Mapear<GENTEMAR_CARGO_LICENCIA, CargoLicenciaDTO>(query);
             return Ok(query);
         }
 
@@ -155,13 +183,13 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(List<CargoLicenciaDTO>))]
+        [ResponseType(typeof(List<CargoInfoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-id/{id}")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult CargoLicenciaId(long id)
         {
             var query = _service.GetCargoLicenciaId(id);
-            //var listado = Mapear<GENTEMAR_CARGO_LICENCIA, CargoLicenciaDTO>(query);
             return Ok(query);
         }
         /// <summary>
@@ -177,13 +205,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarCargoLicenciaAsync(int id)
         {
             var respuesta = await _service.CambiarCargoLicencia(id);
-            return ResultadoStatus(respuesta);
+            return Ok(respuesta);
         }
 
     }

@@ -5,6 +5,8 @@ using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using System;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace DIMARCore.Business
 {
@@ -103,14 +105,14 @@ namespace DIMARCore.Business
         #endregion
 
         #region seccion licencias
-        public IEnumerable<SeccionDTO> GetSeccionesLicencias()
+        public async Task<IEnumerable<SeccionDTO>> GetSeccionesLicencias()
         {
-            return new SeccionLicenciasRepository().GetTableSeccion();
+            return await new SeccionLicenciasRepository().GetTableSecciones();
         }
 
-        public IEnumerable<GENTEMAR_SECCION_LICENCIAS> GetSeccionesLicenciasActivas()
+        public async Task<IEnumerable<GENTEMAR_SECCION_LICENCIAS>> GetSeccionesLicenciasActivas()
         {
-            return new SeccionLicenciasRepository().GetAllWithCondition(x => x.activo == true);
+            return await new SeccionLicenciasRepository().GetAllWithConditionAsync(x => x.activo == true);
         }
 
         /// <summary>
@@ -171,6 +173,11 @@ namespace DIMARCore.Business
                 await repo.Update(validate);
                 return Responses.SetUpdatedResponse(validate);
             }
+        }
+
+        public async Task<IEnumerable<SeccionDTO>> GetSeccionesPorActividadesIds(List<int> ids)
+        {
+            return await new SeccionLicenciasRepository().GetSeccionesPorActividadesIds(ids);
         }
         #endregion
     }

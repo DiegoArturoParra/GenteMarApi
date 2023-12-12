@@ -1,7 +1,8 @@
-﻿using DIMARCore.Api.Core.Models;
+﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
-using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,7 +15,6 @@ namespace DIMARCore.Api.Controllers
     /// <summary>
     /// servicios clases de titulos y licencias
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/clases")]
     public class ClasesController : BaseApiController
@@ -46,6 +46,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-por-titulos")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetClasesTitulos([FromUri] ActivoDTO dto)
         {
             var clases = _serviceClaseTitulos.GetAll(dto != null ? dto.Activo : null);
@@ -68,6 +69,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<ClaseDTO>))]
         [HttpGet]
         [Route("por-titulo/{id}")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetClaseitulo(int id)
         {
             var clase = await _serviceClaseTitulos.GetByIdAsync(id);
@@ -92,6 +94,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-por-titulo")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearSeccionTitulo([FromBody] ClaseDTO clase)
         {
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_TITULOS>(clase);
@@ -116,6 +119,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-titulo")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarClaseTitulo([FromBody] ClaseDTO clase)
         {
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_TITULOS>(clase);
@@ -138,6 +142,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa-por-titulo/{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> InactivarClaseTitulo(int id)
         {
             var obj = await _serviceClaseTitulos.AnulaOrActivaAsync(id);
@@ -161,6 +166,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-por-licencias")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetClasesLicencias()
         {
             var clases = _serviceClaseLicencias.GetAllClaseLicencias();
@@ -181,10 +187,33 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
-        [Route("lista-clase-seccion-licencias/{id}")]
-        public async Task<IHttpActionResult> GetSeccionesActividadId(int id)
+        [Route("lista-seccion-licencia/{id}")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetClasesPorSeccionId(int id)
         {
-            var clases = await _serviceClaseLicencias.GetClaseSecciones(id);
+            var clases = await _serviceClaseLicencias.GetClasesPorSeccionId(id);
+            return Ok(clases);
+        }
+
+        /// <summary>
+        /// Listado de clases activas por ids de seccion
+        /// </summary>
+        /// <returns>Listado de clases por ids de seccion</returns>
+        /// <param name="ids"></param>
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>2022/02/26</Fecha>
+        /// <returns></returns>
+        /// <response code="200">OK. Devuelve Listado de clases por ids de sección.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<ClaseDTO>))]
+        [HttpPost]
+        [Route("lista-por-secciones-licencia")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetClasesPorSecciones(List<int> ids)
+        {
+            var clases = await _serviceClaseLicencias.GetClasesPorSeccionesIds(ids);
             return Ok(clases);
         }
 
@@ -202,6 +231,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ClaseDTO>))]
         [HttpGet]
         [Route("lista-por-licencias-activas")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetClasesLicenciasActivas()
         {
             var clases = await _serviceClaseLicencias.GetAllClaseLicenciasActivas();
@@ -223,6 +253,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<ClaseDTO>))]
         [HttpGet]
         [Route("por-licencia/{id}")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetClaseLicencia(int id)
         {
             var clase = await _serviceClaseLicencias.GetByIdAsync(id);
@@ -247,6 +278,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear-por-licencia")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearClaseLicencia([FromBody] ClaseDTO clase)
         {
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_LICENCIAS>(clase);
@@ -272,6 +304,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar-por-licencia")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarClaseLicencia([FromBody] ClaseDTO clase)
         {
             var data = Mapear<ClaseDTO, GENTEMAR_CLASE_LICENCIAS>(clase);
@@ -294,6 +327,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa-por-licencia/{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> InactivarLicencia(int id)
         {
             var obj = await _serviceClaseLicencias.AnulaOrActivaAsync(id);

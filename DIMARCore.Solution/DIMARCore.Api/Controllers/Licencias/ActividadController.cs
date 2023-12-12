@@ -1,6 +1,9 @@
-﻿using DIMARCore.Business;
+﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
+using DIMARCore.Business;
+using DIMARCore.UIEntities;
 using DIMARCore.UIEntities.DTOs;
-using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +16,6 @@ namespace DIMARCore.Api.Controllers
     /// <summary>
     /// API Actividad
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/actividades")]
     public class ActividadController : BaseApiController
@@ -40,13 +42,36 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GENTEMAR_ACTIVIDAD>))]
+        [ResponseType(typeof(List<ActividadTipoLicenciaDTO>))]
         [HttpGet]
-        [Route("lista-actividad-tipo-licencia/{id}")]
-        public IHttpActionResult GetActividadesIdTipoLicencia(int id)
+        [Route("lista-activas-tipo-licencia/{id}")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetActividadesIdTipoLicenciaAsync(int id)
         {
-            var actividades = _service.GetActividadesActivoTipoLicencia(id);
-            var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<ActividadDTO>>(actividades);
+            var actividades = await _service.GetActividadesActivoTipoLicencia(id);
+            var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<ActividadTipoLicenciaDTO>>(actividades);
+            return Ok(data);
+        }
+
+        /// <summary>
+        /// Listado de Actividades dependiendo uno o varios tipos de licencia 
+        /// </summary>    
+        /// <param name="idsTipoLicencia">ids de tipo licencia</param>
+        /// <Autor>Camilo Vargas</Autor>
+        /// <Fecha>2022/02/26</Fecha>
+        /// <returns></returns>
+        /// <response code="200">OK. Devuelve la información del estado.</response>
+        /// <response code="204">No Content. No hay estado.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<ActividadLicenciaDTO>))]
+        [HttpPost]
+        [Route("lista-activas-tipos-licencia")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetActividadesPorTiposLicencia(List<int> idsTipoLicencia)
+        {
+            var data = await _service.GetActividadesActivasPorTiposDeLicencia(idsTipoLicencia);
             return Ok(data);
         }
 
@@ -61,13 +86,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GENTEMAR_ACTIVIDAD>))]
+        [ResponseType(typeof(List<ActividadTipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista")]
-        public IHttpActionResult GetActividades()
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetActividadesAsync()
         {
-            var actividades = _service.GetActividades();
-            //var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<ActividadDTO>>(actividades);
+            var actividades = await  _service.GetActividadesAsync();
             return Ok(actividades);
         }
 
@@ -82,16 +107,17 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<ActividadDTO>))]
+        [ResponseType(typeof(List<ActividadTipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-activo")]
-        public IHttpActionResult GetActividadesActivo()
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetActividadesActivoAsync()
         {
-            var limitaciones = _service.GetActividadesActivo();
-            var data = Mapear<IList<GENTEMAR_ACTIVIDAD>, IList<ActividadDTO>>(limitaciones);
+            var actividades = await _service.GetActividadesActivo();
+            var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<ActividadTipoLicenciaDTO>>(actividades);
             return Ok(data);
         }
-    
+
         /// <summary>
         /// Retorna una Actividad dado un Id
         /// </summary>   
@@ -106,6 +132,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(GENTEMAR_ACTIVIDAD))]
         [HttpGet]
         [Route("id")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetActividadAsync(int id)
         {
             var actividad = await new ActividadBO().GetActividad(id);
@@ -126,14 +153,15 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        public async Task<IHttpActionResult> CrearActividadAsync(ActividadDTO datos)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> CrearActividadAsync(ActividadTipoLicenciaDTO datos)
         {
-            var data = Mapear<ActividadDTO, GENTEMAR_ACTIVIDAD>(datos);
+            var data = Mapear<ActividadTipoLicenciaDTO, GENTEMAR_ACTIVIDAD>(datos);
             var actividad = await _service.CrearActividadAsync(data);
-            return ResultadoStatus(actividad);
+            return Created(string.Empty, actividad);
         }
 
 
@@ -151,14 +179,15 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        public async Task<IHttpActionResult> EditarActividadAsync(ActividadDTO datos)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> EditarActividadAsync(ActividadTipoLicenciaDTO datos)
         {
-            var data = Mapear<ActividadDTO, GENTEMAR_ACTIVIDAD>(datos);
+            var data = Mapear<ActividadTipoLicenciaDTO, GENTEMAR_ACTIVIDAD>(datos);
             var actividad = await _service.EditarActividadAsync(data);
-            return ResultadoStatus(actividad);
+            return Ok(actividad);
 
         }
 
@@ -175,13 +204,14 @@ namespace DIMARCore.Api.Controllers
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarActividadAsync(int id)
         {
             var respuesta = await _service.cambiarActividad(id);
-            return ResultadoStatus(respuesta);
+            return Ok(respuesta);
         }
     }
 }

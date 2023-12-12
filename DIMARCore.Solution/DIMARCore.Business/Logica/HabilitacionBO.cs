@@ -69,9 +69,9 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, mensaje);
         }
 
-        public async Task<IEnumerable<GENTEMAR_REGLA_CARGO_HABILITACION>> GetHabilitacionesByReglaCargoId(int CargoReglaId)
+        public async Task<IEnumerable<GENTEMAR_REGLA_CARGO_HABILITACION>> GetHabilitacionesActivasByReglaCargoId(int CargoReglaId)
         {
-            return await new HabilitacionRepository().GetHabilitacionesByReglaCargoId(CargoReglaId);
+            return await new HabilitacionRepository().GetHabilitacionesActivasByReglaCargoId(CargoReglaId);
         }
 
         public async Task ExisteByNombreAsync(string nombre, int Id = 0)

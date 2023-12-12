@@ -6,7 +6,7 @@ namespace GenteMarCore.Entities.Models
     using System.ComponentModel.DataAnnotations.Schema;
 
     [Table("GENTEMAR_DATOSBASICOS", Schema = "DBA")]
-    public partial class GENTEMAR_DATOSBASICOS : GENTEMAR_CAMPOS_AUDITORIA
+    public partial class    GENTEMAR_DATOSBASICOS : GENTEMAR_CAMPOS_AUDITORIA
     {
         public GENTEMAR_DATOSBASICOS()
         {
@@ -16,8 +16,8 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public long id_gentemar { get; set; }
 
-        [StringLength(16)]
-        [RegularExpression(@"^[0-9.]+$", ErrorMessage = "Solo se permiten números y puntos.")]
+        [StringLength(19, MinimumLength = 4, ErrorMessage = "El campo debe tener entre 4 y 19 caracteres.")]
+        [RegularExpression(@"^\d{1,3}(.\d{3})*$", ErrorMessage = "El campo debe tener el formato de números con puntos de mil.")]
         public string documento_identificacion { get; set; }
 
         public int id_tipo_documento { get; set; }

@@ -44,7 +44,7 @@ namespace GenteMarCore.Entities
         public virtual DbSet<APLICACIONES_CAPITANIAS> APLICACIONES_CAPITANIAS { get; set; }
         public virtual DbSet<APLICACIONES_CATEGORIA> APLICACIONES_CATEGORIA { get; set; }
         public virtual DbSet<APLICACIONES_DEPARTAMENTO> APLICACIONES_DEPARTAMENTO { get; set; }
-        public virtual DbSet<GENTEMAR_ESTADO_TITULO> APLICACIONES_ESTADO_TRAMITE { get; set; }
+        public virtual DbSet<GENTEMAR_ESTADO_TITULO> GENTEMAR_ESTADO_TITULO { get; set; }
         public virtual DbSet<APLICACIONES_GENERO> APLICACIONES_GENERO { get; set; }
         public virtual DbSet<APLICACIONES_MUNICIPIO> APLICACIONES_MUNICIPIO { get; set; }
         public virtual DbSet<APLICACIONES_GRADO> APLICACIONES_GRADO { get; set; }
@@ -118,13 +118,13 @@ namespace GenteMarCore.Entities
 
         public override int SaveChanges()
         {
-            ProcesarAuditoria();
+            //ProcesarAuditoria();
             return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync()
         {
-            ProcesarAuditoria();
+            //ProcesarAuditoria();
             return base.SaveChangesAsync();
         }
 

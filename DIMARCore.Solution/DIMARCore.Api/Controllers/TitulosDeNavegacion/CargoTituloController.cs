@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
-using System.Web.UI;
 
 namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
 {
@@ -47,26 +46,75 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>23/05/2022</Fecha>
         /// </remarks>
-        [ResponseType(typeof(List<CargoTituloDTO>))]
+        [ResponseType(typeof(List<CargoTituloInfoDTO>))]
         [HttpGet]
         [Route("lista-by-seccion/{SeccionId}")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> GetCargoTitulosBySeccionId(int SeccionId)
         {
             var query = await _service.GetCargoTitulosBySeccionId(SeccionId);
-            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloDTO>>(query);
+            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloInfoDTO>>(query);
             return Ok(listado);
+        }
+
+        /// <summary>
+        ///  Se obtiene el listado de cargos por secciones.
+        /// </summary>
+        /// <param name="SeccionesIds"> parametro que contiene los ids de las secciones</param>
+        /// <response code="200">OK. Devuelve la lista de cargos por secciones solicitadas.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>23/05/2022</Fecha>
+        /// </remarks>
+        [ResponseType(typeof(List<CargoTituloDTO>))]
+        [HttpPost]
+        [Route("lista-by-secciones")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetCargoTitulosBySeccionesIds(List<int> SeccionesIds)
+        {
+            var listado = await _service.GetCargoTitulosBySeccionesIds(SeccionesIds);
+            return Ok(listado);
+        }
+
+        /// <summary>
+        /// Listado de cargos de titulos de navegación con sección y clase
+        /// </summary>
+        /// <returns></returns>
+        /// <param name="filter"> parametro que contiene el filtro por: SeccionId y ClaseId</param>
+        /// <summary>
+        ///  Se obtiene el listado de cargos por sección y clase.
+        /// </summary>
+        /// <response code="200">OK. Devuelve la lista de cargos por sección y clase solicitada.</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>23/05/2022</Fecha>
+        /// </remarks>
+        [ResponseType(typeof(List<ListadoCargoTituloDTO>))]
+        [HttpGet]
+        [Route("lista-info-seccion-clase")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ListadoInfoSeccionClase([FromUri] CargoTituloFilter filter)
+        {
+            var data = await _service.GetAllByFilter(filter);
+            return Ok(data);
         }
 
         /// <summary>
         /// Listado de cargos de titulos de navegación
         /// </summary>
         /// <returns></returns>
-        /// <param name="filter"> parametro que contiene el filtro por: SeccionId y ClaseId</param>
         /// <summary>
-        ///  Se obtiene el listado de cargos por sección.
+        ///  Se obtiene el listado de cargos activos.
         /// </summary>
-        /// <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
+        /// <response code="200">OK. Devuelve la lista de cargos activos.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
@@ -77,13 +125,14 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// </remarks>
         [ResponseType(typeof(List<CargoTituloDTO>))]
         [HttpGet]
-        [Route("lista")]
+        [Route("lista-activos")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> Listado([FromUri] CargoTituloFilter filter)
+        public async Task<IHttpActionResult> ListadoActivos()
         {
-            var data = await _service.GetAllByFilter(filter);
+            var data = await _service.GetCargosActivos();
             return Ok(data);
         }
+
 
         /// <summary>
         /// servicio get cargo del titulo por id
@@ -98,14 +147,14 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(ResponseTypeSwagger<CargoTituloDTO>))]
+        [ResponseType(typeof(ResponseTypeSwagger<CargoTituloInfoDTO>))]
         [HttpGet]
         [Route("{id}")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetCargoTitulo(int id)
         {
             var entidad = await _service.GetByIdAsync(id);
-            var obj = Mapear<GENTEMAR_CARGO_TITULO, CargoTituloDTO>((GENTEMAR_CARGO_TITULO)entidad.Data);
+            var obj = Mapear<GENTEMAR_CARGO_TITULO, CargoTituloInfoDTO>((GENTEMAR_CARGO_TITULO)entidad.Data);
             entidad.Data = obj;
             return Ok(entidad);
         }
@@ -136,7 +185,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         }
 
 
-       
+
 
         /// <summary>
         /// Servicio para editar un cargo

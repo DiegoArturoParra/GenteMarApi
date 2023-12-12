@@ -34,12 +34,18 @@ namespace DIMARCore.Business.Logica
         /// <returns></returns>
         public async Task<ImpresionDocumentoDTO> GetPrevistaLicencias(long id)
         {
+            ImpresionDocumentoDTO impresionDocumentoDTO = new ImpresionDocumentoDTO();
+
+            var data = await cargolicenciaBo.GetPlantillaLicencias(id);
+            if (data is null)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado la licencia."));
+            if (data.Radicado == 0)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el radicado del tramite para generar la prevista."));
             try
             {
-                ImpresionDocumentoDTO impresionDocumentoDTO = new ImpresionDocumentoDTO();
 
-                var data = await cargolicenciaBo.GetPlantillaLicencias(id);
-                var sgda = await sgdeaBo.GetPrevistaEstado(Convert.ToDecimal(data.Radicado), Constantes.PREVISTAGENERADA, Constantes.TRAMITE_LICENCIA);
+                var sgda = await sgdeaBo.GetPrevistaEstado(data.Radicado, Constantes.PREVISTAGENERADA, Constantes.TRAMITE_LICENCIA);
+
                 impresionDocumentoDTO.NombrePDF = data.NombreLicencia;
                 impresionDocumentoDTO.Radicado = data.Radicado;
                 impresionDocumentoDTO.Tramite = Constantes.TRAMITE_LICENCIA;
@@ -105,14 +111,25 @@ namespace DIMARCore.Business.Logica
         /// <returns></returns>
         public async Task<ImpresionDocumentoDTO> GetPrevistaTitulo(long id)
         {
+
+            ImpresionDocumentoDTO impresionDocumentoDTO = new ImpresionDocumentoDTO();
+
+            var data = await tituloBo.GetPlantillaTitulos(id);
+            if (data is null)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el título de navegación."));
+            long RadicadoNumerico = 000000000000;
+
+            if (Int64.TryParse(data.Radicado, out long Radicado))
+                RadicadoNumerico = Radicado;
+
+            else
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el radicado del tramite para generar la prevista."));
+
             try
             {
-                ImpresionDocumentoDTO impresionDocumentoDTO = new ImpresionDocumentoDTO();
-
-                var data = await tituloBo.GetPlantillaTitulos(id);
-                var sgda = await sgdeaBo.GetPrevistaEstado(Convert.ToDecimal(data.Radicado), Constantes.PREVISTAGENERADA, Constantes.TRAMITE_TITULOS);
+                var sgda = await sgdeaBo.GetPrevistaEstado(RadicadoNumerico, Constantes.PREVISTAGENERADA, Constantes.TRAMITE_TITULOS);
                 impresionDocumentoDTO.NombrePDF = data.Radicado;
-                impresionDocumentoDTO.Radicado = Convert.ToDecimal(data.Radicado);
+                impresionDocumentoDTO.Radicado = RadicadoNumerico;
                 impresionDocumentoDTO.Tramite = Constantes.TRAMITE_TITULOS;
                 if (sgda != null)
                 {
@@ -145,16 +162,12 @@ namespace DIMARCore.Business.Logica
                 // objeto con la informacion 
                 impresionDocumentoDTO.Impreso = false;
                 impresionDocumentoDTO.PdfBase64 = mergepdf;
-
-
                 return impresionDocumentoDTO;
             }
             catch (Exception ex)
             {
                 throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error al generar la prevista PDF"));
             }
-
-
         }
         /// <summary>
         /// Guarda el archivo generado y aprobado por el usuario en el repositorio del sgda
@@ -162,15 +175,20 @@ namespace DIMARCore.Business.Logica
         /// <param name="impresionDocumento"></param>
         /// <returns></returns>
         /// <exception cref="HttpStatusCodeException"></exception>
-        public async Task SavePrevista(ImpresionDocumentoDTO impresionDocumento)
+        public async Task<Respuesta> SavePrevista(ImpresionDocumentoDTO impresionDocumento)
         {
+
+            var lisPrevista = new List<SGDEA_PREVISTAS>();
+            // obtieneel array de bits del archivo en base64
+            var file = Reutilizables.GenerateBase64toBytes(impresionDocumento.PdfBase64);
+            //Construye la ur del repo de archivos
+            var previstaTramite = await sgdeaBo.GetPrevistaEstado(Convert.ToDecimal(impresionDocumento.Radicado), Constantes.PREVISTATRAMITE, impresionDocumento.Tramite);
+            if (previstaTramite is null)
+            {
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el radicado del tramite para generar la prevista."));
+            }
             try
             {
-                var lisPrevista = new List<SGDEA_PREVISTAS>();
-                // obtieneel array de bits del archivo en base64
-                var file = Reutilizables.GenerateBase64toPdf(impresionDocumento.PdfBase64);
-                //Construye la ur del repo de archivos
-                var previstaTramite = await sgdeaBo.GetPrevistaEstado(Convert.ToDecimal(impresionDocumento.Radicado), Constantes.PREVISTATRAMITE, impresionDocumento.Tramite);
                 var urlFile = $"/{previstaTramite.tipo_tramite}/{impresionDocumento.Radicado}.pdf";
                 // guarda el archivo en el repo de sgda 
                 File.WriteAllBytes($"{ConfigurationManager.AppSettings["UrlSGDA"]}{urlFile}", file);
@@ -184,11 +202,11 @@ namespace DIMARCore.Business.Logica
                 lisPrevista.Add(previstaImpreso);
                 // gurda los registros en la tabla previstas.
                 await sgdeaRepository.CreateSgdaPrevista(lisPrevista);
-
+                return Responses.SetOkResponse(null, "Se ha guardado la prevista correctamente.");
             }
             catch (Exception ex)
             {
-                throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error al guardar el archivo PDF"));
+                throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error al guardar el archivo de la prevista."));
             }
         }
     }

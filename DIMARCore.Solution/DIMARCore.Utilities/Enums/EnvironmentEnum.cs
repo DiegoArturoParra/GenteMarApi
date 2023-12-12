@@ -9,13 +9,15 @@ namespace DIMARCore.Utilities.Enums
         [Description("GenteMarContextTesting")]
         Testing = 1,
         [Description("GenteMarContextProduction")]
-        Production = 2,
+        Production = 2
     }
     public enum EnvironmentDapperEnum
     {
         [Description("GenteMarContextDapper")]
+        Development = 0,
+        [Description("GenteMarContextDapperTesting")]
         Testing = 1,
         [Description("GenteMarContextDapperProduction")]
-        Production = 2,
+        Production = 2
     }
 }

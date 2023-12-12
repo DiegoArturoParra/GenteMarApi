@@ -24,7 +24,6 @@ namespace DIMARCore.Business.Logica
 
         public async Task<IEnumerable<RadicadoInfoDTO>> GetRadicadosInfoPersonaParaEstupefacientes(RadicadoSGDEAFilter filter, CancellationToken cancellationToken)
         {
-
             using (var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 var data = await new SGDEARepository().GetRadicadosInfoPersonaParaEstupefacientes(filter, tokenSource);

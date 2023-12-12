@@ -53,9 +53,16 @@ namespace GenteMarCore.Entities
                         _context.Open();
                     }
                 }
-                else
+                else if ((int)EnvironmentEnum.Testing == environment)
                 {
                     connectionString = ConfigurationManager.ConnectionStrings[EnumConfig.GetDescription(EnvironmentDapperEnum.Testing)].ConnectionString;
+                    var desencryptConnection = SecurityEncrypt.GenerateDecrypt(connectionString);
+                    _context = new OdbcConnection(desencryptConnection);
+                    _context.Open();
+                }
+                else
+                {
+                    connectionString = ConfigurationManager.ConnectionStrings[EnumConfig.GetDescription(EnvironmentDapperEnum.Development)].ConnectionString;
                     _context = new OdbcConnection(connectionString);
                     _context.Open();
                 }

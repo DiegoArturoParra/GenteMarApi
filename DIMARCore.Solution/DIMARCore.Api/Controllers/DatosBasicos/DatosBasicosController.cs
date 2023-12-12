@@ -7,7 +7,6 @@ using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -59,7 +58,7 @@ namespace DIMARCore.Api.Controllers
                     Paginacion = new ParametrosPaginacion()
                 };
             }
-            var queryable = _service.GetDatosBasicosQueryable(filtro);            
+            var queryable = _service.GetDatosBasicosQueryable(filtro);
             var listado = await GetPaginacion(filtro.Paginacion, queryable);
             var paginador = Paginador<ListadoDatosBasicosDTO>.CrearPaginador(queryable.Count(), listado, filtro.Paginacion);
             return Ok(paginador);
@@ -163,7 +162,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM, RolesEnum.Capitania)]
         public async Task<IHttpActionResult> Actualizar()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -291,15 +290,14 @@ namespace DIMARCore.Api.Controllers
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
 
-        [ResponseType(typeof(List<LicenciaDTO>))]
+        [ResponseType(typeof(LicenciasTitulosDTO))]
         [HttpGet]
         [Route("lista-titulo-licencia-documento/{documento}")]
         [AllowAnonymous]
-        public IHttpActionResult GetlicenciaDocumentoUsuario(string documento)
+        public async Task<IHttpActionResult> GetlicenciaDocumentoUsuario(string documento)
         {
-            var licencias = _service.GetlicenciaTituloDocumentoUsuario(documento);
-            //var data = Mapear<IEnumerable<GENTEMAR_ACTIVIDAD>, IEnumerable<LicenciaDTO>>(actividades);
-            return Ok(licencias);
+            var data = await _service.GetlicenciaTituloVigentesPorDocumentoUsuario(documento);
+            return Ok(data);
         }
 
     }

@@ -154,9 +154,9 @@ namespace DIMARCore.Api.Controllers
         [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("lista-por-licencias")]
-        public IHttpActionResult GetSeccionesLicencias()
+        public async Task<IHttpActionResult> GetSeccionesLicenciasAsync()
         {
-            var secciones = new SeccionBO().GetSeccionesLicencias();
+            var secciones = await new SeccionBO().GetSeccionesLicencias();
             return Ok(secciones);
         }
 
@@ -175,9 +175,9 @@ namespace DIMARCore.Api.Controllers
         [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
         [Route("lista-por-licencias-activas")]
-        public IHttpActionResult GetSeccionesLicenciasActivas()
+        public async Task<IHttpActionResult> GetSeccionesLicenciasActivas()
         {
-            var secciones = new SeccionBO().GetSeccionesLicenciasActivas();
+            var secciones = await new SeccionBO().GetSeccionesLicenciasActivas();
             var listado = Mapear<IEnumerable<GENTEMAR_SECCION_LICENCIAS>, IEnumerable<SeccionDTO>>(secciones);
             return Ok(listado);
         }
@@ -191,19 +191,43 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>2022/02/26</Fecha>
         /// <returns></returns>
-        /// <response code="200">OK. Devuelve la información del estado.</response>
+        /// <response code="200">OK. Devuelve la información.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(List<SeccionDTO>))]
         [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         [HttpGet]
-        [Route("lista-secciones-actividad-licencias/{id}")]
+        [Route("lista-actividad-licencia/{id}")]
         public async Task<IHttpActionResult> GetSeccionesActividadId(int id)
         {
             var secciones = await new SeccionBO().GetSeccionesActividad(id);
             return Ok(secciones);
         }
+
+
+        /// <summary>
+        /// Listado de secciones activas por varios ids de actividad
+        /// </summary>
+        /// <returns>Listado de secciones por varios ids de actividad</returns>
+        /// <param name="ids">parametro que trae los ids de activdades</param>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>28/11/2023</Fecha>
+        /// <returns></returns>
+        /// <response code="200">OK. Devuelve la información.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<SeccionDTO>))]
+        [AuthorizeRoles (RolesEnum.AdministradorGDM)]
+        [HttpPost]
+        [Route("lista-por-actividades-licencia")]
+        public async Task<IHttpActionResult> GetSeccionesPorActividades(List<int> ids)
+        {
+            var secciones = await new SeccionBO().GetSeccionesPorActividadesIds(ids);
+            return Ok(secciones);
+        }
+
 
         /// <summary>
         ///  seccion de licencia por id
@@ -249,7 +273,7 @@ namespace DIMARCore.Api.Controllers
         public async Task<IHttpActionResult> CrearSeccionLicencia([FromBody] SeccionDTO seccion)
         {
             var sec = Mapear<SeccionDTO, GENTEMAR_SECCION_LICENCIAS>(seccion);
-            var act = Mapear<IList<ActividadDTO>, IList<GENTEMAR_ACTIVIDAD>>(seccion.Actividad);
+            var act = Mapear<IList<ActividadTipoLicenciaDTO>, IList<GENTEMAR_ACTIVIDAD>>(seccion.Actividad);
             var response = await new SeccionBO().CrearSeccionLicencia(sec, act);
             return ResultadoStatus(response);
         }
@@ -275,7 +299,7 @@ namespace DIMARCore.Api.Controllers
         public async Task<IHttpActionResult> EditarSeccionLicencia([FromBody] SeccionDTO seccion)
         {
             var sec = Mapear<SeccionDTO, GENTEMAR_SECCION_LICENCIAS>(seccion);
-            var act = Mapear<IList<ActividadDTO>, IList<GENTEMAR_ACTIVIDAD>>(seccion.Actividad);
+            var act = Mapear<IList<ActividadTipoLicenciaDTO>, IList<GENTEMAR_ACTIVIDAD>>(seccion.Actividad);
             var response = await new SeccionBO().EditarSeccionLicencia(sec, act);
             return ResultadoStatus(response);
         }

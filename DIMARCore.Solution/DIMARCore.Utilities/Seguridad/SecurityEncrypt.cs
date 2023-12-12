@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Encryption;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -141,12 +142,12 @@ namespace DIMARCore.Utilities.Seguridad
         #region Encriptacion
         public static string GenerateEncrypt(string plainText)
         {
-            return Encryption.EncryptDecrypt.Encrypt(plainText);
+            return EncryptDecrypt.Encrypt(plainText);
         }
 
         public static string GenerateDecrypt(string plainText)
         {
-            return Encryption.EncryptDecrypt.Decrypt(plainText);
+            return EncryptDecrypt.Decrypt(plainText);
         }
         #endregion
     }

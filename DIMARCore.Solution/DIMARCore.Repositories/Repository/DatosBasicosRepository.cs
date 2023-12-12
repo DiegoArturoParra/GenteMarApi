@@ -65,7 +65,7 @@ namespace DIMARCore.Repositories.Repository
                              Telefono = datosBasicos.telefono,
                              TipoDocumento = tipoDocumento.DESCRIPCION,
                              FechaRegistro = datosBasicos.fecha_hora_creacion,
-                         }).AsQueryable().Where(predicate);
+                         }).Where(predicate).AsNoTracking();
             return query;
         }
 
@@ -316,8 +316,9 @@ namespace DIMARCore.Repositories.Repository
         /// </summary>
         /// <returns>Lista de Actividades</returns>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public LicenciasTitulosDTO GetlicenciaTituloDocumentoUsuario(string documento)
+        public async Task<LicenciasTitulosDTO> GetlicenciaTituloVigentesPorDocumentoUsuario(string documento)
         {
+            var fechaActual = DateTime.Now;
 
             var licenciaData = (from licencia in _context.GENTEMAR_LICENCIAS
                                 join cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA on
@@ -326,7 +327,7 @@ namespace DIMARCore.Repositories.Repository
                                 licencia.id_estado_licencia equals estadoLicencia.id_estado_licencias
                                 join usuario in _context.GENTEMAR_DATOSBASICOS on
                                 licencia.id_gentemar equals usuario.id_gentemar
-                                where usuario.documento_identificacion == documento && licencia.fecha_vencimiento >= DateTime.Now
+                                where usuario.documento_identificacion.Equals(documento) && licencia.fecha_vencimiento >= fechaActual
                                 select new LicenciaListarDTO
                                 {
                                     CargoLicencia = cargoLicencia.cargo_licencia,
@@ -334,36 +335,43 @@ namespace DIMARCore.Repositories.Repository
                                     EstadoTramite = estadoLicencia.descripcion_estado,
                                     FechaExpedicion = licencia.fecha_expedicion,
                                     FechaVencimiento = licencia.fecha_vencimiento,
-                                    Id = licencia.id_licencia,
                                     NombreUsuario = usuario.nombres + " " + usuario.apellidos,
-
-                                }).ToList();
+                                    Radicado = licencia.radicado != 0 ? licencia.radicado.ToString() : "No contiene radicado."
+                                }).ToListAsync();
 
 
             var DataTitulo = (from titulo in _context.GENTEMAR_TITULOS
                               join usuario in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals usuario.id_gentemar
-                              join tituloReglaCargo in _context.GENTEMAR_TITULO_REGLA_CARGOS on titulo.id_titulo equals tituloReglaCargo.id_titulo
-                              join cargoRegla in _context.GENTEMAR_REGLAS_CARGO on tituloReglaCargo.id_cargo_regla equals cargoRegla.id_cargo_regla
-                              join reglas in _context.GENTEMAR_REGLAS on cargoRegla.id_regla equals reglas.id_regla
-                              join cargoTitulo in _context.GENTEMAR_CARGO_TITULO on cargoRegla.id_cargo_titulo equals cargoTitulo.id_cargo_titulo
-                              join tramite in _context.APLICACIONES_ESTADO_TRAMITE on titulo.id_estado_tramite equals tramite.id_estado_tramite
-                              where usuario.documento_identificacion == documento && titulo.fecha_vencimiento >= DateTime.Now
-                              select new ListadoTituloDTO
+                              join tramite in _context.GENTEMAR_ESTADO_TITULO on titulo.id_estado_tramite equals tramite.id_estado_tramite
+                              where usuario.documento_identificacion.Equals(documento) && titulo.fecha_vencimiento >= fechaActual
+                              select new TituloListarDTO
                               {
                                   FechaExpedicion = titulo.fecha_expedicion,
                                   NombreUsuario = usuario.nombres + " " + usuario.apellidos,
                                   DocumentoIdentificacion = usuario.documento_identificacion,
                                   EstadoTramite = tramite.descripcion_tramite,
                                   FechaVencimiento = titulo.fecha_vencimiento,
-                                  Id = titulo.id_titulo,
-                              }).ToList();
+                                  Radicado = titulo.radicado,
+                                  Cargos = (from cargoTitulo in _context.GENTEMAR_TITULO_REGLA_CARGOS
+                                            join reglaCargo in _context.GENTEMAR_REGLAS_CARGO on cargoTitulo.id_cargo_regla equals reglaCargo.id_cargo_regla
+                                            join cargo in _context.GENTEMAR_CARGO_TITULO on reglaCargo.id_cargo_titulo equals cargo.id_cargo_titulo
+                                            join nivel in _context.GENTEMAR_NIVEL on reglaCargo.id_nivel equals nivel.id_nivel
+                                            join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla equals regla.id_regla
+                                            where cargoTitulo.id_titulo == titulo.id_titulo
+
+                                            select new InfoCargosDTO
+                                            {
+                                                CargoTitulo = cargo.cargo,
+                                                Nivel = nivel.nivel,
+                                                Regla = regla.nombre_regla
+                                            }).ToList()
+                              }).ToListAsync();
 
 
             var data = new LicenciasTitulosDTO()
             {
-                Licencias = licenciaData,
-                Titulos = DataTitulo
-
+                Licencias = await licenciaData,
+                Titulos = await DataTitulo
             };
 
             return data;
@@ -371,7 +379,7 @@ namespace DIMARCore.Repositories.Repository
 
         }
 
-        public async Task CambiarEstadoTitulosLicenciasByEstadoPersona(IList<GENTEMAR_LICENCIAS> licencias, IList<GENTEMAR_TITULOS> titulos)
+        public async Task CambiarEstadoTitulosLicenciasByEstadoPersona(IEnumerable<GENTEMAR_LICENCIAS> licencias, IEnumerable<GENTEMAR_TITULOS> titulos)
         {
             if (licencias.Any())
             {

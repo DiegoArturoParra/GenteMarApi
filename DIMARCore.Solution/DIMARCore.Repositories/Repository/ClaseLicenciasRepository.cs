@@ -53,7 +53,7 @@ namespace DIMARCore.Repositories.Repository
         /// Lista de clase dependiendo el id de la seccion 
         /// </summary>
         /// <returns>Lista de las clases</returns>
-        public async Task<IEnumerable<ClaseDTO>> GetClaseSeccion(int id)
+        public async Task<IEnumerable<ClaseDTO>> GetClasesPorSeccionId(int id)
         {
             return await (from seccionClase in _context.GENTEMAR_SECCION_CLASE
                           join clase in _context.GENTEMAR_CLASE_LICENCIAS on
@@ -67,6 +67,23 @@ namespace DIMARCore.Repositories.Repository
                               Sigla = clase.sigla,
                           }).ToListAsync();
         }
+
+        public async Task<IEnumerable<ClaseDTO>> GetClasesPorSeccionesIds(List<int> ids)
+        {
+            return await (from seccionClase in _context.GENTEMAR_SECCION_CLASE
+                          join clase in _context.GENTEMAR_CLASE_LICENCIAS on
+                          seccionClase.id_clase equals clase.id_clase
+                          where ids.Contains(seccionClase.id_seccion) && clase.activo == true
+                          group new { seccionClase, clase } by new { clase.id_clase, clase.descripcion_clase, clase.activo, clase.sigla } into g
+                          select new ClaseDTO
+                          {
+                              Id = g.Key.id_clase,
+                              Descripcion = g.Key.descripcion_clase,
+                              IsActive = g.Key.activo,
+                              Sigla = g.Key.sigla,
+                          }).ToListAsync();
+        }
+
 
         /// <summary>
         /// Metodo para crear los cargo licencia con limitaciones.
@@ -142,6 +159,8 @@ namespace DIMARCore.Repositories.Repository
             }
             await SaveAllAsync();
         }
+
+
     }
 
 }

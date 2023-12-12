@@ -1,4 +1,6 @@
-﻿namespace DIMARCore.UIEntities.QueryFilters
+﻿using DIMARCore.Utilities.Helpers;
+
+namespace DIMARCore.UIEntities.QueryFilters
 {
     public class DetalleReglaFilter
     {

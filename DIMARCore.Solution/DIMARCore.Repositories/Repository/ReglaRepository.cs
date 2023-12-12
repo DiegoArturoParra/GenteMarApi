@@ -14,14 +14,13 @@ namespace DIMARCore.Repositories.Repository
             return await AnyWithCondition(x => x.id_regla == reglaId);
         }
 
-        public async Task<IEnumerable<ReglaDTO>> GetReglasByCargoTitulo(int cargoId)
+        public async Task<IEnumerable<ReglaDTO>> GetReglasActivasByCargoTitulo(int cargoId)
         {
 
             var query = await (from reglaCargo in _context.GENTEMAR_REGLAS_CARGO
                                join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla
                                equals regla.id_regla
-
-                               where reglaCargo.id_cargo_titulo == cargoId
+                               where reglaCargo.id_cargo_titulo == cargoId && regla.activo == true
                                group regla by new { regla.id_regla, regla.nombre_regla } into objeto
                                select new ReglaDTO
                                {

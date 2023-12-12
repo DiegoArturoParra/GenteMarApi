@@ -1,6 +1,4 @@
-﻿using System.CodeDom;
-
-namespace DIMARCore.Utilities.Helpers
+﻿namespace DIMARCore.Utilities.Helpers
 {
     public class Constantes
     {
@@ -34,6 +32,7 @@ namespace DIMARCore.Utilities.Helpers
         public const string ESTADOTRAMITESGDA = "Tramite";
         public const string NAME_KEY_ENCRYPTION = "NameHash";
         public const string EXTENSION_EXCEL = ".xlsx";
+        public const string EXTENSION_CSV = ".csv";
         public const string PATH_PLANTILLA_LICENCIA_NAVEGACION = "Templates/Licencias/PLANTILLALICENCIADENAVEGACION.html";
         public const string PLANTILLALICENCIAPERITO = "Templates/Licencias/PLANTILLALICENCIAPERITO.html";
         public const string PLANTILLALICENCIAPILOTO = "Templates/Licencias/PLANTILLALICENCIAPILOTO.html";

@@ -1,6 +1,8 @@
 ﻿using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
@@ -11,7 +13,7 @@ namespace DIMARCore.Utilities.Seguridad
     {
         private static string GENERIC_DIRECTORY = @"LDAP://RootDSE";
         private static string DOMAIN_PATH_DIMAR = "dimar.mil.co";
-
+        private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static string GetCurrentDomainGenericPath()
         {
             DirectoryEntry directorio = new DirectoryEntry(GENERIC_DIRECTORY);
@@ -126,13 +128,14 @@ namespace DIMARCore.Utilities.Seguridad
                     }
                 }
             }
-            catch (DirectoryServicesCOMException)
+            catch (DirectoryServicesCOMException ex)
             {
-                return Responses.SetUnathorizedResponse("La combinación usuario/contraseña es incorrecta.");
+                _logger.Warn($"Error autenticación con el directorio activo. {ex.Message}");
+                throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("La combinación usuario/contraseña es incorrecta."));
             }
             catch (Exception ex)
             {
-                return Responses.SetInternalServerErrorResponse(ex, "Error autenticación con el directorio activo.");
+                throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex, "Error autenticación con el directorio activo."));
             }
         }
 

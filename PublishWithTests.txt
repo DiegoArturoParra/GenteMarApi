@@ -1,0 +1,20 @@
+@echo off
+
+REM Obtener la fecha actual en el formato YYYYMMDD_HHMMSS
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime ^| find "."') do set datetime=%%I
+set datetime=%datetime:~0,8%_%datetime:~8,6%
+
+set TestResultFile=.\GenteMarCore\GenteMarCore.Tests\TestResults.trx
+set PublishFolder=.\PublishFolder\Publish_%datetime%
+
+echo Running tests...
+MSTest.exe /testcontainer:.\GenteMarCore\GenteMarCore.Tests\GenteMarCore.Tests.dll /resultsfile:%TestResultFile%
+
+findstr /C:"<UnitTestResult Outcome=\"Failed\"" %TestResultFile%
+if %errorlevel% neq 0 (
+    echo Tests failed. Aborting publish.
+    exit /b 1
+)
+
+echo Tests passed. Proceeding with publish...
+msbuild .\DIMARCore.Api\DIMARCore.Api.csproj /p:Configuration=Release /p:Platform=x86 /p:OutputPath=%PublishFolder%

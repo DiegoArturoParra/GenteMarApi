@@ -38,7 +38,7 @@ namespace DIMARCore.Repositories.Repository
                         _context.Entry(item).State = EntityState.Modified;
                     }
 
-                    for (int i = 0; i < expedientes.Count; i++)
+                    for (int i = 0; i < expedientes.Count(); i++)
                     {
                         _context.Entry(expedientes[i]).State = EntityState.Modified;
                         if ((i + 1) % numeroDeLotes == 0 || i == expedientes.Count - 1)

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DIMARCore.Utilities.Config
+﻿namespace DIMARCore.Utilities.Config
 {
     public class ExcelEstupefacienteConfig
     {

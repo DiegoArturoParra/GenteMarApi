@@ -1,5 +1,4 @@
-﻿using DIMARCore.Utilities.Helpers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace DIMARCore.UIEntities.QueryFilters
@@ -18,5 +17,5 @@ namespace DIMARCore.UIEntities.QueryFilters
         public string Identificacion { get; set; }
     }
 
-  
+
 }

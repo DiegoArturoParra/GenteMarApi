@@ -27,18 +27,19 @@ namespace DIMARCore.Repositories.Repository
                          join consolidado in _context.GENTEMAR_CONSOLIDADO on expedienteAntecedentes.id_consolidado
                          equals consolidado.id_consolidado into cGroup
                          from consolidadoDefault in cGroup.DefaultIfEmpty()
+                         where tramite.activo == true && estado.activo == true
                          group new { antecedente, usuario, tramite, estado, capitaniaFirma, expedienteAntecedentes, consolidadoDefault }
                          by antecedente.id_antecedente into grupo
                          select new
                          {
                              grupo.Key,
-                             usuario = grupo.FirstOrDefault().usuario,
-                             antecedente = grupo.FirstOrDefault().antecedente,
-                             tramite = grupo.FirstOrDefault().tramite,
-                             estado = grupo.FirstOrDefault().estado,
-                             capitaniaFirma = grupo.FirstOrDefault().capitaniaFirma,
-                             expedienteAntecedentes = grupo.FirstOrDefault().expedienteAntecedentes,
-                             consolidadoDefault = grupo.FirstOrDefault().consolidadoDefault
+                             grupo.FirstOrDefault().usuario,
+                             grupo.FirstOrDefault().antecedente,
+                             grupo.FirstOrDefault().tramite,
+                             grupo.FirstOrDefault().estado,
+                             grupo.FirstOrDefault().capitaniaFirma,
+                             grupo.FirstOrDefault().expedienteAntecedentes,
+                             grupo.FirstOrDefault().consolidadoDefault
                          });
 
 
@@ -50,19 +51,29 @@ namespace DIMARCore.Repositories.Repository
             if (filtro.FechaInicial.HasValue && filtro.FechaFinal.HasValue)
             {
                 var (DateInitial, DateEnd) = Reutilizables.FormatDatesByRange(filtro.FechaInicial.Value, filtro.FechaFinal.Value);
+                query = query.Where(x => x.antecedente.fecha_solicitud_sede_central >= DateInitial && x.antecedente.fecha_solicitud_sede_central <= DateEnd);
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(filtro.Identificacion) && string.IsNullOrWhiteSpace(filtro.Radicado))
+                {
+                    var fechaActual = DateTime.Now;
+                    var (DateInitial, DateEnd) = Reutilizables.FormatDatesByRange(fechaActual, fechaActual);
+                    query = query.Where(x => x.antecedente.fecha_solicitud_sede_central >= DateInitial && x.antecedente.fecha_solicitud_sede_central <= DateEnd);
+                }
 
-                filtro.FechaInicial = DateInitial;
-                filtro.FechaFinal = DateEnd;
+            }
 
-                query = query.Where(x => x.antecedente.fecha_solicitud_sede_central >= filtro.FechaInicial
-                && x.antecedente.fecha_solicitud_sede_central <= filtro.FechaFinal);
+            if (filtro.TipoDocumentoId > 0)
+            {
+                query = query.Where(x => x.usuario.id_tipo_documento == filtro.TipoDocumentoId);
             }
 
             if (filtro.EstadoId > 0)
             {
                 query = query.Where(x => x.antecedente.id_estado_antecedente == filtro.EstadoId);
             }
-            else
+            else if (string.IsNullOrWhiteSpace(filtro.Identificacion) && string.IsNullOrWhiteSpace(filtro.Radicado))
             {
                 List<int> containsEstado = new List<int> { (int)EstadoEstupefacienteEnum.ParaEnviar, (int)EstadoEstupefacienteEnum.Consulta };
                 query = query.Where(x => containsEstado.Contains(x.antecedente.id_estado_antecedente));
@@ -132,7 +143,7 @@ namespace DIMARCore.Repositories.Repository
             return await (from titulo in _context.GENTEMAR_TITULOS
                           join usuario in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals usuario.id_gentemar
                           where usuario.documento_identificacion.Equals(identificacion) && !list.Contains(titulo.radicado)
-                          select titulo.radicado).ToListAsync();
+                          select titulo.radicado).AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<decimal>> GetRadicadosLicenciasByDocumento(string identificacion)

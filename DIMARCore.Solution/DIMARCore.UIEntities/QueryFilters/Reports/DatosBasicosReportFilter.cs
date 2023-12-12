@@ -11,7 +11,7 @@ namespace DIMARCore.UIEntities.QueryFilters.Reports
         public List<int> EstadosId { get; set; } = new List<int>();
         public int? GeneroId { get; set; }
         public int? FormacionId { get; set; }
-        public int? GradoId { get; set; }
+        public List<int> GradosId { get; set; } = new List<int>();
         public DateTime? FechaCreacionInicial { get; set; }
         public DateTime? FechaCreacionFinal { get; set; }
     }

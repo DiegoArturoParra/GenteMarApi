@@ -1,4 +1,5 @@
 ﻿
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -82,15 +83,14 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(ImpresionDocumentoDTO))]
+        [ResponseType(typeof(ResponseTypeSwagger<Respuesta>))]
         [HttpPost]
         [Route("GuardarPrevista")]
         public async Task<IHttpActionResult> SavePrevistas(ImpresionDocumentoDTO impresionDocumento)
         {
-            await _service.SavePrevista(impresionDocumento);
-            return Ok();
+            var response = await _service.SavePrevista(impresionDocumento);
+            return Ok(response);
         }
-
         #endregion
 
     }

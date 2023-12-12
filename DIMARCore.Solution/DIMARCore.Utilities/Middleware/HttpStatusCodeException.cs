@@ -42,7 +42,7 @@ namespace DIMARCore.Utilities.Middleware
             this.StatusCode = response.StatusCode;
             this.MessageException = response.MensajeExcepcion;
             this.MessageEnglish = response.MensajeIngles;
-            this.StackTraced = JsonConvert.SerializeObject(response.Data);
+            this.StackTraced = response.Data is null ? null : JsonConvert.SerializeObject(response.Data);
         }
 
         /// <summary>

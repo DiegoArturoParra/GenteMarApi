@@ -1,12 +1,14 @@
 ﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,8 +17,6 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
-using DIMARCore.Api.Core.Models;
-using System.Threading;
 
 namespace DIMARCore.Api.Controllers.Estupefacientes
 {
@@ -61,15 +61,20 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
                     Paginacion = new ParametrosPaginacion()
                 };
             }
+            else if (filtro.Paginacion == null)
+            {
+                filtro.Paginacion = new ParametrosPaginacion();
+            }
 
             var queryable = _serviceEstupefacientes.GetEstupefacientesByFiltro(filtro);
             if (!queryable.Any())
             {
+                var fechaActual = DateTime.Now;
                 if (filtro.EstadoId == 0)
                     return ResultadoStatus(Responses.SetOkResponse(null,
                     $"No hay estupefacientes en estado" +
                     $" {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)}" +
-                    $" y {EnumConfig.GetDescription(EstadoEstupefacienteEnum.Consulta)}"));
+                    $" y {EnumConfig.GetDescription(EstadoEstupefacienteEnum.Consulta)} de la fecha: {fechaActual:dd-MM-yyyy}"));
 
                 return Content(HttpStatusCode.OK, Responses.SetOkResponse(null, "No se encontraron resultados."));
             }

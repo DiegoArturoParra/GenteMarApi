@@ -56,87 +56,6 @@ namespace DIMARCore.Business.Logica
             }
 
         }
-
-        private async Task<DateTime?> ValidacionesDeNegocio(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicos, bool isEdit)
-        {
-            DateTime? dateRadicado = null;
-
-            if (!isEdit && datosBasicos.IsExist)
-                await GetDatosGenteMarEstupefacienteValidations(datosBasicos.identificacion);
-
-            if (!isEdit)
-            {
-                var existeRadicado = await new EstupefacienteRepository().AnyWithCondition(x => x.numero_sgdea.Equals(entidad.numero_sgdea));
-                if (existeRadicado)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el radicado {entidad.numero_sgdea}"));
-
-                if (entidad.id_tipo_tramite == (int)TipoTramiteEstupefacienteEnum.GENTES)
-                {
-                    var existeRadicadoSGDEA = await new SGDEARepository().FechaRadicado(entidad.numero_sgdea);
-                    if (!existeRadicadoSGDEA.Radicado.HasValue)
-                        throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El radicado {entidad.numero_sgdea} no está registrado en el SGDEA."));
-
-                    dateRadicado = existeRadicadoSGDEA.Fecha;
-                }
-            }
-            bool existeTramite = await new TramiteEstupefacienteRepository().AnyWithCondition(x => x.id_tipo_tramite == entidad.id_tipo_tramite);
-            if (!existeTramite)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El tramite no existe."));
-
-            bool existeEstado = await new EstadoEstupefacienteRepository().AnyWithCondition(x => x.id_estado_antecedente == entidad.id_estado_antecedente);
-            if (!existeEstado)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado del estupefaciente no existe."));
-
-            return dateRadicado;
-
-        }
-
-        public async Task<Respuesta> EditBulk(EditBulkEstupefacientesDTO estupefacientesBulk)
-        {
-            using (var repository = new EstupefacienteRepository())
-            {
-                var existeEstado = await new EstadoEstupefacienteRepository()
-                    .AnyWithCondition(x => x.id_estado_antecedente == estupefacientesBulk.EstadoAntecedenteId);
-
-                if (!existeEstado)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el estado."));
-
-                var data = await repository.GetAllWithConditionAsync(x => estupefacientesBulk.EstupefacientesId.Select(id => id).Contains(x.id_antecedente));
-                if (data.Count != estupefacientesBulk.EstupefacientesId.Count)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontraron todos los registros a actualizar."));
-                try
-                {
-                    var newData = data.Select(entidad =>
-                    {
-                        // Realizar los cambios necesarios en cada objeto de la lista
-                        // por ejemplo, modificar una propiedad
-                        entidad.id_estado_antecedente = estupefacientesBulk.EstadoAntecedenteId;
-                        entidad.fecha_aprobacion = estupefacientesBulk.FechaAprobacion;
-                        entidad.fecha_vigencia = estupefacientesBulk.FechaVigencia;
-                        return entidad;
-                    }).ToList();
-                    await repository.EditBulk(newData, _numeroDeLotes);
-
-                    return Responses.SetUpdatedResponse();
-                }
-                catch (Exception ex)
-                {
-                    var response = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(response);
-                    return response;
-                }
-            }
-
-        }
-
-        public async Task ChangeNarcoticStateIfAllVerifications(long idAntecedente)
-        {
-            using (var estupefacienteRepository = new EstupefacienteRepository())
-            {
-                await estupefacienteRepository.ChangeNarcoticStateIfAllVerifications(idAntecedente);
-            }
-        }
-
         public async Task<Respuesta> EditarAsync(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicos, string pathActual)
         {
             datosBasicos.id_gentemar_antecedente = entidad.id_gentemar_antecedente;
@@ -166,7 +85,16 @@ namespace DIMARCore.Business.Logica
                     estupefacienteActual.id_tipo_tramite = entidad.id_tipo_tramite;
                     estupefacienteActual.id_estado_antecedente = entidad.id_estado_antecedente;
                     estupefacienteActual.Observacion = entidad.Observacion;
+                    estupefacienteActual.fecha_sgdea = entidad.fecha_sgdea;
+                    estupefacienteActual.numero_sgdea = entidad.numero_sgdea;
                     estupefacienteActual.fecha_solicitud_sede_central = entidad.fecha_solicitud_sede_central;
+
+                    estupefacienteDatosBasicosActual.identificacion = datosBasicos.identificacion;
+                    estupefacienteDatosBasicosActual.fecha_nacimiento = datosBasicos.fecha_nacimiento;
+                    estupefacienteDatosBasicosActual.apellidos = datosBasicos.apellidos;
+                    estupefacienteDatosBasicosActual.nombres = datosBasicos.nombres;
+                    estupefacienteDatosBasicosActual.id_tipo_documento = datosBasicos.id_tipo_documento;
+
                     if (entidad.Observacion.Archivo != null)
                     {
                         string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_OBSERVACIONES}";
@@ -214,6 +142,95 @@ namespace DIMARCore.Business.Logica
             }
             return respuesta;
         }
+        private async Task<DateTime?> ValidacionesDeNegocio(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicos, bool isEdit)
+        {
+            DateTime? dateRadicado = null;
+
+            if (!isEdit && datosBasicos.IsExist)
+                await GetDatosGenteMarEstupefacienteValidations(datosBasicos.identificacion);
+
+            if (!isEdit)
+            {
+                var existeRadicado = await new EstupefacienteRepository().AnyWithCondition(x => x.numero_sgdea.Equals(entidad.numero_sgdea));
+                if (existeRadicado)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el radicado {entidad.numero_sgdea}"));
+            }
+            else
+            {
+                var existeRadicado = await new EstupefacienteRepository().AnyWithCondition(x => x.numero_sgdea.Equals(entidad.numero_sgdea)
+                && x.id_antecedente != entidad.id_antecedente);
+                if (existeRadicado)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el radicado {entidad.numero_sgdea}"));
+            }
+
+            if (entidad.id_tipo_tramite == (int)TipoTramiteEstupefacienteEnum.GENTES)
+            {
+                var existeRadicadoSGDEA = await new SGDEARepository().FechaRadicado(entidad.numero_sgdea);
+                if (!existeRadicadoSGDEA.Radicado.HasValue)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El radicado {entidad.numero_sgdea} no está registrado en el SGDEA."));
+
+                dateRadicado = existeRadicadoSGDEA.Fecha;
+            }
+
+            bool existeTramite = await new TramiteEstupefacienteRepository().AnyWithCondition(x => x.id_tipo_tramite == entidad.id_tipo_tramite);
+            if (!existeTramite)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El tramite no existe."));
+
+            bool existeEstado = await new EstadoEstupefacienteRepository().AnyWithCondition(x => x.id_estado_antecedente == entidad.id_estado_antecedente);
+            if (!existeEstado)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado del estupefaciente no existe."));
+
+            return dateRadicado;
+
+        }
+
+        public async Task<Respuesta> EditBulk(EditBulkEstupefacientesDTO estupefacientesBulk)
+        {
+            using (var repository = new EstupefacienteRepository())
+            {
+                var existeEstado = await new EstadoEstupefacienteRepository()
+                    .AnyWithCondition(x => x.id_estado_antecedente == estupefacientesBulk.EstadoAntecedenteId);
+
+                if (!existeEstado)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el estado."));
+
+                var data = await repository.GetAllWithConditionAsync(x => estupefacientesBulk.EstupefacientesId.Select(id => id).Contains(x.id_antecedente));
+                if (data.Count() != estupefacientesBulk.EstupefacientesId.Count)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontraron todos los registros a actualizar."));
+                try
+                {
+                    var newData = data.Select(entidad =>
+                    {
+                        // Realizar los cambios necesarios en cada objeto de la lista
+                        // por ejemplo, modificar una propiedad
+                        entidad.id_estado_antecedente = estupefacientesBulk.EstadoAntecedenteId;
+                        entidad.fecha_aprobacion = estupefacientesBulk.FechaAprobacion;
+                        entidad.fecha_vigencia = estupefacientesBulk.FechaVigencia;
+                        return entidad;
+                    }).ToList();
+                    await repository.EditBulk(newData, _numeroDeLotes);
+
+                    return Responses.SetUpdatedResponse();
+                }
+                catch (Exception ex)
+                {
+                    var response = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLogger().InsertLogToDatabase(response);
+                    return response;
+                }
+            }
+
+        }
+
+        public async Task ChangeNarcoticStateIfAllVerifications(long idAntecedente)
+        {
+            using (var estupefacienteRepository = new EstupefacienteRepository())
+            {
+                await estupefacienteRepository.ChangeNarcoticStateIfAllVerifications(idAntecedente);
+            }
+        }
+
+
 
         public async Task<IEnumerable<decimal>> GetRadicadosLicenciasByDocumento(string identificacion)
         {
@@ -234,7 +251,7 @@ namespace DIMARCore.Business.Logica
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encontró la persona registrada en VCITE."));
 
                 else if (IsExistInGenteDeMar && data is null)
-                {                   
+                {
                     var response = Responses.SetNotFoundResponse($"No se encontró la persona registrada en VCITE.");
                     _ = new DbLogger().InsertLogToDatabase(response);
                     return response;

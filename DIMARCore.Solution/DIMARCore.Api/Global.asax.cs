@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using DIMARCore.Api.Core.Atributos;
+using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;

@@ -49,9 +49,9 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpGet]
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista-by-regla-cargo")]
-        public async Task<IHttpActionResult> CapacidadByReglaCargo([FromUri] IdsLlaveCompuestaDTO items)
+        public async Task<IHttpActionResult> CapacidadesActivasByReglaCargo([FromUri] IdsLlaveCompuestaDTO items)
         {
-            var query = await _serviceCapacidad.CapacidadByReglaCargo(items);
+            var query = await _serviceCapacidad.CapacidadesActivasByReglaCargo(items);
             var listado = Mapear<IEnumerable<GENTEMAR_REGLAS_CARGO>, IEnumerable<CapacidadDTO>>(query);
             return Ok(listado);
         }

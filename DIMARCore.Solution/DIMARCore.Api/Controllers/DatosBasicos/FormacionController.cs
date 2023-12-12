@@ -43,9 +43,9 @@ namespace DIMARCore.Api.Controllers
         [HttpGet]
         [Route("{estado}")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetFormacion(bool estado)
+        public async Task<IHttpActionResult> GetFormaciones(bool estado)
         {
-            var formacion = _service.GetFormacion(estado);
+            var formacion = await _service.GetFormaciones(estado);
             return Ok(formacion);
         }
 
@@ -64,9 +64,9 @@ namespace DIMARCore.Api.Controllers
         [HttpGet]
         [Route("lista")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetTableFormacion()
+        public async Task<IHttpActionResult> GetTableFormacion()
         {
-            var formacion = _service.GetTableFormacion();
+            var formacion = await _service.GetTableFormacion();
             return Ok(formacion);
         }
 
@@ -85,10 +85,9 @@ namespace DIMARCore.Api.Controllers
         [HttpGet]
         [Route("listaActivo")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetTableFormacionActivo()
+        public async Task<IHttpActionResult> GetTableFormacionActivo()
         {
-            var formacion = _service.GetTableFormacionActivo();
-            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<FormacionDTO>>(formacion);
+            var formacion = await _service.GetTableFormacionActivo();
             return Ok(formacion);
         }
         /// <summary>
@@ -113,7 +112,7 @@ namespace DIMARCore.Api.Controllers
         {
             var data = Mapear<FormacionDTO, GENTEMAR_FORMACION>(fomacion);
             var respuesta = await _service.CrearFormacion(data);
-            return ResultadoStatus(respuesta);
+            return Created(string.Empty, respuesta);
         }
         /// <summary>
         /// Servicio para editar una formación 
@@ -136,8 +135,8 @@ namespace DIMARCore.Api.Controllers
         public async Task<IHttpActionResult> actualizarFormacion(FormacionDTO formacion)
         {
             var data = Mapear<FormacionDTO, GENTEMAR_FORMACION>(formacion);
-            var respuesta = await _service.actualizarFormacion(data);
-            return ResultadoStatus(respuesta);
+            var respuesta = await _service.ActualizarFormacion(data);
+            return Ok(respuesta);
         }
         /// <summary>
         /// Servicio para Inactivar una formación 
@@ -155,11 +154,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles( RolesEnum.AdministradorGDM)]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarFormacion(int id)
         {
-            var respuesta = await _service.cambiarFormacion(id);
-            return ResultadoStatus(respuesta);
+            var respuesta = await _service.CambiarFormacion(id);
+            return Ok(respuesta);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace DIMARCore.Utilities.Core.ValidAttributes
 
         public ValidSizeFileAttribute()
         {
-            MaxFileSizeMB = 5; // Valor predeterminado de 5 MB
+            MaxFileSizeMB = 5;
             ErrorMessage = $"El tamaño del archivo supera el límite permitido de {MaxFileSizeMB} MB.";
         }
 
@@ -23,6 +23,7 @@ namespace DIMARCore.Utilities.Core.ValidAttributes
 
             if (file.ContentLength > MaxFileSizeBytes)
             {
+                ErrorMessage = $"El tamaño del archivo supera el límite permitido de {MaxFileSizeMB} MB.";
                 return false;
             }
             return true;

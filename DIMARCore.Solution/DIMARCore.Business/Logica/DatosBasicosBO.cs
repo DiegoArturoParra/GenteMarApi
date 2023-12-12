@@ -194,8 +194,8 @@ namespace DIMARCore.Business.Logica
         private async Task<(string estado, bool isSendEmail, string mensaje)> CambiarEstadoTitulosLicenciasByEstadoPersona(DatosBasicosRepository repo,
             int estadoGenteDeMarAcualId, int estadoGenteDeMarId, long gentemarId)
         {
-            IList<GENTEMAR_LICENCIAS> licencias = new List<GENTEMAR_LICENCIAS>();
-            IList<GENTEMAR_TITULOS> titulos = new List<GENTEMAR_TITULOS>();
+            IEnumerable<GENTEMAR_LICENCIAS> licencias = new List<GENTEMAR_LICENCIAS>();
+            IEnumerable<GENTEMAR_TITULOS> titulos = new List<GENTEMAR_TITULOS>();
             string estadoTituloLicencia = string.Empty;
             if (estadoGenteDeMarId == (int)EstadoGenteMarEnum.FALLECIDO || estadoGenteDeMarId == (int)EstadoGenteMarEnum.INACTIVO)
             {
@@ -245,7 +245,7 @@ namespace DIMARCore.Business.Logica
             return (estadoTituloLicencia, false, string.Empty);
         }
 
-        private static void GetLicenciasTitulosPorEstado(ref IList<GENTEMAR_LICENCIAS> licencias, ref IList<GENTEMAR_TITULOS> titulos,
+        private static void GetLicenciasTitulosPorEstado(ref IEnumerable<GENTEMAR_LICENCIAS> licencias, ref IEnumerable<GENTEMAR_TITULOS> titulos,
             EstadosTituloLicenciaEnum estado)
         {
             licencias = licencias.Select(entidad =>
@@ -314,9 +314,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Objeto licencia dado el id de usaurio</returns>
         /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public LicenciasTitulosDTO GetlicenciaTituloDocumentoUsuario(string documento)
+        public async Task<LicenciasTitulosDTO> GetlicenciaTituloVigentesPorDocumentoUsuario(string documento)
         {
-            return new DatosBasicosRepository().GetlicenciaTituloDocumentoUsuario(documento);
+            var documentoPuntos = Reutilizables.ConvertirStringApuntosDeMil(documento);
+            return await new DatosBasicosRepository().GetlicenciaTituloVigentesPorDocumentoUsuario(documentoPuntos);
         }
 
 

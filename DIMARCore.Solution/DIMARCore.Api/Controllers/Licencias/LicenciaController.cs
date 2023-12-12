@@ -46,16 +46,16 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(List<LicenciaDTO>))]
         [HttpGet]
         [Route("lista-id/{id}")]
-        public IHttpActionResult GetlicenciaIdUsuario(int id)
+        public async Task<IHttpActionResult> GetlicenciaIdUsuario(int id)
         {
-            var licencias = _service.GetlicenciaIdUsuario(id);
+            var licencias = await _service.GetlicenciasPorUsuarioId(id);
             return Ok(licencias);
         }
 
 
 
         /// <summary>
-        /// Lista licenia dependiendo el id de la licencia
+        /// Lista licencia dependiendo el id de la licencia
         /// </summary>    
         /// <param name="id"></param>
         /// <Autor>Camilo Vargas</Autor>
@@ -66,12 +66,12 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<LicenciaDTO>))]
+        [ResponseType(typeof(LicenciaDTO))]
         [HttpGet]
         [Route("lista-id-view/{id}")]
-        public IHttpActionResult GetlicenciaIdView(int id)
+        public async Task<IHttpActionResult> GetlicenciaIdView(int id)
         {
-            var licencias = _service.GetlicenciaIdView(id);
+            var licencias = await _service.GetlicenciaIdView(id);
             return Ok(licencias);
         }
 
@@ -168,30 +168,6 @@ namespace DIMARCore.Api.Controllers.Licencias
             var data = Mapear<LicenciaDTO, GENTEMAR_LICENCIAS>(Licencia);
             respuesta = await _service.ModificarLicencia(data, PathActual);
             return ResultadoStatus(respuesta);
-        }
-
-
-        /// <summary>
-        /// Servicio para cambiar los estados de las licencias vencidas
-        /// </summary>        
-        /// <remarks>
-        /// <Autor>Camilo Vargas</Autor>
-        /// <Fecha>09/08/2022</Fecha>
-        /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
-        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
-        /// <response code="500">Internal Server. Error En el servidor. </response>
-        /// <returns>Lista de los id de las licencias actualizadas y el total de registros </returns>
-        [ResponseType(typeof(Respuesta))]
-        [HttpGet]
-        [Route("licenciasVencidas")]
-        public async Task<IHttpActionResult> licenciasVencidasEstado()
-        {
-            var resultado = await _service.CambiarEstadoLicenciaFecha();
-
-            return Ok(resultado);
         }
     }
 }

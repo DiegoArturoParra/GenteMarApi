@@ -10,6 +10,7 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public long ID_LOG { get; set; }
         public int STATUS_CODE { get; set; }
+        public string MESSAGE_INFO { get; set; }
         public string MESSAGE_WARNING { get; set; }
         public string MESSAGE_EXCEPTION { get; set; }
         public DateTime DATE_CREATED { get; set; }

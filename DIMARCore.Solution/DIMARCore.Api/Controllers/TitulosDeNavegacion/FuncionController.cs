@@ -49,9 +49,9 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpGet]
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista-by-regla/{ReglaId}")]
-        public async Task<IHttpActionResult> FuncionesByRegla(int ReglaId)
+        public async Task<IHttpActionResult> FuncionesActivasByRegla(int ReglaId)
         {
-            var query = await _serviceFuncion.GetFuncionesByRegla(ReglaId);
+            var query = await _serviceFuncion.GetFuncionesByReglaActivas(ReglaId);
             var listado = Mapear<IEnumerable<GENTEMAR_REGLA_FUNCION>, IEnumerable<FuncionDTO>>(query);
             return Ok(listado);
         }

@@ -1,4 +1,6 @@
-﻿using System.Web.Mvc;
+﻿using DIMARCore.Api.Core.Atributos;
+using System.Web.Http;
+using System.Web.Mvc;
 
 namespace DIMARCore.Api
 {

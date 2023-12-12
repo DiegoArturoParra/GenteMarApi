@@ -3,7 +3,6 @@ using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
-using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -27,6 +26,27 @@ namespace DIMARCore.Api.Controllers
         {
             _service = new GradoBO();
         }
+
+
+        /// <summary>
+        /// Listado de Grados
+        /// </summary>
+        /// <returns>Listado json de grados</returns>
+        /// <response code="200">OK. Devuelve la información del grado.</response>
+        /// <response code="204">No Content. No hay estado.</response>
+        /// <response code="400">Bad request. Objeto invalido.</response>  
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="500">Internal Server. Error En el servidor. </response>
+        [ResponseType(typeof(List<GradoInfoDTO>))]
+        [HttpGet]
+        [Route("listar-activos")]
+        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetGradosActivos()
+        {
+            var grados = await _service.GetGradosActivos();
+            return Ok(grados);
+        }
+
         /// <summary>
         /// Listado de Grados
         /// </summary>
@@ -38,15 +58,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GradoDTO>))]
+        [ResponseType(typeof(List<GradoInfoDTO>))]
         [HttpGet]
         [Route("listaidformacion/{id}/{status}")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetGradoIdFormacion(int id, bool status)
+        public async Task<IHttpActionResult> GetGradosPorFormacionId(int id, bool status)
         {
-            var grados = _service.GetGradoIdGrado(id, status);
-
-            //var data = Mapear<IList<APLICACIONES_GRADO>, IList<GradoDTO>>(grados);
+            var grados = await _service.GetGradosPorFormacionId(id, status);
             return Ok(grados);
 
         }
@@ -62,14 +80,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GradoDTO>))]
+        [ResponseType(typeof(List<GradoInfoDTO>))]
         [HttpGet]
-        [Route("lista")]
+        [Route("lista-formacion")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetFormacion()
+        public async Task<IHttpActionResult> GetGradosConFormacion()
         {
-            var grado = _service.GetGrado();
-            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<GradoDTO>>(formacion);
+            var grado = await _service.GetGradosConFormacion();
             return Ok(grado);
         }
 
@@ -84,14 +101,13 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GradoDTO>))]
+        [ResponseType(typeof(List<GradoInfoDTO>))]
         [HttpGet]
-        [Route("listaActivo")]
+        [Route("listaActivo-formacion")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetFormacionActivos()
+        public IHttpActionResult GetGradosActivosConFormacion()
         {
-            var grado = _service.GetGradoActivo();
-            //var data = Mapear<IList<GENTEMAR_FORMACION>, IList<GradoDTO>>(formacion);
+            var grado = _service.GetGradosActivosConFormacion();
             return Ok(grado);
         }
         /// <summary>
@@ -112,11 +128,10 @@ namespace DIMARCore.Api.Controllers
         [HttpPost]
         [Route("crear")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> CrearFormacion(GradoDTO grado)
+        public async Task<IHttpActionResult> CrearGrado(GradoInfoDTO grado)
         {
-            //var data = Mapear<GradoDTO, APLICACIONES_GRADO>(grado);
             var respuesta = await _service.CrearGrado(grado);
-            return ResultadoStatus(respuesta);
+            return Created(string.Empty, respuesta);
         }
         /// <summary>
         /// Servicio para editar un grado
@@ -136,11 +151,10 @@ namespace DIMARCore.Api.Controllers
         [HttpPut]
         [Route("actualizar")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> actualizarGrado(GradoDTO grado)
+        public async Task<IHttpActionResult> ActualizarGrado(GradoInfoDTO grado)
         {
-            //var data = Mapear<GradoDTO, APLICACIONES_GRADO>(grado);
-            var respuesta = await _service.actualizarGrado(grado);
-            return ResultadoStatus(respuesta);
+            var respuesta = await _service.ActualizarGrado(grado);
+            return Ok(respuesta);
         }
         /// <summary>
         /// Servicio para Inactivar un grado
@@ -159,9 +173,9 @@ namespace DIMARCore.Api.Controllers
         [HttpPut]
         [Route("inhabilitar/{id}")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> cambiarGrado(int id)
+        public async Task<IHttpActionResult> CambiarGrado(int id)
         {
-            var respuesta = await _service.cambiarGrado(id);
+            var respuesta = await _service.CambiarGrado(id);
             return ResultadoStatus(respuesta);
         }
 

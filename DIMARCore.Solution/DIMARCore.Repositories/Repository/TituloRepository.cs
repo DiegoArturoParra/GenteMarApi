@@ -19,7 +19,7 @@ namespace DIMARCore.Repositories.Repository
                          join capitaniaFirma in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania equals capitaniaFirma.ID_CAPITANIA
                          join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania_firmante equals capitaniaFirmante.ID_CAPITANIA
                          join pais in _context.TABLA_NAV_BAND on titulo.cod_pais equals pais.cod_pais
-                         join tramite in _context.APLICACIONES_ESTADO_TRAMITE on titulo.id_estado_tramite equals tramite.id_estado_tramite
+                         join tramite in _context.GENTEMAR_ESTADO_TITULO on titulo.id_estado_tramite equals tramite.id_estado_tramite
                          join solicitud in _context.APLICACIONES_TIPO_SOLICITUD on titulo.id_tipo_solicitud equals solicitud.ID_TIPO_SOLICITUD
 
                          select new
@@ -257,7 +257,7 @@ namespace DIMARCore.Repositories.Repository
                          join capitaniaFirma in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania equals capitaniaFirma.ID_CAPITANIA
                          join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on titulo.id_capitania_firmante equals capitaniaFirmante.ID_CAPITANIA
                          join pais in _context.TABLA_NAV_BAND on titulo.cod_pais equals pais.cod_pais
-                         join tramite in _context.APLICACIONES_ESTADO_TRAMITE on titulo.id_estado_tramite equals tramite.id_estado_tramite
+                         join tramite in _context.GENTEMAR_ESTADO_TITULO on titulo.id_estado_tramite equals tramite.id_estado_tramite
                          join solicitud in _context.APLICACIONES_TIPO_SOLICITUD on titulo.id_tipo_solicitud equals solicitud.ID_TIPO_SOLICITUD
                          join refrendo in _context.APLICACIONES_TIPO_REFRENDO on titulo.id_tipo_refrendo equals refrendo.ID_TIPO_CERTIFICADO
                          where titulo.id_titulo == id

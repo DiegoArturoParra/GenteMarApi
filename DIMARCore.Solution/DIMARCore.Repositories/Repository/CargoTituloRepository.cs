@@ -1,6 +1,7 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using GenteMarCore.Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -13,6 +14,15 @@ namespace DIMARCore.Repositories.Repository
         public async Task<bool> ExisteCargoTituloById(int cargoId)
         {
             return await AnyWithCondition(x => x.id_cargo_titulo == cargoId);
+        }
+
+        public async Task<IEnumerable<CargoTituloDTO>> GetCargosActivos()
+        {
+            return await Table.Where(x => x.activo == true).Select(x => new CargoTituloDTO
+            {
+                Id = x.id_cargo_titulo,
+                Descripcion = x.cargo,
+            }).ToListAsync();
         }
 
         public async Task<IEnumerable<ListadoCargoTituloDTO>> GetCargosTitulos(CargoTituloFilter Filtro)
@@ -55,6 +65,15 @@ namespace DIMARCore.Repositories.Repository
             }).ToListAsync();
 
             return data;
+        }
+
+        public async Task<IEnumerable<CargoTituloDTO>> GetCargoTitulosBySeccionesIds(List<int> seccionesIds)
+        {
+            return await Table.Where(x => x.activo == true && seccionesIds.Contains(x.id_seccion)).Select(x => new CargoTituloDTO
+            {
+                Id = x.id_cargo_titulo,
+                Descripcion = x.cargo,
+            }).ToListAsync();
         }
     }
 }

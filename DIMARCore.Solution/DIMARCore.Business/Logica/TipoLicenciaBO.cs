@@ -1,10 +1,9 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business
 {
     public class TipoLicenciaBO
@@ -16,10 +15,10 @@ namespace DIMARCore.Business
         /// <returns>Lista de Tipo Licenciass</returns>
         /// <entidad>GENTEMAR_TIPO_LICENCIA</entidad>
         /// <tabla>GENTEMAR_TIPO_LICENCIA</tabla>
-        public IList<GENTEMAR_TIPO_LICENCIA> GetTipoLicencias()
+        public async Task<IEnumerable<GENTEMAR_TIPO_LICENCIA>> GetTipoLicencias()
         {
             // Obtiene la lista
-            return new TipoLicenciaRepository().GetTipoLicencias();
+            return await  new TipoLicenciaRepository().GetTipoLicencias();
         }
 
         /// <summary>
@@ -28,10 +27,10 @@ namespace DIMARCore.Business
         /// <returns>Lista de Tipo Licenciass</returns>
         /// <entidad>GENTEMAR_TIPO_LICENCIA</entidad>
         /// <tabla>GENTEMAR_TIPO_LICENCIA</tabla>
-        public IList<GENTEMAR_TIPO_LICENCIA> GetTipoLicenciasActivo()
+        public async Task<IEnumerable<GENTEMAR_TIPO_LICENCIA>> GetTipoLicenciasActivo()
         {
             // Obtiene la lista
-            return new TipoLicenciaRepository().GetAllWithCondition(x => x.activo == true).ToList();
+            return await new TipoLicenciaRepository().GetAllWithConditionAsync(x => x.activo == true);
         }
 
 
@@ -71,7 +70,6 @@ namespace DIMARCore.Business
         /// Edita la información de un tipo de licencia  
         /// </summary>
         /// <param name="datos">Datos de un tipo de licencia </param>
-        /// <param name="usuario">Usuario </param> //Todo: Se deja para implementar Autenticación
         /// <returns>Respuesta resultado</returns>
         public async Task<Respuesta> EditarTipoLicenciaAsync(GENTEMAR_TIPO_LICENCIA datos)
         {
@@ -83,7 +81,7 @@ namespace DIMARCore.Business
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El tipo de licencia no existe."));
                 datos.id_tipo_licencia = validate.id_tipo_licencia;
                 datos.activo = validate.activo;
-                await new TipoLicenciaRepository().Update(datos);
+                await repo.Update(datos);
                 return Responses.SetUpdatedResponse(datos);
             }
         }
@@ -93,7 +91,7 @@ namespace DIMARCore.Business
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambiarTipoLicencia(int id)
+        public async Task<Respuesta> CambiarTipoLicencia(int id)
         {
             using (var repo = new TipoLicenciaRepository())
             {

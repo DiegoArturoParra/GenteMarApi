@@ -1,11 +1,10 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
     public class FormacionBO
@@ -16,10 +15,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Formacion</returns>
         /// <entidad>GENTEMAR_FORMACION</entidad>
         /// <tabla>GENTEMAR_FORMACION</tabla>
-        public IList<FormacionDTO> GetFormacion(bool estado)
+        public async Task<IList<FormacionDTO>> GetFormaciones(bool estado)
         {
             // Obtiene la lista
-            return new FormacionRepository().GetFormacion(estado);
+            return await new FormacionRepository().GetFormaciones(estado);
         }
 
         /// <summary>
@@ -28,10 +27,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Formacion</returns>
         /// <entidad>GENTEMAR_FORMACION</entidad>
         /// <tabla>GENTEMAR_FORMACION</tabla>
-        public IList<FormacionDTO> GetTableFormacion()
+        public async Task<IList<FormacionDTO>> GetTableFormacion()
         {
             // Obtiene la lista
-            return new FormacionRepository().GetTableFormacion();
+            return await new FormacionRepository().GetTableFormacion();
         }
 
         /// <summary>
@@ -40,10 +39,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Formacion</returns>
         /// <entidad>GENTEMAR_FORMACION</entidad>
         /// <tabla>GENTEMAR_FORMACION</tabla>
-        public IList<FormacionDTO> GetTableFormacionActivo()
+        public async Task<IList<FormacionDTO>> GetTableFormacionActivo()
         {
             // Obtiene la lista
-            return new FormacionRepository().GetTableFormacion().Where(x => x.activo == true).ToList();
+            return await new FormacionRepository().GetTableFormacion(true);
         }
         /// <summary>
         /// crea una nueva formacion 
@@ -54,7 +53,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new FormacionRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.formacion.ToUpper().Equals(data.formacion.ToUpper()));
+                var validate = await repo.AnyWithCondition(x => x.formacion.Equals(data.formacion));
                 if (validate)
                     throw new HttpStatusCodeException(Responses.SetConflictResponse($"La formación {data.formacion} ya esta registrada."));
                 await repo.Create(data);
@@ -67,7 +66,7 @@ namespace DIMARCore.Business.Logica
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<Respuesta> actualizarFormacion(GENTEMAR_FORMACION data)
+        public async Task<Respuesta> ActualizarFormacion(GENTEMAR_FORMACION data)
         {
             Respuesta respuesta = new Respuesta();
             using (var repo = new FormacionRepository())
@@ -87,7 +86,7 @@ namespace DIMARCore.Business.Logica
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambiarFormacion(int id)
+        public async Task<Respuesta> CambiarFormacion(int id)
         {
             using (var repo = new FormacionRepository())
             {

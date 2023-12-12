@@ -74,9 +74,9 @@ namespace DIMARCore.Business.Logica
         }
 
 
-        public async Task<IEnumerable<ReglaDTO>> GetReglasByCargoTitulo(int cargoId)
+        public async Task<IEnumerable<ReglaDTO>> GetReglasActivasByCargoTitulo(int cargoId)
         {
-            return await new ReglaRepository().GetReglasByCargoTitulo(cargoId);
+            return await new ReglaRepository().GetReglasActivasByCargoTitulo(cargoId);
         }
 
 

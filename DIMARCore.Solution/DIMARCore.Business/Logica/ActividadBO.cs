@@ -6,6 +6,8 @@ using DIMARCore.Utilities.Middleware;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
+using DIMARCore.UIEntities;
 
 namespace DIMARCore.Business
 {
@@ -18,10 +20,10 @@ namespace DIMARCore.Business
         /// <returns>Lista de las Actividades</returns>
         /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public IEnumerable<ActividadDTO> GetActividades()
+        public async Task<IEnumerable<ActividadTipoLicenciaDTO>> GetActividadesAsync()
         {
             // Obtiene la lista
-            return new ActividadRepository().GetActividades();
+            return await new ActividadRepository().GetActividades();
         }
 
         /// <summary>
@@ -30,10 +32,10 @@ namespace DIMARCore.Business
         /// <returns>Lista de las Actividades</returns>
         /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public IList<GENTEMAR_ACTIVIDAD> GetActividadesActivo()
+        public async Task<IEnumerable<GENTEMAR_ACTIVIDAD>> GetActividadesActivo()
         {
             // Obtiene la lista
-            return new ActividadRepository().GetAllWithCondition(x => x.activo == true).ToList();
+            return await new ActividadRepository().GetAllWithConditionAsync(x => x.activo == true);
         }
 
         /// <summary>
@@ -42,13 +44,16 @@ namespace DIMARCore.Business
         /// <returns>Lista de las Actividades</returns>
         /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public IList<GENTEMAR_ACTIVIDAD> GetActividadesActivoTipoLicencia(int id)
+        public async Task<IEnumerable<GENTEMAR_ACTIVIDAD>> GetActividadesActivoTipoLicencia(int id)
         {
             // Obtiene la lista
-            return new ActividadRepository().GetAllWithCondition(x => x.activo == true && x.id_tipo_licencia == id).ToList();
+            return await new ActividadRepository().GetAllWithConditionAsync(x => x.activo == true && x.id_tipo_licencia == id);
         }
 
-
+        public async Task<IEnumerable<ActividadLicenciaDTO>> GetActividadesActivasPorTiposDeLicencia(List<int> idsTipoLicencia)
+        {
+            return await new ActividadRepository().GetActividadesActivasPorTiposDeLicencia(idsTipoLicencia);
+        }
 
         /// <summary>
         /// Obtener Actividad dado su id
@@ -61,8 +66,9 @@ namespace DIMARCore.Business
         {
             return await new ActividadRepository().GetById(id);
         }
+
         /// <summary>
-        /// 
+        /// crear una nueva Actividad
         /// </summary>
         /// <param name="datos"></param>
         /// <returns></returns>
@@ -127,6 +133,8 @@ namespace DIMARCore.Business
             }
             return Responses.SetUpdatedResponse();
         }
+
+        
     }
 }
 

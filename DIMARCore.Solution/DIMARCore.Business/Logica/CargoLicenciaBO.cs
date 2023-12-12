@@ -1,5 +1,6 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
@@ -29,7 +30,7 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public IEnumerable<GENTEMAR_CARGO_LICENCIA> GetCargoLicencia(CargoLicenciaDTO filtro)
+        public IEnumerable<GENTEMAR_CARGO_LICENCIA> GetCargosLicencia(CargoInfoLicenciaDTO filtro)
         {
             var data = _repository.GetAllAsQueryable();
             // Obtiene la lista
@@ -52,12 +53,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public IEnumerable<CargoLicenciaDTO> CargoLicenciaActivo()
+        public async Task<IEnumerable<CargoInfoLicenciaDTO>> GetCargosLicenciaActivosPorCapitaniaCategoria()
         {
             var claimIdCategoria = ClaimsHelper.GetCategoriaUsuario();
-            var data = _repository.GetAllCargoLicenciaActivo(claimIdCategoria);
-            // Obtiene la lista          
-
+            var data = await _repository.GetCargosLicenciaActivosPorCapitaniaCategoria(claimIdCategoria);
             return data;
         }
 
@@ -180,7 +179,7 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public CargoLicenciaDTO GetCargoLicenciaId(long id)
+        public CargoInfoLicenciaDTO GetCargoLicenciaId(long id)
         {
             var data = _repository.GetCargoLicenciaId(id)
                 ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la licencia solicitada");
@@ -193,7 +192,7 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public CargoLicenciaDTO GetCargoLicenciaIdDetalle(long id)
+        public CargoInfoLicenciaDTO GetCargoLicenciaIdDetalle(long id)
         {
             var data = _repository.GetCargoLicenciaIdDetalle(id);
             // Obtiene la lista
@@ -202,7 +201,7 @@ namespace DIMARCore.Business.Logica
 
 
         /// <summary>
-        /// cambia el estado del rango 
+        /// cambia el estado del Cargo Licencia 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -229,6 +228,11 @@ namespace DIMARCore.Business.Logica
             var data = await _repository.GetPlantillaLicencias(id);
 
             return data;
+        }
+
+        public async Task<IEnumerable<CargoLicenciaDTO>> GetCargosLicenciaActivosPorFiltro(CargoLicenciaFilter cargoLicenciaFilter)
+        {
+            return await _repository.GetCargosLicenciaActivosPorFiltro(cargoLicenciaFilter);
         }
     }
 }

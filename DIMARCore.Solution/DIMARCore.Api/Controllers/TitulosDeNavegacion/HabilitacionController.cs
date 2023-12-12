@@ -52,11 +52,11 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpGet]
         [Route("lista-by-regla-cargo")]
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
-        public async Task<IHttpActionResult> GetHabilitacionesByReglaId([FromUri] IdsTablasForaneasDTO items)
+        public async Task<IHttpActionResult> GetHabilitacionesActivasByReglaId([FromUri] IdsTablasForaneasDTO items)
         {
             var existeRelacion = await new ReglaCargoBO().GetIdByTablasForaneas(items);
             int CargoReglaId = (int)existeRelacion.Data;
-            var query = await _serviceHabilitacion.GetHabilitacionesByReglaCargoId(CargoReglaId);
+            var query = await _serviceHabilitacion.GetHabilitacionesActivasByReglaCargoId(CargoReglaId);
             var listado = Mapear<IEnumerable<GENTEMAR_REGLA_CARGO_HABILITACION>, IEnumerable<HabilitacionDTO>>(query);
             return Ok(listado);
         }

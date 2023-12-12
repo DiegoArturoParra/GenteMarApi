@@ -1,5 +1,6 @@
 ﻿using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using DIMARCore.Utilities.Seguridad;
 using GenteMarCore.Entities;
 using System;
@@ -10,6 +11,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Repositories
@@ -28,7 +30,7 @@ namespace DIMARCore.Repositories
             IsDisposed = false;
         }
         public bool IsDisposed { get => _isDisposed; set => _isDisposed = value; }
-        
+
         #region Obtener la cadena de conexión dependiendo el entorno (Production=2,Testing=1,Development=0)
         private GenteDeMarCoreContext GetContext(string _isEnvironment)
         {
@@ -107,7 +109,7 @@ namespace DIMARCore.Repositories
         #endregion
 
         #region listado de un objeto con condiciones async
-        public async Task<IList<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition)
+        public async Task<IEnumerable<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition)
         {
             return await Entities.Where(whereCondition).ToListAsync();
         }
@@ -202,21 +204,21 @@ namespace DIMARCore.Repositories
                 if (DbEntityException != null)
                 {
                     Mensaje = ObtenerErroresDeAtributos(DbEntityException);
-                    throw new Exception($"{entidad.GetType().FullName} no se ha podido crear/actualizar: {udpateException.InnerException.Message}\n, {Mensaje}");
+                    throw new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{entidad.GetType().FullName} no se ha podido crear/actualizar: {udpateException.InnerException.Message}\n, {Mensaje}");
                 }
                 else
                 {
-                    throw new Exception($"{entidad.GetType().FullName} no se ha podido crear/actualizar ERROR: {udpateException.Message}, \nERROR ESPECIFICO: {udpateException.InnerException.InnerException.Message}");
+                    throw new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{entidad.GetType().FullName} no se ha podido crear/actualizar ERROR: {udpateException.Message}, \nERROR ESPECIFICO: {udpateException.InnerException.InnerException.Message}");
                 }
             }
             else if (DbEntityException != null)
             {
                 Mensaje = ObtenerErroresDeAtributos(DbEntityException);
-                throw new Exception($"{Mensaje}");
+                new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{Mensaje}");
             }
             else
             {
-                throw new Exception($"{entidad}: {ex.Message}");
+                new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{entidad}: {ex.Message}");
             }
         }
         private string ObtenerErroresDeAtributos(DbEntityValidationException dbEntityException)

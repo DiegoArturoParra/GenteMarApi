@@ -1,7 +1,6 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;

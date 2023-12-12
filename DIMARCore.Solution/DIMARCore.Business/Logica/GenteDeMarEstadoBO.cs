@@ -15,7 +15,7 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de los estados </returns>
         /// <entidad>GENTEMAR_ESTADO</entidad>
         /// <tabla>GENTEMAR_ESTADO</tabla>
-        public IList<GENTEMAR_ESTADO> GetEstado()
+        public IList<GENTEMAR_ESTADO> GetEstados()
         {
             // Obtiene la lista
             return new GenteDeMarEstadoRepository().GetEstado();
@@ -27,7 +27,7 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de los estados </returns>
         /// <entidad>GENTEMAR_ESTADO</entidad>
         /// <tabla>GENTEMAR_ESTADO</tabla>
-        public IList<GENTEMAR_ESTADO> GetEstadoActivo()
+        public IList<GENTEMAR_ESTADO> GetEstadosActivo()
         {
             // Obtiene la lista
             return new GenteDeMarEstadoRepository().GetAllAsQueryable().Where(x => x.activo == true).ToList();

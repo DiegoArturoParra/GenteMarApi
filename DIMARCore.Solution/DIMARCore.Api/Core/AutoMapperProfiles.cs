@@ -46,7 +46,7 @@ namespace DIMARCore.Api.Core
                  .ForMember(ent => ent.id_clase, dto => dto.MapFrom(s => s.ClaseId))
                  .ForMember(ent => ent.cargo, dto => dto.MapFrom(s => s.Descripcion));
 
-                cfg.CreateMap<GENTEMAR_CARGO_TITULO, CargoTituloDTO>()
+                cfg.CreateMap<GENTEMAR_CARGO_TITULO, CargoTituloInfoDTO>()
                  .ForMember(ent => ent.Id, dto => dto.MapFrom(s => s.id_cargo_titulo))
                  .ForMember(ent => ent.SeccionId, dto => dto.MapFrom(s => s.id_seccion))
                  .ForMember(ent => ent.ClaseId, dto => dto.MapFrom(s => s.id_clase))
@@ -192,7 +192,7 @@ namespace DIMARCore.Api.Core
                 cfg.CreateMap<GENTEMAR_FORMACION, FormacionDTO>().ReverseMap();
                 cfg.CreateMap<GENTEMAR_ESTADO, EstadoDTO>().ReverseMap();
                 cfg.CreateMap<APLICACIONES_RANGO, RangoDTO>().ReverseMap();
-                cfg.CreateMap<APLICACIONES_GRADO, GradoDTO>().ReverseMap();
+                cfg.CreateMap<APLICACIONES_GRADO, GradoInfoDTO>().ReverseMap();
 
                 cfg.CreateMap<ObservacionDTO, GENTEMAR_OBSERVACIONES_DATOSBASICOS>()
                    .ForMember(ent => ent.id_gentemar, dto => dto.MapFrom(s => s.IdTablaRelacion))
@@ -222,14 +222,14 @@ namespace DIMARCore.Api.Core
                   .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
                    .ReverseMap();
 
-                cfg.CreateMap<ActividadDTO, GENTEMAR_ACTIVIDAD>()
+                cfg.CreateMap<ActividadTipoLicenciaDTO, GENTEMAR_ACTIVIDAD>()
                  .ForMember(ent => ent.id_actividad, dto => dto.MapFrom(s => s.IdActividad))
                  .ForMember(ent => ent.actividad, dto => dto.MapFrom(s => s.Actividad))
                  .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
                  .ForMember(ent => ent.GENTEMAR_TIPO_LICENCIA, dto => dto.MapFrom(s => s.TipoLicencia))
                   .ReverseMap();
 
-                cfg.CreateMap<CargoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>()
+                cfg.CreateMap<CargoInfoLicenciaDTO, GENTEMAR_CARGO_LICENCIA>()
                  .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo))
                  .ForMember(ent => ent.cargo_licencia, dto => dto.MapFrom(s => s.CargoLicencia))
                  .ForMember(ent => ent.codigo_licencia, dto => dto.MapFrom(s => s.CodigoLicencia))
@@ -321,6 +321,8 @@ namespace DIMARCore.Api.Core
                 .ForMember(ent => ent.fecha_solicitud_sede_central, dto => dto.MapFrom(s => s.FechaSolicitudSedeCentral))
                 .ForMember(ent => ent.id_tipo_tramite, dto => dto.MapFrom(s => s.TramiteId))
                 .ForMember(ent => ent.id_capitania, dto => dto.MapFrom(s => s.CapitaniaId))
+                .ForMember(ent => ent.numero_sgdea, dto => dto.MapFrom(s => s.Radicado))
+                .ForMember(ent => ent.fecha_sgdea, dto => dto.MapFrom(s => s.FechaRadicadoSgdea))
                 .ForMember(ent => ent.fecha_aprobacion, dto => dto.MapFrom(s => s.FechaAprobacion));
 
             });

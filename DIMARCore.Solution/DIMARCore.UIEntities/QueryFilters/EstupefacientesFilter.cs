@@ -20,5 +20,6 @@ namespace DIMARCore.UIEntities.QueryFilters
         public int ExpedienteId { get; set; }
         public DateTime? FechaInicial { get; set; }
         public DateTime? FechaFinal { get; set; }
+        public int TipoDocumentoId { get; set; }
     }
 }

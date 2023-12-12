@@ -1,5 +1,7 @@
-﻿using DIMARCore.Business;
+﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
@@ -40,10 +42,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<TipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista")]
-        public IHttpActionResult GetTipoLicencias()
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetTipoLicenciasAsync()
         {
-            var tipoLicencias = _service.GetTipoLicencias();
-            var data = Mapear<IList<GENTEMAR_TIPO_LICENCIA>, IList<TipoLicenciaDTO>>(tipoLicencias);
+            var tipoLicencias = await _service.GetTipoLicencias();
+            var data = Mapear<IEnumerable<GENTEMAR_TIPO_LICENCIA>, IEnumerable<TipoLicenciaDTO>>(tipoLicencias);
             return Ok(data);
         }
 
@@ -61,11 +64,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<TipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-activo")]
-        [AllowAnonymous]
-        public IHttpActionResult GetTipoLicenciasActivo()
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetTipoLicenciasActivo()
         {
-            var tipoLicencias = _service.GetTipoLicenciasActivo();
-            var data = Mapear<IList<GENTEMAR_TIPO_LICENCIA>, IList<TipoLicenciaDTO>>(tipoLicencias);
+            var tipoLicencias = await _service.GetTipoLicenciasActivo();
+            var data = Mapear<IEnumerable<GENTEMAR_TIPO_LICENCIA>, IEnumerable<TipoLicenciaDTO>>(tipoLicencias);
             return Ok(data);
         }
 
@@ -83,6 +86,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(GENTEMAR_TIPO_LICENCIA))]
         [HttpGet]
         [Route("id")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetTipoLicencia(int id)
         {
             var tipoLicencia = _service.GetTipoLicencia(id);
@@ -107,11 +111,12 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearTipoLicenciaAsync(TipoLicenciaDTO datos)
         {
             var data = Mapear<TipoLicenciaDTO, GENTEMAR_TIPO_LICENCIA>(datos);
             var tipo = await _service.CrearTipoLicenciaAsync(data);
-            return ResultadoStatus(tipo);
+            return Created(string.Empty, tipo);
         }
 
 
@@ -132,12 +137,12 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("editar")]
-        [AllowAnonymous]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarTipoLicenciaAsync(TipoLicenciaDTO datos)
         {
             var data = Mapear<TipoLicenciaDTO, GENTEMAR_TIPO_LICENCIA>(datos);
             var tipo = await _service.EditarTipoLicenciaAsync(data);
-            return ResultadoStatus(tipo);
+            return Ok(tipo);
         }
 
         /// <summary>
@@ -156,11 +161,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AllowAnonymous]
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarTipoLicenciaAsync(int id)
         {
-            var respuesta = await _service.cambiarTipoLicencia(id);
-            return ResultadoStatus(respuesta);
+            var respuesta = await _service.CambiarTipoLicencia(id);
+            return Ok(respuesta);
         }
 
 

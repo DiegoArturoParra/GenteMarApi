@@ -24,9 +24,9 @@ namespace DIMARCore.Business.Logica
         /// <returns>Objeto licencia dado el id de usuario</returns>
         /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public IList<LicenciaDTO> GetlicenciaIdUsuario(long id)
+        public async Task<IList<LicenciaDTO>> GetlicenciasPorUsuarioId(long id)
         {
-            return new LicenciaRepository().GetlicenciaIdUsuario(id);
+            return await new LicenciaRepository().GetlicenciasPorUsuarioId(id);
         }
 
 
@@ -44,7 +44,15 @@ namespace DIMARCore.Business.Logica
             return await new LicenciaRepository().GetlicenciaId(id);
         }
 
-
+        /// <summary>
+        /// Obtener la licencia dado el id de la licencia.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Objeto licencia dado el id de la licencia </returns>
+        public async Task<LicenciaDTO> GetlicenciaIdView(int id)
+        {
+            return await new LicenciaRepository().GetlicenciaIdView(id);
+        }
 
         /// <summary>
         /// crea un nueva licencia 
@@ -117,17 +125,7 @@ namespace DIMARCore.Business.Logica
                 return Responses.SetCreatedResponse(data);
             }
         }
-        /// <summary>
-        /// Obtener la licencia dado el id de la licencia.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Objeto licencia dado el id de la licencia </returns>
-        /// <entidad>GENTEMAR_ACTIVIDAD</entidad>
-        /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public LicenciaDTO GetlicenciaIdView(int id)
-        {
-            return new LicenciaRepository().GetlicenciaIdView(id);
-        }
+     
 
         /// <summary>
         /// modificar un nueva licencia 
@@ -212,89 +210,7 @@ namespace DIMARCore.Business.Logica
             }
 
         }
-        /// <summary>
-        /// cambia el estado del usuario dependiendo el estado de las licencias.
-        /// </summary>
-        /// <param name="datos"></param>
-        /// <returns></returns>
-        public async void ValidarEstadoUsuarioLicenciaTitulo(long idUsuario)
-        {
-            Respuesta respuesta = new Respuesta();
-            var repo = new DatosBasicosBO();
-            var data = GetlicenciaIdUsuario(idUsuario).Where(x => x.Activo == Constantes.ACTIVO).ToList();
-            if (data != null)
-            {
-                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.VIGENTE).ToList().Count > 0)
-                {
-                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ACTIVO);
-                    return;
-
-                }
-                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.PROCESO).ToList().Count > 0)
-                {
-                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.ENPROCESO);
-                    return;
-
-                }
-                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.NOVIGENTE).ToList().Count > 0)
-                {
-                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
-                    return;
-
-                }
-                if (data.Where(x => x.IdEstadoLicencia == (int)EstadosTituloLicenciaEnum.CANCELADO).ToList().Count > 0)
-                {
-                    await repo.CambioEstadoIdUsuario(idUsuario, (int)EstadoGenteMarEnum.INACTIVO);
-                    return;
-
-                }
-            }
-        }
-
-        /// <summary>
-        /// Cambio de estado de las licencias cuando su fecha caduca
-        /// </summary>
-        /// <returns></returns>
-        public async Task<RegistrosActualizadosDTO> CambiarEstadoLicenciaFecha()
-        {
-            RegistrosActualizadosDTO respuesta = new RegistrosActualizadosDTO();
-            List<DatosBasicosUsuarioDTO> usaurioActualizado = new List<DatosBasicosUsuarioDTO>();
-            using (var repo = new LicenciaRepository())
-            {
-                using (var repoDatos = new DatosBasicosRepository())
-                {
-
-                    var validate = await repo.GetAllWithConditionAsync(x => x.fecha_vencimiento <= DateTime.Now
-                    && x.id_estado_licencia != (int)EstadosTituloLicenciaEnum.NOVIGENTE && x.id_estado_licencia != (int)EstadosTituloLicenciaEnum.CANCELADO);
-                    if (validate.Any())
-                    {
-                        foreach (GENTEMAR_LICENCIAS item in validate)
-                        {
-                            item.id_estado_licencia = (int)EstadosTituloLicenciaEnum.NOVIGENTE;
-                            await new LicenciaRepository().ActualizarLicencia(item);
-                            //valida en el estado en que debe quedar el usuario
-                            ValidarEstadoUsuarioLicenciaTitulo(item.id_gentemar);
-                            var documentoUsuario = await repoDatos.GetPersonaByIdentificacionOrId(null, item.id_gentemar);
-                            usaurioActualizado.Add(new DatosBasicosUsuarioDTO()
-                            {
-                                DocumentoIdentificacion = documentoUsuario.DocumentoIdentificacion,
-                                Id = documentoUsuario.Id,
-                                NombreCompleto = documentoUsuario.NombreCompleto,
-                                NombreEstado = documentoUsuario.NombreEstado,
-                                IdLicencia = item.id_licencia
-
-                            });
-                        }
-
-                    }
-                    respuesta.UsuarioActualizado = usaurioActualizado;
-                    respuesta.TotalRegistros = usaurioActualizado.Count();
-                    return respuesta;
-
-                }
-            }
-        }
-
+       
         private async Task ValidacionesDeNegocio(GENTEMAR_LICENCIAS entidad, bool isEdit = false)
         {
 

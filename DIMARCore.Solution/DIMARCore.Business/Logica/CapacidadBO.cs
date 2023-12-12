@@ -85,10 +85,10 @@ namespace DIMARCore.Business.Logica
             await new ReglaBO().ExisteReglaById(itemsId.ReglaId);
             await new CargoTituloBO().ExisteCargoTituloById(itemsId.CargoTituloId);
         }
-        public async Task<IEnumerable<GENTEMAR_REGLAS_CARGO>> CapacidadByReglaCargo(IdsLlaveCompuestaDTO items)
+        public async Task<IEnumerable<GENTEMAR_REGLAS_CARGO>> CapacidadesActivasByReglaCargo(IdsLlaveCompuestaDTO items)
         {
             await IsExistItemsCargoAndRegla(items);
-            return await new CapacidadRepository().CapacidadByReglaCargo(items);
+            return await new CapacidadRepository().CapacidadesActivasByReglaCargo(items);
         }
         public async Task ExisteByNombreAsync(string nombre, int id = 0)
         {

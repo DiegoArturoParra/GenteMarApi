@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 
-namespace DIMARCore.Api.Core
+namespace DIMARCore.Api.Core.Atributos
 {
     /// <summary>
     /// filtro para mostrar invalido el modelo

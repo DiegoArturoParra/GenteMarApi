@@ -28,36 +28,68 @@ namespace DIMARCore.Utilities.Helpers
     public static class Reutilizables
     {
         private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        //public static string ConvertirStringApuntosDeMil(object identificacion)
-        //{
-        //    string documento = string.Empty;
+        public static string ConvertirStringApuntosDeMil(object identificacion)
+        {
+            string documento = string.Empty;
+            if (identificacion != null)
+            {
+                documento = Convert.ToString(identificacion);
 
-        //    try
-        //    {
-        //        if (identificacion != null)
-        //        {
-        //            documento = Convert.ToString(identificacion);
-        //            if (!string.IsNullOrWhiteSpace(documento))
-        //            {
-        //                if (documento.Contains("."))
-        //                {
-        //                    return documento;
-        //                }
+                if (!string.IsNullOrWhiteSpace(documento))
+                {
+                    if (documento.Contains("."))
+                    {
+                        return documento;
+                    }
 
-        //                var replace = Regex.Replace(documento, Constantes.REGEXPUNTOSMIL, Constantes.SEPARADORDOCUMENTO);
-        //                return replace;
+                    var replace = Regex.Replace(documento, Constantes.REGEXPUNTOSMIL, Constantes.SEPARADORDOCUMENTO);
+                    return replace;
 
-        //            }
-        //        }
+                }
+            }
+            return documento;
+        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error(ex.Message);
 
-        //    }
-        //    return documento;
-        //}
+        /// <summary>
+        /// Metodo que obtiene solo los numeros de una cadena
+        /// </summary>
+        /// <param name="cadena"></param>
+        /// <returns></returns>
+        public static string ObtenerSoloNumeros(string cadena)
+        {
+            StringBuilder soloNumerosBuilder = new StringBuilder();
+
+            foreach (char caracter in cadena)
+            {
+                if (char.IsDigit(caracter))
+                {
+                    soloNumerosBuilder.Append(caracter);
+                }
+            }
+
+            return soloNumerosBuilder.ToString();
+        }
+        /// <summary>
+        /// Metodo que obtiene el numero de una cadena en entero
+        /// </summary>
+        /// <param name="cadena"></param>
+        /// <returns></returns>
+        public static int ObtenerNumeroDesdeCadena(string cadena)
+        {
+            string soloNumeros = ObtenerSoloNumeros(cadena);
+
+            if (!string.IsNullOrEmpty(soloNumeros))
+            {
+                if (int.TryParse(soloNumeros, out int numero))
+                {
+                    return numero;
+                }
+            }
+
+            return -1; // Valor predeterminado si no se puede convertir la cadena en un número.
+        }
+
 
         /// <summary>
         /// Descarga el archivo del repositorio carpeta alojada en el servidor
@@ -336,7 +368,7 @@ namespace DIMARCore.Utilities.Helpers
             }
         }
 
-        public static byte[] GenerateBase64toPdf(string base64String)
+        public static byte[] GenerateBase64toBytes(string base64String)
         {
             try
             {
@@ -461,13 +493,17 @@ namespace DIMARCore.Utilities.Helpers
         /// <param name="fechaNacimiento"></param>
         /// <param name="fechaActual"></param>
         /// <returns></returns>
-        public static int CalcularEdad(DateTime fechaNacimiento)
+        public static short CalcularEdad(DateTime fechaNacimiento, DateTime? fechaActual = null)
         {
-            var fechaActual = DateTime.Now;
-            int edad = fechaActual.Year - fechaNacimiento.Year;
+            if (!fechaActual.HasValue)
+            {
+                fechaActual = DateTime.Now;
+            }
+
+            short edad = (short)(fechaActual.Value.Year - fechaNacimiento.Year);
 
             // Verificar si el cumpleaños ya ocurrió este año
-            if (fechaNacimiento > fechaActual.AddYears(-edad))
+            if (fechaNacimiento > fechaActual.Value.AddYears(-edad))
             {
                 edad--;
             }

@@ -45,7 +45,7 @@ namespace DIMARCore.Api.Controllers
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetEstadoActivo()
         {
-            var ListaEstado = _service.GetEstadoActivo();
+            var ListaEstado = _service.GetEstadosActivo();
             return Ok(ListaEstado);
         }
 
@@ -68,9 +68,9 @@ namespace DIMARCore.Api.Controllers
         [HttpGet]
         [Route("lista")]
         [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetEstado()
+        public IHttpActionResult GetEstados()
         {
-            var ListaEstado = _service.GetEstado();
+            var ListaEstado = _service.GetEstados();
             return Ok(ListaEstado);
         }
 

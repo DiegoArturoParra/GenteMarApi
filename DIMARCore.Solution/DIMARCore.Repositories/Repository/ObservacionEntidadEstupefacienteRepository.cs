@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using log4net;
 using System;
@@ -35,8 +36,9 @@ namespace DIMARCore.Repositories.Repository
             return resultado;
         }
 
-        public async Task CrearObservacionesEntidadCascade(long antecedenteId, IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data)
+        public async Task<List<Respuesta>> CrearObservacionesEntidadCascade(long antecedenteId, IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data)
         {
+            List<Respuesta> errores = new List<Respuesta>();
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
@@ -45,32 +47,33 @@ namespace DIMARCore.Repositories.Repository
 
                     foreach (var item in expedientes)
                     {
-                        try
-                        {
-                            var objetoEdicion = data.Where(y => y.id_entidad == item.id_entidad && y.id_antecedente == item.id_antecedente).FirstOrDefault()
-                                ?? throw new Exception("Relación no existente.");
 
+                        var objetoEdicion = data.Where(y => y.id_entidad == item.id_entidad && y.id_antecedente == item.id_antecedente).FirstOrDefault();
+                        if (objetoEdicion is null)
+                        {
+                            _logger.Error($"No se encuentra el antecedente {item.id_antecedente} relacionado con la entidad: {item.id_entidad}");
+                            var respuesta = Responses.SetNotFoundResponse($"No se encuentra el antecedente {item.id_antecedente} relacionado con la entidad: {item.id_entidad}");
+                            errores.Add(respuesta);
+                        }
+                        else
+                        {
                             item.descripcion_observacion = objetoEdicion.descripcion_observacion;
                             item.fecha_respuesta_entidad = objetoEdicion.fecha_respuesta_entidad;
                             item.verificacion_exitosa = objetoEdicion.verificacion_exitosa;
                             _context.Entry(item).State = EntityState.Modified;
                         }
-                        catch (Exception ex)
-                        {
-                            var entidad = await _context.GENTEMAR_ENTIDAD_ANTECEDENTE.Where(x => x.id_entidad == item.id_entidad).Select(y => y.entidad).FirstOrDefaultAsync();
-                            _logger.Error($"No se encuentra el antecedente {item.id_antecedente} con la entidad {entidad}", ex);
-                            continue;
-                        }
                     }
                     await SaveAllAsync();
                     await new EstupefacienteRepository().ChangeNarcoticStateIfAllVerifications(antecedenteId);
                     transaction.Commit();
+
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     ObtenerException(ex, data[1]);
                 }
+                return errores;
             }
         }
 

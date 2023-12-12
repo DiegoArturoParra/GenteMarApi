@@ -19,7 +19,6 @@ namespace DIMARCore.Business
     public class UsuarioBO
     {
 
-        //private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly int _expirationCache;
         public UsuarioBO()
         {
@@ -180,7 +179,7 @@ namespace DIMARCore.Business
             {
                 var entidad = await repo.GetById(id) ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el usuario"));
                 bool activoOretiro = await repo.InactivarOActivarUsuario(entidad.ID_LOGIN);
-                
+
                 if (activoOretiro)
                     return Responses.SetOkResponse(entidad, $"Se inactivo el usuario {entidad.LOGIN_NAME}");
 

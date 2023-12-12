@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.UIEntities.QueryFilters;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -10,22 +11,20 @@ namespace DIMARCore.Repositories.Repository
 {
     public class CargoLicenciaRepository : GenericRepository<GENTEMAR_CARGO_LICENCIA>
     {
-
-        public IEnumerable<CargoLicenciaDTO> GetAllCargoLicenciaActivo(int idCategoria)
+        public async Task<IEnumerable<CargoInfoLicenciaDTO>> GetCargosLicenciaActivosPorCapitaniaCategoria(int idCategoria)
         {
-            var query = (from cargolicencia in _context.GENTEMAR_CARGO_LICENCIA
-                         join cargoLicenciaCategoria in _context.GENTEMAR_CARGO_LICENCIA_CATEGORIA
-                         on cargolicencia.id_cargo_licencia equals cargoLicenciaCategoria.id_cargo_licencia
-                         where cargoLicenciaCategoria.id_categoria == idCategoria && cargolicencia.activo == true
-                         select new CargoLicenciaDTO
-                         {
-                             IdCargoLicencia = cargolicencia.id_cargo_licencia,
-                             Activo = cargolicencia.activo,
-                             CodigoLicencia = cargolicencia.codigo_licencia,
-                             CargoLicencia = cargolicencia.cargo_licencia,
-                             Nave = cargolicencia.nave
-
-                         }).ToList();
+            var query = await (from cargolicencia in _context.GENTEMAR_CARGO_LICENCIA
+                               join cargoLicenciaCategoria in _context.GENTEMAR_CARGO_LICENCIA_CATEGORIA
+                               on cargolicencia.id_cargo_licencia equals cargoLicenciaCategoria.id_cargo_licencia
+                               where cargoLicenciaCategoria.id_categoria == idCategoria && cargolicencia.activo == true
+                               select new CargoInfoLicenciaDTO
+                               {
+                                   IdCargoLicencia = cargolicencia.id_cargo_licencia,
+                                   Activo = cargolicencia.activo,
+                                   CodigoLicencia = cargolicencia.codigo_licencia,
+                                   CargoLicencia = cargolicencia.cargo_licencia,
+                                   Nave = cargolicencia.nave
+                               }).ToListAsync();
             return query;
         }
 
@@ -107,7 +106,7 @@ namespace DIMARCore.Repositories.Repository
         /// <param name="entidad"></param>
         /// <param name="IdLimitacion"></param>
         /// <returns></returns>
-        public CargoLicenciaDTO GetCargoLicenciaId(long id)
+        public CargoInfoLicenciaDTO GetCargoLicenciaId(long id)
         {
             var temp = (from cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA
                         join actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
@@ -127,7 +126,7 @@ namespace DIMARCore.Repositories.Repository
                         });
 
             var query = (from data in temp
-                         select new CargoLicenciaDTO
+                         select new CargoInfoLicenciaDTO
                          {
                              IdCargoLicencia = data.cargoLicencia.id_cargo_licencia,
                              Activo = data.cargoLicencia.activo,
@@ -178,7 +177,7 @@ namespace DIMARCore.Repositories.Repository
         /// <param name="entidad"></param>
         /// <param name="IdLimitacion"></param>
         /// <returns></returns>
-        public CargoLicenciaDTO GetCargoLicenciaIdDetalle(long id)
+        public CargoInfoLicenciaDTO GetCargoLicenciaIdDetalle(long id)
         {
             var temp = (from cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA
                         join actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
@@ -250,7 +249,7 @@ namespace DIMARCore.Repositories.Repository
                                         }).FirstOrDefault(),
                              Actividad = (from actividad in _context.GENTEMAR_ACTIVIDAD
                                           where actividad.id_actividad == data.actividadSeccion.id_actividad
-                                          select new ActividadDTO
+                                          select new ActividadTipoLicenciaDTO
                                           {
                                               IdActividad = actividad.id_actividad,
                                               Actividad = actividad.actividad,
@@ -414,6 +413,56 @@ namespace DIMARCore.Repositories.Repository
             return query;
         }
 
+        public async Task<IEnumerable<CargoLicenciaDTO>> GetCargosLicenciaActivosPorFiltro(CargoLicenciaFilter cargoLicenciaFilter)
+        {
 
+
+            var query = (from cargolicencia in _context.GENTEMAR_CARGO_LICENCIA
+                         join actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
+                         on cargolicencia.id_actividad_seccion_licencia
+                         equals actividadSeccion.id_actividad_seccion_licencia
+                         join seccionClase in _context.GENTEMAR_SECCION_CLASE
+                         on cargolicencia.id_seccion_clase equals seccionClase.id_seccion_clase
+                         join actividad in _context.GENTEMAR_ACTIVIDAD on actividadSeccion.id_actividad equals actividad.id_actividad
+                         join seccion in _context.GENTEMAR_SECCION_LICENCIAS on actividadSeccion.id_seccion equals seccion.id_seccion
+                         where cargolicencia.activo == true
+                         select new
+                         {
+                             cargolicencia,
+                             seccionClase,
+                             actividadSeccion,
+                             actividad,
+                             seccion
+                         });
+
+            if (cargoLicenciaFilter.TiposDeLicenciaId.Any())
+            {
+                query = query.Where(x =>
+                _context.GENTEMAR_ACTIVIDAD.Where(s => cargoLicenciaFilter.TiposDeLicenciaId.Contains(s.id_tipo_licencia))
+                .Select(y => y.id_tipo_licencia).Contains(x.actividad.id_tipo_licencia));
+            }
+
+            if (cargoLicenciaFilter.ActividadesId.Any())
+            {
+                query = query.Where(x => cargoLicenciaFilter.ActividadesId.Contains(x.actividadSeccion.id_actividad));
+            }
+
+            if (cargoLicenciaFilter.ClasesLicenciaId.Any())
+            {
+                query = query.Where(x => cargoLicenciaFilter.ClasesLicenciaId.Contains(x.seccionClase.id_clase));
+            }
+
+            if (cargoLicenciaFilter.SeccionesLicenciaId.Any())
+            {
+                query = query.Where(x => cargoLicenciaFilter.SeccionesLicenciaId.Contains(x.seccion.id_seccion));
+            }
+
+            return await query.Select(m => new CargoLicenciaDTO
+            {
+                Id = m.cargolicencia.id_cargo_licencia,
+                Descripcion = m.cargolicencia.cargo_licencia,
+                IsActive = m.cargolicencia.activo,
+            }).ToListAsync();
+        }
     }
 }

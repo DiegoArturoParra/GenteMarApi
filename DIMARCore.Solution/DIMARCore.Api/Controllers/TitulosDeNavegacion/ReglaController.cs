@@ -44,9 +44,9 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [HttpGet]
         [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista-by-cargo-titulo/{CargoId}")]
-        public async Task<IHttpActionResult> ReglasByCargoTitulo(int CargoId)
+        public async Task<IHttpActionResult> ReglasActivasByCargoTitulo(int CargoId)
         {
-            var listado = await _serviceReglas.GetReglasByCargoTitulo(CargoId);
+            var listado = await _serviceReglas.GetReglasActivasByCargoTitulo(CargoId);
             return Ok(listado);
         }
 

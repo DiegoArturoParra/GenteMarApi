@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using DIMARCore.Utilities.Helpers;
 using System;
 
 namespace DIMARCore.UIEntities.DTOs.Reports
@@ -15,7 +16,7 @@ namespace DIMARCore.UIEntities.DTOs.Reports
         public string Genero { get; set; }
         [Ignore]
         public DateTime FechaNacimiento { get; set; }
-        public short Edad => CalcularEdad();
+        public short Edad => Reutilizables.CalcularEdad(this.FechaNacimiento);
         [Name("Número de contacto")]
         public string NumeroContacto { get; set; }
         [Name("Correo electrónico")]
@@ -25,22 +26,11 @@ namespace DIMARCore.UIEntities.DTOs.Reports
         public string PaisNacimiento { get; set; }
         [Name("País de residencia")]
         public string PaisResidencia { get; set; }
+        [Name("Nivel de formación")]
+        public string Formacion { get; set; }
+        [Name("Nivel de grado")]
+        public string Grado { get; set; }
         [Name("Fecha de creación")]
         public DateTime FechaCreacion { get; set; }
-
-        public short CalcularEdad()
-        {
-            DateTime fechaActual = DateTime.Now;
-            short edad = (short)(fechaActual.Year - FechaNacimiento.Year);
-
-            // Ajusta la edad si aún no ha llegado el día de su cumpleaños este año
-            if (FechaNacimiento.Date > fechaActual.AddYears(-edad))
-            {
-                edad--;
-            }
-
-            return edad;
-        }
-
     }
 }

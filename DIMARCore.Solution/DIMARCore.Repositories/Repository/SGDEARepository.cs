@@ -1,12 +1,10 @@
 ﻿using Dapper;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
-using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities;
 using GenteMarCore.Entities.Models;
-using LinqKit;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -207,7 +205,6 @@ namespace DIMARCore.Repositories.Repository
         {
             using (IDbConnection db = _coreContextDapper.Context)
             {
-
                 string filtroTituloLicencia = filter.IsTituloNavegacion ? $"{Constantes.TRAMITE_TITULOS}%" : $"{Constantes.TRAMITE_LICENCIA}%";
                 string estado = Constantes.ESTADOTRAMITESGDA;
                 string sqlQuery = $@"SELECT sgdea.radicado                      AS Radicado,
@@ -244,8 +241,6 @@ namespace DIMARCore.Repositories.Repository
                 return data;
             }
         }
-
-
 
         public async Task CreateSgdaPrevista(IEnumerable<SGDEA_PREVISTAS> previstas)
         {

@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core;
+using DIMARCore.Api.Core.Atributos;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;
@@ -47,19 +48,14 @@ namespace DIMARCore.Api.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> Login([FromBody] LoginRequest login)
         {
-            Respuesta respuesta;
             // Se valida que el id de la aplicación sea valido
             await new AplicacionBO().GetAplicacion(login.Aplicacion);
             // Se busca y valida el usuario
-            respuesta = await _seguridadService.ValidarUsuario(login.UserName, login.Password);
-            if (respuesta.Estado)
-            {
-                var user = (UserSesionDTO)respuesta.Data;
-                // se obtiene el token
-                String token = TokenGenerator.GenerarTokenJwt(user);
-                respuesta = _seguridadService.ResultadoAutenticacion(user, token);
-            }
-            return ResultadoStatus(respuesta);
+            UserSesionDTO user = await _seguridadService.ValidarUsuario(login.UserName, login.Password);
+            // se obtiene el token
+            String token = TokenGenerator.GenerarTokenJwt(user);
+            Respuesta respuesta = _seguridadService.ResultadoAutenticacion(user, token);
+            return Ok(respuesta);
         }
 
         /// <summary>
@@ -79,20 +75,14 @@ namespace DIMARCore.Api.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> LoginTest([FromBody] LoginRequest login)
         {
-            Respuesta respuesta;
             // Se valida que el id de la aplicación sea valido
             await new AplicacionBO().GetAplicacion(login.Aplicacion);
             // Se busca y valida el usuario
-            respuesta = await _seguridadService.ValidarUsuarioTest(login.UserName, login.Password);
-            if (respuesta.Estado)
-            {
-                var user = (UserSesionDTO)respuesta.Data;
-                // se obtiene el token
-                _logger.Info("Genera token del usuario...");
-                String token = TokenGenerator.GenerarTokenJwt(user);
-                respuesta = _seguridadService.ResultadoAutenticacion(user, token);
-            }
-            return ResultadoStatus(respuesta);
+            UserSesionDTO user = await _seguridadService.ValidarUsuarioTest(login.UserName, login.Password);
+            // se obtiene el token
+            String token = TokenGenerator.GenerarTokenJwt(user);
+            Respuesta respuesta = _seguridadService.ResultadoAutenticacion(user, token);
+            return Ok(respuesta);
 
         }
 

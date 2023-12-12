@@ -139,7 +139,7 @@
     <Compile Include="Repository\ReglaFuncionRepository.cs" />
     <Compile Include="Repository\ReglaRepository.cs" />
     <Compile Include="Repository\ReportesgdmRepository.cs" />
-    <Compile Include="Repository\ReportesvciteRepository.cs" />
+    <Compile Include="Repository\ReportesVciteRepository.cs" />
     <Compile Include="Repository\SeccionClaseRepository.cs" />
     <Compile Include="Repository\SeccionLicenciasRepository.cs" />
     <Compile Include="Repository\SeccionTitulosRepository.cs" />

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DIMARCore.Api.Core;
+using DIMARCore.Api.Core.Atributos;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
@@ -20,6 +21,7 @@ namespace DIMARCore.Api.Controllers
     /// <summary>
     /// ApiController con opciones base
     /// </summary>
+    [LogRequestFilter]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/base-api")]
     public class BaseApiController : ApiController
@@ -52,6 +54,7 @@ namespace DIMARCore.Api.Controllers
             });
             return errors;
         }
+
 
         /// <summary>
         /// obtiene el path actual

@@ -14,7 +14,6 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Business.Logica
@@ -50,7 +49,7 @@ namespace DIMARCore.Business.Logica
                     if (!data.Any())
                         throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No hay estupefacientes en estado {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)} para exportar el Excel."));
 
-                    IList<long> EstupefacientesIds = data.Select(x => x.EstupefacienteId).ToList();
+                    IEnumerable<long> EstupefacientesIds = data.Select(x => x.EstupefacienteId).ToList();
                     var datosAEditar = await repository.GetAllWithConditionAsync(x => EstupefacientesIds.Contains(x.id_antecedente));
 
 
@@ -64,7 +63,7 @@ namespace DIMARCore.Business.Logica
                     {
                         consolidadoDTO.Consolidado = $"{Constantes.SIGLA_CONSOLIDADO}{consolidadoDTO.Consolidado.Trim()}";
                         numeroConsolidado = consolidadoDTO.Consolidado;
-                        await repository.EditBulkWithconsolidated(datosAEditar, _numeroDeLotes, consolidadoDTO.Consolidado, consolidadoDTO.ArrayExpedientesEntidad, true);
+                        await repository.EditBulkWithconsolidated(datosAEditar.ToList(), _numeroDeLotes, consolidadoDTO.Consolidado, consolidadoDTO.ArrayExpedientesEntidad, true);
                     }
                     else
                     {
@@ -72,7 +71,7 @@ namespace DIMARCore.Business.Logica
                         var consolidado = await ConsolidadoRepository.GetById(consolidadoId)
                        ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el consolidado.");
                         numeroConsolidado = consolidado.numero_consolidado;
-                        await repository.EditBulkWithconsolidated(datosAEditar, _numeroDeLotes, consolidado.id_consolidado.ToString(), consolidadoDTO.ArrayExpedientesEntidad, false);
+                        await repository.EditBulkWithconsolidated(datosAEditar.ToList(), _numeroDeLotes, consolidado.id_consolidado.ToString(), consolidadoDTO.ArrayExpedientesEntidad, false);
                     }
                 }
             }
@@ -182,7 +181,7 @@ namespace DIMARCore.Business.Logica
             if (lastConsolidado == null)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No hay consolidados registrados."));
 
-            var nextConsolidado = ObtenerNumeroDesdeCadena(lastConsolidado);
+            var nextConsolidado = Reutilizables.ObtenerNumeroDesdeCadena(lastConsolidado);
             if (nextConsolidado != -1)
             {
                 nextConsolidado++;
@@ -192,35 +191,6 @@ namespace DIMARCore.Business.Logica
                 });
             }
             return Responses.SetOkResponse();
-        }
-
-        static string ObtenerSoloNumeros(string cadena)
-        {
-            StringBuilder soloNumerosBuilder = new StringBuilder();
-
-            foreach (char caracter in cadena)
-            {
-                if (char.IsDigit(caracter))
-                {
-                    soloNumerosBuilder.Append(caracter);
-                }
-            }
-
-            return soloNumerosBuilder.ToString();
-        }
-        static int ObtenerNumeroDesdeCadena(string cadena)
-        {
-            string soloNumeros = ObtenerSoloNumeros(cadena);
-
-            if (!string.IsNullOrEmpty(soloNumeros))
-            {
-                if (int.TryParse(soloNumeros, out int numero))
-                {
-                    return numero;
-                }
-            }
-
-            return -1; // Valor predeterminado si no se puede convertir la cadena en un número.
         }
     }
 }

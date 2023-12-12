@@ -71,7 +71,11 @@ namespace DIMARCore.Business.Logica
             await ValidacionesMasivas(data, antecedenteId);
             using (var repo = new ObservacionEntidadEstupefacienteRepository())
             {
-                await repo.CrearObservacionesEntidadCascade(antecedenteId, data);
+                var responses = await repo.CrearObservacionesEntidadCascade(antecedenteId, data);
+                if (responses.Any())
+                {
+                    _ = new DbLogger().InsertLogsToDatabase(responses);
+                }
                 return Responses.SetCreatedResponse();
             }
         }
@@ -121,7 +125,10 @@ namespace DIMARCore.Business.Logica
                 if (!antecedentes.Any())
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encontraron los ids de los estupefacientes."));
 
-                antecedentes = antecedentes.Select(entidad =>
+                IList<GENTEMAR_ANTECEDENTES> antecedentesList = new List<GENTEMAR_ANTECEDENTES>();
+
+
+                antecedentesList = antecedentes.Select(entidad =>
                 {
                     // Realizar los cambios necesarios en cada objeto de la lista se cambia el estado
                     entidad.fecha_aprobacion = observacionDeEstupefacientes.ObservacionEntidad.FechaAprobacion;
@@ -135,7 +142,10 @@ namespace DIMARCore.Business.Logica
                       && x.id_expediente == observacionDeEstupefacientes.ObservacionEntidad.ExpedienteId
                       && x.id_consolidado == observacionDeEstupefacientes.ConsolidadoId);
 
-                expedientes = expedientes.Select(entidad =>
+                IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> expedientesList = new List<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>();
+
+
+                expedientesList = expedientes.Select(entidad =>
                 {
                     // Realizar los cambios necesarios en cada objeto de la lista se cambia el estado
                     entidad.verificacion_exitosa = observacionDeEstupefacientes.EstadoAntecedenteId == (int)EstadoEstupefacienteEnum.Exitosa;
@@ -187,7 +197,7 @@ namespace DIMARCore.Business.Logica
                             };
                             historialAclaracionDeExpedientes.Add(dataAclaracion);
                         }
-                        await observacionExpedienteRepository.EdicionObservacionParcialDeEstupefacientes(antecedentes, expedientes,
+                        await observacionExpedienteRepository.EdicionObservacionParcialDeEstupefacientes(antecedentesList, expedientesList,
                             historialAclaracionDeExpedientes, repositorio, _numeroDeLotes);
                     }
                 }

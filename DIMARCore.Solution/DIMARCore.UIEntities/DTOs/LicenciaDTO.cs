@@ -15,7 +15,7 @@ namespace DIMARCore.UIEntities.DTOs
         public decimal Radicado { get; set; }
         public int? IdCapitaniaFirmante { get; set; }
         public bool? Activo { get; set; }
-        public CargoLicenciaDTO CargoLicencia { get; set; }
+        public CargoInfoLicenciaDTO CargoLicencia { get; set; }
         public CapitaniaDTO Capitania { get; set; }
         public EstadoLicenciaDTO Estado { get; set; }
         public CapitaniaDTO CapitaniaFirmante { get; set; }

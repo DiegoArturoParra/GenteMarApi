@@ -94,7 +94,11 @@ namespace DIMARCore.Repositories.Repository
                     LoginName = m.login.LOGIN_NAME,
                     Aplicacion = (from aplicaciones in _context.APLICACIONES
                                   where aplicaciones.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
-                                  select new AplicacionSession() { Id = aplicaciones.ID_APLICACION, Nombre = aplicaciones.NOMBRE }).FirstOrDefault(),
+                                  select new AplicacionSession()
+                                  {
+                                      Id = aplicaciones.ID_APLICACION,
+                                      Nombre = aplicaciones.NOMBRE
+                                  }).FirstOrDefault(),
                     Capitania = (from logins in _context.APLICACIONES_LOGINS
                                  join capitania in _context.APLICACIONES_CAPITANIAS on logins.ID_CAPITANIA equals capitania.ID_CAPITANIA
                                  where logins.ID_CAPITANIA == m.login.ID_CAPITANIA
@@ -113,8 +117,7 @@ namespace DIMARCore.Repositories.Repository
                              where login_rol.ID_LOGIN == user.ID_LOGIN && detalleRoles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
                              && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
                              select new RolSession { Id = detalleRoles.ID_ROL, NombreRol = detalleRoles.ROL }).ToList()
-                }).FirstOrDefaultAsync();
-
+                }).AsNoTracking().FirstOrDefaultAsync();
             }
             return userSesion;
         }
@@ -140,8 +143,11 @@ namespace DIMARCore.Repositories.Repository
                     Email = m.login.CORREO,
                     Aplicacion = (from aplicaciones in _context.APLICACIONES
                                   where aplicaciones.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
-                                  select new AplicacionSession() { Id = aplicaciones.ID_APLICACION, Nombre = aplicaciones.NOMBRE }).FirstOrDefault(),
-
+                                  select new AplicacionSession()
+                                  {
+                                      Id = aplicaciones.ID_APLICACION,
+                                      Nombre = aplicaciones.NOMBRE
+                                  }).FirstOrDefault(),
                     Capitania = (from logins in _context.APLICACIONES_LOGINS
                                  join capitania in _context.APLICACIONES_CAPITANIAS on logins.ID_CAPITANIA equals capitania.ID_CAPITANIA
                                  where logins.ID_CAPITANIA == m.login.ID_CAPITANIA
@@ -160,7 +166,7 @@ namespace DIMARCore.Repositories.Repository
                              where login_rol.ID_LOGIN == user.ID_LOGIN && detalleRoles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
                              && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
                              select new RolSession { Id = detalleRoles.ID_ROL, NombreRol = detalleRoles.ROL }).ToList()
-                }).FirstOrDefaultAsync();
+                }).AsNoTracking().FirstOrDefaultAsync();
 
             }
             return userSesion;
@@ -206,7 +212,7 @@ namespace DIMARCore.Repositories.Repository
                              && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
                              group roles by new { roles.ID_ROL, roles.ROL, roles.DESCRIPCION } into grupoRol
                              select new RolSession { Id = grupoRol.Key.ID_ROL, NombreRol = grupoRol.Key.DESCRIPCION }).ToList()
-                }).ToListAsync();
+                }).AsNoTracking().ToListAsync();
         }
 
         public async Task<string[]> GetEmailsAdministradores()

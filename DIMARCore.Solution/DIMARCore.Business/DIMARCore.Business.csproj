@@ -104,7 +104,6 @@
     <Compile Include="Logica\CargoTituloBO.cs" />
     <Compile Include="Logica\ClaseLicenciasBO.cs" />
     <Compile Include="Logica\ClaseTituloBO.cs" />
-    <Compile Include="Logica\ConstantesBO.cs" />
     <Compile Include="Logica\DatosBasicosBO.cs" />
     <Compile Include="Logica\ReglaCargoBO.cs" />
     <Compile Include="Logica\DimBO.cs" />
@@ -123,6 +122,7 @@
     <Compile Include="Logica\RangoBO.cs" />
     <Compile Include="Logica\ReglaBO.cs" />
     <Compile Include="Logica\ReportesGDMBO.cs" />
+    <Compile Include="Logica\ReportesVciteBO.cs" />
     <Compile Include="Logica\SeccionBO.cs" />
     <Compile Include="Logica\ServiciosAplicacionesBO.cs" />
     <Compile Include="Logica\SgdeaBO.cs" />

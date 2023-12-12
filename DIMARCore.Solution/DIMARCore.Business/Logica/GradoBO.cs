@@ -1,10 +1,9 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 namespace DIMARCore.Business.Logica
 {
     public class GradoBO
@@ -15,27 +14,21 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Frados</returns>
         /// <entidad>GradoDTO</entidad>
         /// <tabla>GENTEMAR_GRADO</tabla>
-        public IList<GradoDTO> GetGradoIdGrado(int id, bool status)
+        public async Task<IList<GradoInfoDTO>> GetGradosPorFormacionId(int id, bool status)
         {
-            var data = new GradoRepository().GetGradoIdGrado(id);
-            // Obtiene la lista
-            if (status)
-            {
-                data = data.Where(x => x.activo == status).ToList();
-            }
-
+            var data = await new GradoRepository().GetGradosPorFormacionId(id, status);
             return data;
         }
         /// <summary>
-        /// Lista de Grado
+        /// Lista de Grados con formación
         /// </summary>
-        /// <returns>Lista de Grado</returns>
+        /// <returns>Lista de Grados con formación</returns>
         /// <entidad>APLICACIONES_GRADO</entidad>
         /// <tabla>APLICACIONES_GRADO</tabla>
-        public IList<GradoDTO> GetGrado()
+        public async Task<IList<GradoInfoDTO>> GetGradosConFormacion()
         {
             // Obtiene la lista
-            return new GradoRepository().GetGrado();
+            return await new GradoRepository().GetGradosConFormacion();
         }
 
         /// <summary>
@@ -44,14 +37,26 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Grado</returns>
         /// <entidad>APLICACIONES_GRADO</entidad>
         /// <tabla>APLICACIONES_GRADO</tabla>
-        public IList<GradoDTO> GetGradoActivo()
+        public async Task<IEnumerable<GradoDTO>> GetGradosActivos()
         {
             // Obtiene la lista
-            return new GradoRepository().GetGrado().Where(x => x.activo == true).ToList();
+            return await new GradoRepository().GetGradosActivos();
+        }
+
+        /// <summary>
+        /// >Lista de Grados activos con formación
+        /// </summary>
+        /// <returns>>Lista de Grados activos con formación</returns>
+        /// <entidad>APLICACIONES_GRADO</entidad>
+        /// <tabla>APLICACIONES_GRADO</tabla>
+        public async Task<IList<GradoInfoDTO>> GetGradosActivosConFormacion()
+        {
+            // Obtiene la lista
+            return await new GradoRepository().GetGradosConFormacion(true);
         }
 
 
-        public async Task<Respuesta> CrearGrado(GradoDTO data)
+        public async Task<Respuesta> CrearGrado(GradoInfoDTO data)
         {
             var validate = await new GradoRepository().AnyWithCondition(x => x.grado.Equals(data.grado) || x.sigla.Equals(data.sigla));
             if (validate)
@@ -61,7 +66,7 @@ namespace DIMARCore.Business.Logica
         }
 
 
-        public async Task<Respuesta> actualizarGrado(GradoDTO data)
+        public async Task<Respuesta> ActualizarGrado(GradoInfoDTO data)
         {
             using (var repo = new GradoRepository())
             {
@@ -70,13 +75,13 @@ namespace DIMARCore.Business.Logica
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El grado no está registrado."));
                 data.id_grado = validate.id_grado;
                 data.activo = validate.activo;
-                await new GradoRepository().actualizarGrados(data);
+                await new GradoRepository().ActualizarGrados(data);
                 return Responses.SetUpdatedResponse(data);
             }
 
         }
 
-        public async Task<Respuesta> cambiarGrado(int id)
+        public async Task<Respuesta> CambiarGrado(int id)
         {
             using (var repo = new GradoRepository())
             {

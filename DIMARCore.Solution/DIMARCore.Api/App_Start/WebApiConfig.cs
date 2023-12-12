@@ -1,4 +1,5 @@
 ﻿using DIMARCore.Api.Core;
+using DIMARCore.Api.Core.Atributos;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -19,13 +20,11 @@ namespace DIMARCore.Api
 
             var cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(cors);
-
             config.MessageHandlers.Add(new TokenValidationHandler());
-
             config.Filters.Add(new AuthorizeAttribute());
             config.Filters.Add(new ValidationExceptionFilterAttribute());
             config.Filters.Add(new CustomExceptionFilter());
-       
+  
             // se elimina el formateador de respuestas xml
             config.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
             // se quita el fomato xml

@@ -1,8 +1,11 @@
-﻿using DIMARCore.Business.Logica;
+﻿using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Models;
+using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
-using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
@@ -12,17 +15,16 @@ namespace DIMARCore.Api.Controllers.Licencias
     /// <summary>
     /// Api estados licencia
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/estado-licencia")]
-    public class EstadosLiceciasController : BaseApiController
+    public class EstadosLicenciaController : BaseApiController
     {
         private readonly EstadoLicenciaBO _service;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadosLiceciasController()
+        public EstadosLicenciaController()
         {
             _service = new EstadoLicenciaBO();
         }
@@ -38,13 +40,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GENTEMAR_ESTADO_LICENCIA>))]
+        [ResponseType(typeof(List<EstadoLicenciaDTO>))]
         [HttpGet]
-        [Route("listaActivo")]
-        public IHttpActionResult GetEstadoActivo()
+        [Route("lista-activos")]
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetEstadosActivoAsync()
         {
-            var ListaEstado = _service.GetEstadoActivo();
-            var data = Mapear<IList<GENTEMAR_ESTADO_LICENCIA>, IList<EstadoLicenciaDTO>>(ListaEstado);
+            var ListaEstado = await _service.GetEstadosActivoAsync();
+            var data = Mapear<IEnumerable<GENTEMAR_ESTADO_LICENCIA>, IEnumerable<EstadoLicenciaDTO>>(ListaEstado);
             return Ok(data);
         }
 
@@ -63,13 +66,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(List<GENTEMAR_ESTADO_LICENCIA>))]
+        [ResponseType(typeof(List<EstadoLicenciaDTO>))]
         [HttpGet]
         [Route("lista")]
-        public IHttpActionResult GetEstado()
+        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetEstadosAsync()
         {
-            var ListaEstado = _service.GetEstado();
-            var data = Mapear<IList<GENTEMAR_ESTADO_LICENCIA>, IList<EstadoLicenciaDTO>>(ListaEstado);
+            var ListaEstado = await _service.GetEstadosAsync();
+            var data = Mapear<IEnumerable<GENTEMAR_ESTADO_LICENCIA>, IEnumerable<EstadoLicenciaDTO>>(ListaEstado);
             return Ok(data);
         }
 
@@ -88,13 +92,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        public IHttpActionResult CrearEstado(EstadoLicenciaDTO estado)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> CrearEstadoAsync(EstadoLicenciaDTO estado)
         {
             var data = Mapear<EstadoLicenciaDTO, GENTEMAR_ESTADO_LICENCIA>(estado);
-            var respuesta = _service.CrearEstado(data);
+            var respuesta = await _service.CrearEstado(data);
             return Ok(respuesta);
         }
         /// <summary>
@@ -111,13 +116,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("actualizar")]
-        public IHttpActionResult actualizarEstado(EstadoLicenciaDTO estado)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ActualizarEstadoAsync(EstadoLicenciaDTO estado)
         {
             var data = Mapear<EstadoLicenciaDTO, GENTEMAR_ESTADO_LICENCIA>(estado);
-            var respuesta = _service.actualizarEstado(data);
+            var respuesta = await _service.ActualizarEstado(data);
             return Ok(respuesta);
         }
 
@@ -134,12 +140,13 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        public IHttpActionResult CambiarEstado(int id)
+        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> CambiarEstadoAsync(int id)
         {
-            var respuesta = _service.cambiarEstado(id);
+            var respuesta = await _service.CambiarEstado(id);
             return Ok(respuesta);
         }
     }

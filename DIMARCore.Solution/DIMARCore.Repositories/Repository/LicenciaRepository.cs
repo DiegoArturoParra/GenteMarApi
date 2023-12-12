@@ -14,60 +14,59 @@ namespace DIMARCore.Repositories.Repository
     {
         /// <summary>
         /// Lista de licencias por id 
-        /// <param name="id">Id del Actividad</param>
+        /// <param name="id">Id del usuario</param>
         /// </summary>
-        /// <returns>Lista de Actividades</returns>
-        /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public IList<LicenciaDTO> GetlicenciaIdUsuario(long id)
+        /// <returns> Lista de licencias por id</returns>
+        public async Task<IList<LicenciaDTO>> GetlicenciasPorUsuarioId(long id)
         {
 
-            var resultado = (from licencia in _context.GENTEMAR_LICENCIAS
-                             join cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA on
-                             licencia.id_cargo_licencia equals cargoLicencia.id_cargo_licencia
-                             join estadoLicencia in _context.GENTEMAR_ESTADO_LICENCIAS on
-                             licencia.id_estado_licencia equals estadoLicencia.id_estado_licencias
-                             join capitania in _context.APLICACIONES_CAPITANIAS on
-                             licencia.id_capitania equals capitania.ID_CAPITANIA
-                             join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on
-                             licencia.id_capitania equals capitaniaFirmante.ID_CAPITANIA
-                             where licencia.id_gentemar == id
-                             select new LicenciaDTO
-                             {
-                                 Activo = licencia.activo,
-                                 Radicado = licencia.radicado,
-                                 IdLicencia = licencia.id_licencia,
-                                 IdGentemar = licencia.id_gentemar,
-                                 IdEstadoLicencia = licencia.id_estado_licencia,
-                                 IdCargoLicencia = licencia.id_cargo_licencia,
-                                 IdCapitaniaFirmante = licencia.id_capitania_firmante,
-                                 IdCapitania = licencia.id_capitania,
-                                 FechaVencimiento = licencia.fecha_vencimiento,
-                                 FechaExpedicion = licencia.fecha_expedicion,
-                                 Capitania = new CapitaniaDTO
-                                 {
-                                     Descripcion = capitania.DESCRIPCION,
-                                     Id = capitania.ID_CAPITANIA,
-                                     Sigla = capitania.SIGLA_CAPITANIA
-                                 },
-                                 CapitaniaFirmante = new CapitaniaDTO
-                                 {
-                                     Descripcion = capitaniaFirmante.DESCRIPCION,
-                                     Id = capitaniaFirmante.ID_CAPITANIA,
-                                     Sigla = capitaniaFirmante.SIGLA_CAPITANIA
-                                 },
-                                 CargoLicencia = new CargoLicenciaDTO
-                                 {
-                                     IdCargoLicencia = cargoLicencia.id_cargo_licencia,
-                                     CargoLicencia = cargoLicencia.cargo_licencia,
-                                     CodigoLicencia = cargoLicencia.codigo_licencia
-                                 },
-                                 Estado = new EstadoLicenciaDTO
-                                 {
-                                     IdEstadoLicencias = estadoLicencia.id_estado_licencias,
-                                     DescripcionEstado = estadoLicencia.descripcion_estado
-                                 }
+            var resultado = await (from licencia in _context.GENTEMAR_LICENCIAS
+                                   join cargoLicencia in _context.GENTEMAR_CARGO_LICENCIA on
+                                   licencia.id_cargo_licencia equals cargoLicencia.id_cargo_licencia
+                                   join estadoLicencia in _context.GENTEMAR_ESTADO_LICENCIAS on
+                                   licencia.id_estado_licencia equals estadoLicencia.id_estado_licencias
+                                   join capitania in _context.APLICACIONES_CAPITANIAS on
+                                   licencia.id_capitania equals capitania.ID_CAPITANIA
+                                   join capitaniaFirmante in _context.APLICACIONES_CAPITANIAS on
+                                   licencia.id_capitania equals capitaniaFirmante.ID_CAPITANIA
+                                   where licencia.id_gentemar == id
+                                   select new LicenciaDTO
+                                   {
+                                       Activo = licencia.activo,
+                                       Radicado = licencia.radicado,
+                                       IdLicencia = licencia.id_licencia,
+                                       IdGentemar = licencia.id_gentemar,
+                                       IdEstadoLicencia = licencia.id_estado_licencia,
+                                       IdCargoLicencia = licencia.id_cargo_licencia,
+                                       IdCapitaniaFirmante = licencia.id_capitania_firmante,
+                                       IdCapitania = licencia.id_capitania,
+                                       FechaVencimiento = licencia.fecha_vencimiento,
+                                       FechaExpedicion = licencia.fecha_expedicion,
+                                       Capitania = new CapitaniaDTO
+                                       {
+                                           Descripcion = capitania.DESCRIPCION,
+                                           Id = capitania.ID_CAPITANIA,
+                                           Sigla = capitania.SIGLA_CAPITANIA
+                                       },
+                                       CapitaniaFirmante = new CapitaniaDTO
+                                       {
+                                           Descripcion = capitaniaFirmante.DESCRIPCION,
+                                           Id = capitaniaFirmante.ID_CAPITANIA,
+                                           Sigla = capitaniaFirmante.SIGLA_CAPITANIA
+                                       },
+                                       CargoLicencia = new CargoInfoLicenciaDTO
+                                       {
+                                           IdCargoLicencia = cargoLicencia.id_cargo_licencia,
+                                           CargoLicencia = cargoLicencia.cargo_licencia,
+                                           CodigoLicencia = cargoLicencia.codigo_licencia
+                                       },
+                                       Estado = new EstadoLicenciaDTO
+                                       {
+                                           IdEstadoLicencias = estadoLicencia.id_estado_licencias,
+                                           DescripcionEstado = estadoLicencia.descripcion_estado
+                                       }
 
-                             }).ToList();
+                                   }).AsNoTracking().ToListAsync();
 
             return resultado;
 
@@ -76,7 +75,6 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task<LicenciaDTO> GetlicenciaId(int id)
         {
-
             var resultado = (from licencia in _context.GENTEMAR_LICENCIAS
                              join usuario in _context.GENTEMAR_DATOSBASICOS on
                              licencia.id_gentemar equals usuario.id_gentemar
@@ -108,8 +106,6 @@ namespace DIMARCore.Repositories.Repository
                                                {
                                                    naves
                                                }).Select(x => x.naves.identi).ToList()
-
-
                              }).FirstOrDefaultAsync();
 
             return await resultado;
@@ -119,9 +115,7 @@ namespace DIMARCore.Repositories.Repository
         /// Lista la liecncia por id 
         /// <param name="id">Id del la licencia</param>
         /// </summary>
-        /// <returns>Lista de Actividades</returns>
-        /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
-        public LicenciaDTO GetlicenciaIdView(int id)
+        public async Task<LicenciaDTO> GetlicenciaIdView(int id)
         {
 
             var resultado = (from licencia in _context.GENTEMAR_LICENCIAS
@@ -160,7 +154,7 @@ namespace DIMARCore.Repositories.Repository
                                      Id = capitaniaFirmante.ID_CAPITANIA,
                                      Sigla = capitaniaFirmante.SIGLA_CAPITANIA
                                  },
-                                 CargoLicencia = new CargoLicenciaDTO
+                                 CargoLicencia = new CargoInfoLicenciaDTO
                                  {
                                      IdCargoLicencia = cargoLicencia.id_cargo_licencia,
                                      CargoLicencia = cargoLicencia.cargo_licencia,
@@ -181,9 +175,9 @@ namespace DIMARCore.Repositories.Repository
 
                                  },
 
-                             }).FirstOrDefault();
+                             }).FirstOrDefaultAsync();
 
-            return resultado;
+            return await resultado;
 
 
         }

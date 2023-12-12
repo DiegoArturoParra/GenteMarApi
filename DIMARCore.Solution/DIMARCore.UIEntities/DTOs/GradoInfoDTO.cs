@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace DIMARCore.UIEntities.DTOs
 {
-    public class GradoDTO
+    public class GradoInfoDTO
     {
         public int? id_grado { get; set; }
         [JsonIgnore]
@@ -18,7 +17,7 @@ namespace DIMARCore.UIEntities.DTOs
         private string _nombreRango;
         public string nombreRango
         {
-            get => _nombreRango != null? _nombreRango?.ToUpper(): _nombreRango;
+            get => _nombreRango != null ? _nombreRango?.ToUpper() : _nombreRango;
             set => _nombreRango = value;
         }
         [JsonIgnore]
@@ -31,6 +30,10 @@ namespace DIMARCore.UIEntities.DTOs
         public int? id_formacion_grado { get; set; }
         public bool activo { get; set; }
         public FormacionDTO formacion { get; set; }
+
+    }
+    public class GradoDTO : CamposTablasMaestrasDTO
+    {
 
     }
 }

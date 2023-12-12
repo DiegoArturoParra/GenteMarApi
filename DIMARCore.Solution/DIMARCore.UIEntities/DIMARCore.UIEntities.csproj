@@ -81,17 +81,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActividadLicenciaDTO.cs" />
     <Compile Include="DTOs\ArchivoBaseDTO.cs" />
+    <Compile Include="DTOs\CargoLicenciaDTO.cs" />
     <Compile Include="DTOs\HistorialAclaracionDTO.cs" />
     <Compile Include="DTOs\ObservacionEntidadEstupefacienteDTO.cs" />
-    <Compile Include="DTOs\ActividadDTO.cs" />
+    <Compile Include="DTOs\ActividadTipoLicenciaDTO.cs" />
     <Compile Include="DTOs\ActivoDTO.cs" />
     <Compile Include="DTOs\CapacidadDTO.cs" />
     <Compile Include="DTOs\CapitaniaDTO.cs" />
     <Compile Include="DTOs\CargoLicenciaDetalleDTO.cs" />
-    <Compile Include="DTOs\CargoLicenciaDTO.cs" />
+    <Compile Include="DTOs\CargoInfoLicenciaDTO.cs" />
     <Compile Include="DTOs\CargoReglaDTO.cs" />
-    <Compile Include="DTOs\CargoTituloDTO.cs" />
+    <Compile Include="DTOs\CargoTituloInfoDTO.cs" />
     <Compile Include="DTOs\CategoriaDTO.cs" />
     <Compile Include="DTOs\ClaseDTO.cs" />
     <Compile Include="DTOs\ConsolidadoDTO.cs" />
@@ -132,7 +134,7 @@
     <Compile Include="DTOs\FormacionDTO.cs" />
     <Compile Include="DTOs\FormacionGradoDTO.cs" />
     <Compile Include="DTOs\FuncionDTO.cs" />
-    <Compile Include="DTOs\GradoDTO.cs" />
+    <Compile Include="DTOs\GradoInfoDTO.cs" />
     <Compile Include="DTOs\HabilitacionDTO.cs" />
     <Compile Include="DTOs\IdsTablasForaneasDTO.cs" />
     <Compile Include="DTOs\InfoReglaFuncionDTO.cs" />
@@ -149,6 +151,11 @@
     <Compile Include="DTOs\ReglaDTO.cs" />
     <Compile Include="DTOs\Reports\DatosBasicosReportDTO.cs" />
     <Compile Include="DTOs\Reports\FileTocsvDTO.cs" />
+    <Compile Include="DTOs\Reports\LicenciasReportDTO.cs" />
+    <Compile Include="DTOs\Reports\ReportPieChartVciteDTO.cs" />
+    <Compile Include="DTOs\Reports\TitulosReportDTO.cs" />
+    <Compile Include="DTOs\Reports\VciteHistoricoPersonaDTO.cs" />
+    <Compile Include="DTOs\Reports\VciteReportDTO.cs" />
     <Compile Include="DTOs\SeccionDTO.cs" />
     <Compile Include="DTOs\CamposTablasMaestrasDTO.cs" />
     <Compile Include="DTOs\TipoDocumentoDTO.cs" />
@@ -162,6 +169,7 @@
     <Compile Include="DTOs\ListadoTituloDTO.cs" />
     <Compile Include="DTOs\UserSesionDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryFilters\CargoLicenciaFilter.cs" />
     <Compile Include="QueryFilters\CargoTituloFilter.cs" />
     <Compile Include="QueryFilters\DatosBasicosQueryFilter.cs" />
     <Compile Include="QueryFilters\DetalleReglaFilter.cs" />
@@ -171,6 +179,10 @@
     <Compile Include="QueryFilters\IdentificatorFilter.cs" />
     <Compile Include="QueryFilters\RadicadoSGDEAFilter.cs" />
     <Compile Include="QueryFilters\Reports\DatosBasicosReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\EstupefacientesReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\LicenciasReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\ReportPieChartVciteFilter.cs" />
+    <Compile Include="QueryFilters\Reports\TitulosReportFilter.cs" />
     <Compile Include="Requests\LoginRequest.cs" />
   </ItemGroup>
   <ItemGroup>

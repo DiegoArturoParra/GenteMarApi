@@ -16,10 +16,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de los estados </returns>
         /// <entidad>GENTEMAR_ESTADO_LICENCIAS</entidad>
         /// <tabla>GENTEMAR_ESTADO_LICENCIAS</tabla>
-        public IList<GENTEMAR_ESTADO_LICENCIA> GetEstado()
+        public async Task<IEnumerable<GENTEMAR_ESTADO_LICENCIA>> GetEstadosAsync()
         {
             // Obtiene la lista
-            return new EstadoLicenciaRepository().GetEstado();
+            return await new EstadoLicenciaRepository().GetEstados();
         }
 
         /// <summary>
@@ -28,10 +28,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de los estados </returns>
         /// <entidad>GENTEMAR_ESTADO_LICENCIAS</entidad>
         /// <tabla>GENTEMAR_ESTADO_LICENCIAS</tabla>
-        public IList<GENTEMAR_ESTADO_LICENCIA> GetEstadoActivo()
+        public async Task<IEnumerable<GENTEMAR_ESTADO_LICENCIA>> GetEstadosActivoAsync()
         {
             // Obtiene la lista
-            return new EstadoLicenciaRepository().GetEstado().Where(x => x.activo == true).ToList();
+            return await new EstadoLicenciaRepository().GetAllWithConditionAsync(x => x.activo == true);
         }
         /// <summary>
         /// crea un nuevo estado 
@@ -55,7 +55,7 @@ namespace DIMARCore.Business.Logica
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<Respuesta> actualizarEstado(GENTEMAR_ESTADO_LICENCIA data)
+        public async Task<Respuesta> ActualizarEstado(GENTEMAR_ESTADO_LICENCIA data)
         {
             using (var repo = new EstadoLicenciaRepository())
             {
@@ -73,7 +73,7 @@ namespace DIMARCore.Business.Logica
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambiarEstado(int id)
+        public async Task<Respuesta> CambiarEstado(int id)
         {
             using (var repo = new EstadoLicenciaRepository())
             {

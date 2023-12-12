@@ -69,10 +69,10 @@ namespace DIMARCore.Business.Logica
             return await new ReglaBO().ExisteReglaById(reglaId);
         }
 
-        public async Task<IEnumerable<GENTEMAR_REGLA_FUNCION>> GetFuncionesByRegla(int reglaId)
+        public async Task<IEnumerable<GENTEMAR_REGLA_FUNCION>> GetFuncionesByReglaActivas(int reglaId)
         {
             await IsExistRegla(reglaId);
-            return await new FuncionRepository().GetFuncionesByRegla(reglaId);
+            return await new FuncionRepository().GetFuncionesByReglaActivas(reglaId);
         }
 
         public async Task ExisteByNombreAsync(string nombre, int Id = 0)

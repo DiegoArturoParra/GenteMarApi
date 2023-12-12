@@ -37,8 +37,8 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>01/08/2023</Fecha>
         /// </remarks>
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el listado de expedientes.</response>        
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<ExpedienteDTO>))]
         [HttpGet]

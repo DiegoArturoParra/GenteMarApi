@@ -1,6 +1,8 @@
 ﻿using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace DIMARCore.Repositories.Repository
@@ -12,11 +14,11 @@ namespace DIMARCore.Repositories.Repository
         /// </summary>
         /// <returns>Lista de Tipo Licencia</returns>
         /// <tabla>GENTEMAR_TIPO_LICENCIA</tabla>
-        public IList<GENTEMAR_TIPO_LICENCIA> GetTipoLicencias()
+        public async Task<IEnumerable<GENTEMAR_TIPO_LICENCIA>> GetTipoLicencias()
         {
             var resultado = (from a in _context.GENTEMAR_TIPO_LICENCIA
-                             select a).OrderBy(p => p.tipo_licencia).ToList();
-            return resultado;
+                             select a).OrderBy(p => p.tipo_licencia);
+            return await resultado.ToListAsync();
         }
 
 

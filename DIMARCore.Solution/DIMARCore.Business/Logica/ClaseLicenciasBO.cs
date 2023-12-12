@@ -5,6 +5,8 @@ using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using System;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace DIMARCore.Business.Logica
 {
@@ -70,9 +72,9 @@ namespace DIMARCore.Business.Logica
             return new ClaseLicenciasRepository().GetTableClase();
         }
 
-        public async Task<IEnumerable<ClaseDTO>> GetClaseSecciones(int id)
+        public async Task<IEnumerable<ClaseDTO>> GetClasesPorSeccionId(int id)
         {
-            return await new ClaseLicenciasRepository().GetClaseSeccion(id);
+            return await new ClaseLicenciasRepository().GetClasesPorSeccionId(id);
         }
 
         public async Task<IEnumerable<GENTEMAR_CLASE_LICENCIAS>> GetAllClaseLicenciasActivas()
@@ -80,5 +82,9 @@ namespace DIMARCore.Business.Logica
             return await new ClaseLicenciasRepository().GetAllWithConditionAsync(x => x.activo == true);
         }
 
+        public async Task<IEnumerable<ClaseDTO>> GetClasesPorSeccionesIds(List<int> ids)
+        {
+            return await new ClaseLicenciasRepository().GetClasesPorSeccionesIds(ids);
+        }
     }
 }

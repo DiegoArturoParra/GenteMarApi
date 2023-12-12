@@ -2,12 +2,15 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Web;
 namespace DIMARCore.UIEntities.DTOs
 {
     public class DatosBasicosDTO
     {
         public long IdGentemar { get; set; }
+        [StringLength(19, MinimumLength = 4, ErrorMessage = "El campo debe tener entre 4 y 19 caracteres.")]
+        [RegularExpression(@"^\d{1,3}(.\d{3})*$", ErrorMessage = "El campo debe tener el formato de números con puntos de mil.")]
         public string DocumentoIdentificacion { get; set; }
         public int? IdTipoDocumento { get; set; }
         public int? IdMunicipioExpedicion { get; set; }

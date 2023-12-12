@@ -2,10 +2,15 @@
 
 namespace DIMARCore.UIEntities.DTOs
 {
-    public class CargoTituloDTO : CamposTablasMaestrasDTO
+    public class CargoTituloInfoDTO : CamposTablasMaestrasDTO
     {
         public int ClaseId { get; set; }
         public int SeccionId { get; set; }
+    }
+
+    public class CargoTituloDTO : CamposTablasMaestrasDTO
+    {
+
     }
 
     public class CreatedUpdateCargoTituloDTO
@@ -20,7 +25,7 @@ namespace DIMARCore.UIEntities.DTOs
         public int SeccionId { get; set; }
     }
 
-    public class ListadoCargoTituloDTO : CargoTituloDTO
+    public class ListadoCargoTituloDTO : CargoTituloInfoDTO
     {
         public string Seccion { get; set; }
         public string Clase { get; set; }

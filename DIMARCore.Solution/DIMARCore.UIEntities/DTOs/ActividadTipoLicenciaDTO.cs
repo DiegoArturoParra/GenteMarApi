@@ -1,9 +1,8 @@
-﻿using GenteMarCore.Entities.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DIMARCore.UIEntities.DTOs
 {
-    public class ActividadDTO
+    public class ActividadTipoLicenciaDTO
     {
         public int? IdActividad { get; set; }
         [JsonIgnore]
@@ -17,4 +16,5 @@ namespace DIMARCore.UIEntities.DTOs
         public int IdTipoLicencia { get; set; }
         public string TipoLicencia { get; set; }
     }
+
 }
