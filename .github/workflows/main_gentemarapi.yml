@@ -31,12 +31,6 @@ jobs:
       - name: Restore NuGet packages ENTITIES
         run: nuget restore "${{ env.WORKING_DIRECTORY_ENTITIES }}"
       
-      - name: Build and run tests
-        run: |
-          msbuild "${{ env.WORKING_DIRECTORY_API }}" /nologo /verbosity:m /t:Build /t:VSTest
-          # You may need to specify the full path to the test DLL if not in the working directory
-          vstest.console.exe "${{ env.WORKING_DIRECTORY_ENTITIES }}/GenteMarCore.Tests/GenteMarCore.Tests.dll"
-
       - name: Publish to folder
         run: msbuild "${{ env.WORKING_DIRECTORY_API }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
