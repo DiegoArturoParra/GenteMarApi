@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
 namespace GenteMarCore.Tests.Utilties.Helpers
 {
@@ -26,19 +27,6 @@ namespace GenteMarCore.Tests.Utilties.Helpers
 
             // Assert
             CollectionAssert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void EliminarArchivo_WhenGivenValidPaths_ShouldReturnOkResponse()
-        {
-            // Arrange
-            var respuestaEsperada = new Respuesta { Estado = true };
-
-            // Act
-            var resultado = Reutilizables.EliminarArchivo(RutaInicial, $"{RutaModuloTipoDocumento}/{NombreArchivo}");
-
-            // Assert
-            Assert.AreEqual(respuestaEsperada.Estado, resultado.Estado);
         }
 
         [TestMethod]
@@ -100,19 +88,7 @@ namespace GenteMarCore.Tests.Utilties.Helpers
             // Agrega más aserciones según sea necesario para verificar la conversión correcta
         }
 
-        [TestMethod]
-        public void ReadFile_LeeCorrectamenteElArchivo()
-        {
-            // Arrange
-            string filePath = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, $"\\{RutaInicial}\\imagen-test.png");
 
-            // Act
-            string fileContent = Reutilizables.ReadFile(filePath);
-
-            // Assert
-            Assert.IsNotNull(fileContent);
-            // Agrega más aserciones según sea necesario para verificar la lectura correcta del archivo
-        }
 
         [TestMethod]
         public void ReplaceVariables_ReemplazaVariablesCorrectamente()
@@ -224,13 +200,26 @@ namespace GenteMarCore.Tests.Utilties.Helpers
             Assert.IsNotNull(archivoBase64);
             // Agrega más aserciones según sea necesario
         }
+        [TestMethod]
+        public void ReadFile_LeeCorrectamenteElArchivo()
+        {
+            // Arrange
+            string filePath = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, $"\\{RutaInicial}\\{NombreArchivo}");
+
+            // Act
+            string fileContent = Reutilizables.ReadFile(filePath);
+
+            // Assert
+            Assert.IsNotNull(fileContent);
+            // Agrega más aserciones según sea necesario para verificar la lectura correcta del archivo
+        }
 
         [TestMethod]
         public void GuardarArchivoDeBytes_WhenGivenValidInput_ShouldReturnOkResponseAndCorrectFilePath()
         {
             // Arrange
             // Ruta de la imagen (ajusta la ruta según la ubicación de tu imagen)
-            string rutaImagen = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, $"\\{RutaInicial}\\imagen-test.png");
+            string rutaImagen = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, $"\\{RutaInicial}\\{NombreArchivo}");
 
             // Lee la imagen como un arreglo de bytes
             byte[] archivoBytes = File.ReadAllBytes(rutaImagen);
@@ -241,6 +230,23 @@ namespace GenteMarCore.Tests.Utilties.Helpers
             Assert.IsTrue(respuesta.Estado);
             Assert.IsNotNull(respuesta.Data);
             // Agrega más aserciones según sea necesario
+        }
+
+        [TestMethod]
+        public void EliminarArchivo_WhenGivenValidPaths_ShouldReturnOkResponse()
+        {
+            // Arrange
+            var respuestaEsperada = new Respuesta { Estado = true, Mensaje = "Se ha eliminado correctamente el archivo." };
+
+            string filePath = AppDomain.CurrentDomain.BaseDirectory.Insert(AppDomain.CurrentDomain.BaseDirectory.Length, $"\\{RutaInicial}");
+
+            // Act
+            var resultado = Reutilizables.EliminarArchivo(filePath, "Titulo.html");
+
+            // Assert
+            Assert.AreEqual(respuestaEsperada.Estado, resultado.Estado);
+            Assert.AreEqual(respuestaEsperada.Mensaje, resultado.Mensaje);
+            Assert.AreEqual((int)HttpStatusCode.OK, (int)resultado.StatusCode);
         }
 
         [TestMethod]

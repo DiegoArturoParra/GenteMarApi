@@ -313,7 +313,7 @@ namespace DIMARCore.Utilities.Helpers
                 // se elimina
                 File.Delete(rutaCompletaArchivo);
                 _logger.Info($"Se elimna el archivo {rutaCompletaArchivo}");
-                respuesta = Responses.SetOkResponse("Se ha eliminado correctamente el archivo.");
+                respuesta = Responses.SetOkResponse(null, "Se ha eliminado correctamente el archivo.");
             }
             catch (Exception ex)
             {
