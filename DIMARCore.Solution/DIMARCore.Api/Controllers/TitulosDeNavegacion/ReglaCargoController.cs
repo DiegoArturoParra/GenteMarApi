@@ -1,10 +1,9 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Enums;
-using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/regla-cargos")]
-    [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+    [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
     public class ReglaCargoController : BaseApiController
     {
 

@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -43,7 +43,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(List<EstadoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-activos")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetEstadosActivoAsync()
         {
             var ListaEstado = await _service.GetEstadosActivoAsync();
@@ -69,7 +69,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(List<EstadoLicenciaDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetEstadosAsync()
         {
             var ListaEstado = await _service.GetEstadosAsync();
@@ -95,12 +95,12 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearEstadoAsync(EstadoLicenciaDTO estado)
         {
             var data = Mapear<EstadoLicenciaDTO, GENTEMAR_ESTADO_LICENCIA>(estado);
             var respuesta = await _service.CrearEstado(data);
-            return Ok(respuesta);
+            return Created(string.Empty, respuesta);
         }
         /// <summary>
         /// Servicio para editar un estado
@@ -119,7 +119,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> ActualizarEstadoAsync(EstadoLicenciaDTO estado)
         {
             var data = Mapear<EstadoLicenciaDTO, GENTEMAR_ESTADO_LICENCIA>(estado);
@@ -143,7 +143,7 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarEstadoAsync(int id)
         {
             var respuesta = await _service.CambiarEstado(id);

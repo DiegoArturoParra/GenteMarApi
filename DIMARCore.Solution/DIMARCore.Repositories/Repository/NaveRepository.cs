@@ -44,7 +44,7 @@ namespace DIMARCore.Repositories.Repository
                                   NomArmad = n.nom_armad,
                                   TipoccNitPropie = n.tipo_cc_nit_propie
                               }
-                        ).OrderBy(p => p.NomNaves).ToListAsync();
+                        ).OrderBy(p => p.NomNaves).AsNoTracking().ToListAsync();
             return data;
 
         }

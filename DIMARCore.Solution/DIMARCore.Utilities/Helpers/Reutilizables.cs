@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -27,7 +28,42 @@ namespace DIMARCore.Utilities.Helpers
     /// </summary>
     public static class Reutilizables
     {
-        private static readonly ILog _logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        public static T CleanSpaces<T>(T obj) where T : class
+        {
+            // Obtener todas las propiedades públicas del objeto
+            var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var property in properties)
+            {
+                // Verificar si la propiedad es de tipo string
+                if (property.PropertyType == typeof(string))
+                {
+                    // Obtener el valor actual de la propiedad
+                    var value = (string)property.GetValue(obj);
+
+                    // Limpiar espacios en blanco al principio y al final
+                    var cleanedValue = value?.Trim();
+
+                    // Establecer el nuevo valor en la propiedad
+                    property.SetValue(obj, cleanedValue);
+                }
+            }
+            return obj;
+        }
+
+        public static List<string> GetDelimitedList(string input, char delimiter)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return new List<string>();
+            }
+
+            string[] array = input.Split(delimiter);
+            return new List<string>(array);
+        }
+
         public static string ConvertirStringApuntosDeMil(object identificacion)
         {
             string documento = string.Empty;

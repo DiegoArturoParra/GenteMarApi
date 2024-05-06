@@ -7,7 +7,7 @@ namespace DIMARCore.UIEntities.DTOs
     {
         public long IdLicencia { get; set; }
         public long? IdGentemar { get; set; }
-        public int? IdCargoLicencia { get; set; }
+        public long? IdCargoLicencia { get; set; }
         public DateTime? FechaExpedicion { get; set; }
         public DateTime? FechaVencimiento { get; set; }
         public int? IdCapitania { get; set; }
@@ -22,5 +22,7 @@ namespace DIMARCore.UIEntities.DTOs
         public UsuarioGenteMarDTO Usuario { get; set; }
         public ObservacionDTO Observacion { get; set; }
         public List<string> ListaNaves { get; set; }
+        public DateTime MaxDateFechaVencimiento { get; set; }
+        public bool ContienePrevista { get; set; }
     }
 }

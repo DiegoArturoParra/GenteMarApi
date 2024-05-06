@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using GenteMarCore.Entities.Helpers;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenteMarCore.Entities.Models
 {
-    public partial class GENTEMAR_CARGO_LICENCIA
+    public partial class GENTEMAR_CARGO_LICENCIA : GENTEMAR_CAMPOS_AUDITORIA
     {
         [NotMapped]
         public int IdTipoLicencia { get; set; }

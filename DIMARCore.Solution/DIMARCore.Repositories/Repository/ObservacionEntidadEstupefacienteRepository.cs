@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using log4net;
@@ -80,6 +81,7 @@ namespace DIMARCore.Repositories.Repository
         public async Task EditarObservacionesEntidadCascade(IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data, GENTEMAR_OBSERVACIONES_ANTECEDENTES observacion,
             GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
+            string loginName = ClaimsHelper.GetLoginName();
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
@@ -94,8 +96,6 @@ namespace DIMARCore.Repositories.Repository
                     if (repositorio != null)
                     {
                         repositorio.IdModulo = observacion.id_observacion.ToString();
-                        repositorio.IdUsuarioCreador = observacion.usuario_creador_registro;
-                        repositorio.FechaHoraCreacion = observacion.fecha_hora_creacion;
                         _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                     }
 

@@ -1,6 +1,7 @@
 ﻿using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Enums;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -64,8 +65,8 @@ namespace DIMARCore.Repositories.Repository
                                        {
                                            IdEstadoLicencias = estadoLicencia.id_estado_licencias,
                                            DescripcionEstado = estadoLicencia.descripcion_estado
-                                       }
-
+                                       },
+                                       ContienePrevista = _context.TABLA_SGDEA_PREVISTAS.Any(x => x.radicado.Equals(licencia.radicado) && x.estado == Constantes.PREVISTAGENERADA)
                                    }).AsNoTracking().ToListAsync();
 
             return resultado;
@@ -200,8 +201,6 @@ namespace DIMARCore.Repositories.Repository
                         if (repositorio != null)
                         {
                             repositorio.IdModulo = datos.Observacion.id_observacion.ToString();
-                            repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
-                            repositorio.FechaHoraCreacion = DateTime.Now;
                             _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                             await SaveAllAsync();
                         }
@@ -238,15 +237,11 @@ namespace DIMARCore.Repositories.Repository
             {
                 try
                 {
-                    _context.GENTEMAR_LICENCIAS.Attach(datos);
-                    var entry = _context.Entry(datos);
-                    entry.State = EntityState.Modified;
-                    await SaveAllAsync();
-                    if (datos.ListaNaves.Count() > 0)
+                    await Update(datos);
+                    if (datos.ListaNaves != null && datos.ListaNaves.Count() > 0)
                     {
                         // elimina los resgistros de las naves existente 
-                        _context.GENTEMAR_LICENCIA_NAVES.RemoveRange(
-                            _context.GENTEMAR_LICENCIA_NAVES.Where(x => x.id_licencia == datos.id_licencia)
+                        _context.GENTEMAR_LICENCIA_NAVES.RemoveRange(_context.GENTEMAR_LICENCIA_NAVES.Where(x => x.id_licencia == datos.id_licencia)
                         );
                         //crea ls nuevas naves
                         await CrateInCascadeNaves(datos.ListaNaves, datos.id_licencia);
@@ -259,8 +254,6 @@ namespace DIMARCore.Repositories.Repository
                         if (repositorio != null)
                         {
                             repositorio.IdModulo = datos.Observacion.id_observacion.ToString();
-                            repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
-                            repositorio.FechaHoraCreacion = DateTime.Now;
                             _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                             await SaveAllAsync();
                         }

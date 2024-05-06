@@ -57,11 +57,12 @@ namespace DIMARCore.Api.Core
                 new Claim(ClaimsConfig.ID_CAPITANIA, usuario.Capitania != null ? usuario.Capitania.Id.ToString() : ((int)TipoAplicacionEnum.ServicioLocal).ToString()) // NOTA: se convierte en string
             };
 
+            //foreach (var item in usuario.Roles)
+            //{
+            //    claims.Add(new Claim(ClaimTypes.Role, item.NombreRol));
+            //}
 
-            foreach (var item in usuario.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, item.NombreRol));
-            }
+
             // crear el token para el usuario
             var token = new JwtSecurityToken(issuer: issuerToken,
                             audience: audienceToken,

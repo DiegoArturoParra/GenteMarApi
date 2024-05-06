@@ -1,7 +1,10 @@
 ﻿
+using DIMARCore.Api.Core.Filters;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
@@ -17,7 +20,6 @@ namespace DIMARCore.Api.Controllers.Licencias
     /// <summary>
     /// api de las limitantes 
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/limitante")]
     public class LimitanteController : BaseApiController
@@ -46,9 +48,10 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(List<LimitanteDTO>))]
         [HttpGet]
         [Route("lista")]
-        public IHttpActionResult GetLimitantes()
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetLimitantesAsync()
         {
-            var limitaciones = _service.GetLimitantes();
+            var limitaciones = await _service.GetLimitantesAsync();
             var data = Mapear<IList<GENTEMAR_LIMITANTE>, IList<LimitanteDTO>>(limitaciones);
             return Ok(data);
         }
@@ -67,9 +70,10 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(List<LimitanteDTO>))]
         [HttpGet]
         [Route("lista-activo")]
-        public IHttpActionResult GetLimitantesActivo()
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetLimitantesActivoAsync()
         {
-            var limitaciones = _service.GetLimitantesActivo();
+            var limitaciones = await _service.GetLimitantesActivoAsync();
             var data = Mapear<IList<GENTEMAR_LIMITANTE>, IList<LimitanteDTO>>(limitaciones);
             return Ok(data);
         }
@@ -86,13 +90,14 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(GENTEMAR_ACTIVIDAD))]
+        [ResponseType(typeof(GENTEMAR_LIMITANTE))]
         [HttpGet]
         [Route("id")]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetLimitante(int id)
         {
-            var limitacion = _service.GetLimitante(id);
-            return Ok(limitacion);
+            var limitante = _service.GetLimitanteAsync(id);
+            return Ok(limitante);
         }
 
 
@@ -103,22 +108,23 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>28/04/2022</Fecha>
         /// </remarks>
-        /// <param name="datos">objeto para crear un estado.</param>
+        /// <param name="datos">objeto para crear una limitación.</param>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="200">OK. Devuelve el objeto solicitado.</response>   
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearLimitante(LimitanteDTO datos)
         {
 
             var data = Mapear<LimitanteDTO, GENTEMAR_LIMITANTE>(datos);
-            var limitacion = await _service.CrearLimitante(data);
-            return ResultadoStatus(limitacion);
+            var response = await _service.CrearLimitante(data);
+            return Created(string.Empty, response);
         }
 
 
@@ -136,19 +142,19 @@ namespace DIMARCore.Api.Controllers.Licencias
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AllowAnonymous]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarLimitante(LimitanteDTO datos)
         {
             var data = Mapear<LimitanteDTO, GENTEMAR_LIMITANTE>(datos);
-            var limitacion = await _service.EditarLimitanteAsync(data);
-            return ResultadoStatus(limitacion);
+            var response = await _service.EditarLimitanteAsync(data);
+            return Ok(response);
         }
 
         /// <summary>
-        /// cambia el estado de un rango 
+        /// cambia el estado de una limitante 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -163,10 +169,10 @@ namespace DIMARCore.Api.Controllers.Licencias
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AllowAnonymous]
-        public async Task<IHttpActionResult> CambiarRangoAsync(int id)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> CambiarLimitanteAsync(int id)
         {
-            var respuesta = await _service.cambiarLimitante(id);
+            var respuesta = await _service.CambiarLimitante(id);
             return ResultadoStatus(respuesta);
         }
 

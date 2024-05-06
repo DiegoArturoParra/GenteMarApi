@@ -22,7 +22,7 @@ namespace DIMARCore.UIEntities.DTOs
         public int ReglaId { get; set; }
         [Required(ErrorMessage = "El id de cargo es requerido.")]
         public int CargoId { get; set; }
-        [Required(ErrorMessage = "El id de cargo es requerido.")]
+        [Required(ErrorMessage = "El id de capacidad es requerido.")]
         public int CapacidadId { get; set; }
     }
 
@@ -32,6 +32,8 @@ namespace DIMARCore.UIEntities.DTOs
         public int ReglaId { get; set; }
         [Required(ErrorMessage = "El id de cargo es requerido.")]
         public int CargoTituloId { get; set; }
+        [Required(ErrorMessage = "El activo es requerido.")]
+        public bool IsActive { get; set; }
     }
 
 }

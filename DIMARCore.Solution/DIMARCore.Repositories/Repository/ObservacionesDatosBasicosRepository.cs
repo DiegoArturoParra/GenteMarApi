@@ -24,8 +24,6 @@ namespace DIMARCore.Repositories.Repository
                     {
 
                         repositorio.IdModulo = entidad.id_observacion.ToString();
-                        repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
-                        repositorio.FechaHoraCreacion = DateTime.Now;
                         _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                         await SaveAllAsync();
                     }
@@ -52,7 +50,7 @@ namespace DIMARCore.Repositories.Repository
                                {
                                    IdTablaRelacion = observaciones.id_gentemar,
                                    Observacion = observaciones.observacion,
-                                   FechaHoraCreacion = observaciones.fecha_hora_creacion,
+                                   FechaHoraCreacion = observaciones.FechaCreacion,
                                    ArchivoBase = new ArchivoBaseDTO()
                                    {
                                        RutaArchivo = observaciones.ruta_archivo != string.Empty || observaciones.ruta_archivo != null

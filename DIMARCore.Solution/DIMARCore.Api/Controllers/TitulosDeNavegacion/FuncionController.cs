@@ -1,10 +1,11 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -32,6 +33,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         {
             _serviceFuncion = new FuncionBO();
         }
+
         /// <summary>
         /// Servicio que lista las funciones por regla.
         /// </summary>
@@ -42,18 +44,18 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <param name="ReglaId">objeto que filtra las funciones por regla</param>
+        /// <param name="isShowAll"></param>
         /// <returns></returns>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/05/2022</Fecha>
-        [ResponseType(typeof(List<NivelDTO>))]
+        [ResponseType(typeof(List<FuncionDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
-        [Route("lista-by-regla/{ReglaId}")]
-        public async Task<IHttpActionResult> FuncionesActivasByRegla(int ReglaId)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [Route("lista-by-regla/{ReglaId}/ShowAll/{isShowAll}")]
+        public async Task<IHttpActionResult> FuncionesActivasByRegla(int ReglaId, bool isShowAll)
         {
-            var query = await _serviceFuncion.GetFuncionesByReglaActivas(ReglaId);
-            var listado = Mapear<IEnumerable<GENTEMAR_REGLA_FUNCION>, IEnumerable<FuncionDTO>>(query);
-            return Ok(listado);
+            var query = await _serviceFuncion.GetFuncionesByRegla(ReglaId, isShowAll);
+            return Ok(query);
         }
 
 
@@ -70,13 +72,13 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <returns></returns>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>05/03/2022</Fecha>
-        [ResponseType(typeof(List<NivelDTO>))]
+        [ResponseType(typeof(List<FuncionDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public IHttpActionResult Listado([FromUri] ActivoDTO dto)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ListadoAsync([FromUri] ActivoDTO dto)
         {
-            var query = _serviceFuncion.GetAll(dto != null ? dto.Activo : null);
+            var query = await _serviceFuncion.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_FUNCIONES>, IEnumerable<FuncionDTO>>(query);
             return Ok(listado);
         }
@@ -99,7 +101,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseTypeSwagger<FuncionDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetFuncion(int id)
         {
             var entidad = await _serviceFuncion.GetByIdAsync(id);
@@ -125,7 +127,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] FuncionDTO funcion)
         {
             var data = Mapear<FuncionDTO, GENTEMAR_FUNCIONES>(funcion);
@@ -151,7 +153,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] FuncionDTO funcion)
         {
             var data = Mapear<FuncionDTO, GENTEMAR_FUNCIONES>(funcion);
@@ -175,7 +177,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceFuncion.AnulaOrActivaAsync(id);

@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -47,12 +47,11 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// </remarks>
         [ResponseType(typeof(List<CapacidadDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista-by-regla-cargo")]
-        public async Task<IHttpActionResult> CapacidadesActivasByReglaCargo([FromUri] IdsLlaveCompuestaDTO items)
+        public async Task<IHttpActionResult> CapacidadesByReglaCargo([FromUri] IdsLlaveCompuestaDTO items)
         {
-            var query = await _serviceCapacidad.CapacidadesActivasByReglaCargo(items);
-            var listado = Mapear<IEnumerable<GENTEMAR_REGLAS_CARGO>, IEnumerable<CapacidadDTO>>(query);
+            var listado = await _serviceCapacidad.CapacidadesByReglaCargo(items);
             return Ok(listado);
         }
 
@@ -73,10 +72,10 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<CapacidadDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public IHttpActionResult Listado([FromUri] ActivoDTO dto)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> Listado([FromUri] ActivoDTO dto)
         {
-            var query = _serviceCapacidad.GetAll(dto != null ? dto.Activo : null);
+            var query = await _serviceCapacidad.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_CAPACIDAD>, IEnumerable<CapacidadDTO>>(query);
             return Ok(listado);
         }
@@ -97,7 +96,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseTypeSwagger<CapacidadDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetCapacidad(int id)
         {
             var entidad = await _serviceCapacidad.GetByIdAsync(id);
@@ -123,7 +122,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] CapacidadDTO capacidad)
         {
             var data = Mapear<CapacidadDTO, GENTEMAR_CAPACIDAD>(capacidad);
@@ -148,7 +147,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] CapacidadDTO capacidad)
         {
             var data = Mapear<CapacidadDTO, GENTEMAR_CAPACIDAD>(capacidad);
@@ -172,7 +171,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceCapacidad.AnulaOrActivaAsync(id);

@@ -13,25 +13,20 @@ namespace GenteMarCore.Entities.Models
 
         public long id_gentemar { get; set; }
 
-        public int? id_cargo_licencia { get; set; }
+        public long id_cargo_licencia { get; set; }
 
         public DateTime fecha_expedicion { get; set; }
 
         public DateTime fecha_vencimiento { get; set; }
 
-        public int? id_capitania { get; set; }
+        public int id_capitania { get; set; }
 
-        public int? id_estado_licencia { get; set; }
+        public int id_estado_licencia { get; set; }
 
         public decimal radicado { get; set; }
 
-        public int? id_capitania_firmante { get; set; }
+        public int id_capitania_firmante { get; set; }
 
-        public bool? activo { get; set; }
-
-        public string GetFileNameWithoutExtension(string nombreArchivo)
-        {
-            throw new NotImplementedException();
-        }
+        public bool activo { get; set; }
     }
 }

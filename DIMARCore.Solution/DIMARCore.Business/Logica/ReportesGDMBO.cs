@@ -12,18 +12,22 @@ namespace DIMARCore.Business.Logica
 {
     public class ReportesGDMBO
     {
-        private readonly ReadWriteToCSVFile _readWriteToCSV;
-        private readonly ReportesgdmRepository _reportesgdmRepository;
+        private readonly IReadWriteToCSVFile _readWriteToCSV;
+        private readonly ReportesTituloRepository _reportestituloRepository;
+        private readonly ReportesLicenciaRepository _reporteslicenciaRepository;
+        private readonly ReportesDatosBasicosRepository _reportesdatosbasicosRepository;
         public ReportesGDMBO()
         {
             _readWriteToCSV = new ReadWriteToCSVFile();
-            _reportesgdmRepository = new ReportesgdmRepository();
+            _reportestituloRepository = new ReportesTituloRepository();
+            _reporteslicenciaRepository = new ReportesLicenciaRepository();
+            _reportesdatosbasicosRepository = new ReportesDatosBasicosRepository();
         }
         public async Task<Respuesta> GenerateReportDatosBasicosCSV(DatosBasicosReportFilter reportFilter, CancellationToken cancellationToken)
         {
             using (var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
-                var data = await _reportesgdmRepository.GetDataByReportDatosBasicos(reportFilter, tokenSource);
+                var data = await _reportesdatosbasicosRepository.GetDataByReportCsv(reportFilter, tokenSource);
 
                 if (!data.Any())
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay datos para generar el reporte."));
@@ -42,7 +46,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
-                var data = await _reportesgdmRepository.GetDataByReportLicencias(reportFilter, tokenSource);
+                var data = await _reporteslicenciaRepository.GetDataByReportCsv(reportFilter, tokenSource);
 
                 if (!data.Any())
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay datos para generar el reporte."));
@@ -61,7 +65,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
-                var data = await _reportesgdmRepository.GetDataByReportTitulosDapper(reportFilter, tokenSource);
+                var data = await _reportestituloRepository.GetDataByReportCsv(reportFilter, tokenSource);
 
                 if (!data.Any())
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay datos para generar el reporte."));

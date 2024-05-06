@@ -9,7 +9,7 @@ namespace DIMARCore.UIEntities.DTOs
         private string _Actividad;
         public string Actividad
         {
-            get => _Actividad?.ToUpper();
+            get => _Actividad?.Trim().ToUpper();
             set => _Actividad = value;
         }
         public bool? Activo { get; set; }

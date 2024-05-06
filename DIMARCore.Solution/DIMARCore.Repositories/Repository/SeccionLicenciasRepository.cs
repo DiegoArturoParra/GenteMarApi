@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace DIMARCore.Repositories.Repository
             return await (from actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
                           join seccion in _context.GENTEMAR_SECCION_LICENCIAS on actividadSeccion.id_seccion equals
                           seccion.id_seccion
-                          where actividadSeccion.id_actividad == id && seccion.activo == true
+                          where actividadSeccion.id_actividad == id && seccion.activo == Constantes.ACTIVO
                           select new SeccionDTO
                           {
                               Id = seccion.id_seccion,
@@ -39,7 +40,7 @@ namespace DIMARCore.Repositories.Repository
             return await (from actividadSeccion in _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA
                           join seccion in _context.GENTEMAR_SECCION_LICENCIAS on actividadSeccion.id_seccion equals
                           seccion.id_seccion
-                          where ids.Contains(actividadSeccion.id_actividad) && seccion.activo == true
+                          where ids.Contains(actividadSeccion.id_actividad) && seccion.activo == Constantes.ACTIVO
                           group new { actividadSeccion, seccion } by new { actividadSeccion.id_seccion, seccion.actividad_a_bordo, seccion.activo } into g
                           select new SeccionDTO
                           {
@@ -80,25 +81,21 @@ namespace DIMARCore.Repositories.Repository
         }
 
         /// <summary>
-        /// Metodo para crear los cargo licencia con limitaciones.
+        /// metodo para crear una seccion con sus actividades
         /// </summary>
         /// <param name="entidad"></param>
         /// <param name="actividad"></param>
-        /// <param name="IdLimitacion"></param>
         /// <returns></returns>
         public async Task CrearActividadSeccion(GENTEMAR_SECCION_LICENCIAS entidad, IList<GENTEMAR_ACTIVIDAD> actividad)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
-                //await Create(entidad);
                 try
                 {
-                    entidad.activo = true;
                     _context.GENTEMAR_SECCION_LICENCIAS.Add(entidad);
                     await SaveAllAsync();
                     await CrateInCascadeActividadSeccion(actividad, entidad.id_seccion);
                     transaction.Commit();
-
                 }
                 catch (Exception ex)
                 {
@@ -110,24 +107,19 @@ namespace DIMARCore.Repositories.Repository
 
 
         /// <summary>
-        /// Metodo para crear los cargo licencia con limitaciones.
+        /// metodo para actualizar una seccion con sus actividades
         /// </summary>
         /// <param name="entidad"></param>
         /// <param name="actividad"></param>
-        /// <param name="IdLimitacion"></param>
         /// <returns></returns>
         public async Task ActualizarActividadSeccion(GENTEMAR_SECCION_LICENCIAS entidad, IList<GENTEMAR_ACTIVIDAD> actividad)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
-                //await Create(entidad);
                 try
                 {
-                    _context.GENTEMAR_SECCION_LICENCIAS.Attach(entidad);
-                    var entry = _context.Entry(entidad);
-                    entry.State = EntityState.Modified;
-                    await SaveAllAsync();
-                    //elimina los registos ya creados 
+                    await Update(entidad);
+                    //elimina los registros ya creados 
                     _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.RemoveRange(
                         _context.GENTEMAR_ACTIVIDAD_SECCION_LICENCIA.Where(x => x.id_seccion == entidad.id_seccion)
                     );

@@ -33,7 +33,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new ReglaCargoRepository())
             {
-                var existe = await repo.AnyWithCondition(x => x.id_cargo_regla == id);
+                var existe = await repo.AnyWithConditionAsync(x => x.id_cargo_regla == id);
                 return !existe
                     ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe la relación."))
                     : Responses.SetOkResponse(await repo.GetDetalleById(id));
@@ -58,7 +58,7 @@ namespace DIMARCore.Business.Logica
 
             using (var repo = new ReglaCargoRepository())
             {
-                var entidad = await repo.GetWithCondition(x => x.id_cargo_regla == data.id_cargo_regla);
+                var entidad = await repo.GetWithConditionAsync(x => x.id_cargo_regla == data.id_cargo_regla);
                 if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe la relación con cargo-regla."));
                 entidad.Habilitaciones = data.Habilitaciones;
@@ -72,15 +72,15 @@ namespace DIMARCore.Business.Logica
 
         private async Task ValidarFormularioAsync(GENTEMAR_REGLAS_CARGO entidad, bool Update = false)
         {
-            var existeNivel = await new NivelTituloRepository().AnyWithCondition(x => x.id_nivel == entidad.id_nivel);
+            var existeNivel = await new NivelTituloRepository().AnyWithConditionAsync(x => x.id_nivel == entidad.id_nivel);
             if (!existeNivel)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el nivel."));
 
-            var cargoTitulo = await new CargoTituloRepository().AnyWithCondition(x => x.id_cargo_titulo == entidad.id_cargo_titulo);
+            var cargoTitulo = await new CargoTituloRepository().AnyWithConditionAsync(x => x.id_cargo_titulo == entidad.id_cargo_titulo);
             if (!cargoTitulo)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe el cargo del título."));
 
-            var existeRegla = await new ReglaRepository().AnyWithCondition(x => x.id_regla == entidad.id_regla);
+            var existeRegla = await new ReglaRepository().AnyWithConditionAsync(x => x.id_regla == entidad.id_regla);
             if (!existeRegla)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No existe la regla."));
 
@@ -88,7 +88,7 @@ namespace DIMARCore.Business.Logica
 
             if (!Update)
             {
-                var existeRelacion = await new ReglaCargoRepository().AnyWithCondition(x => x.id_regla == entidad.id_regla
+                var existeRelacion = await new ReglaCargoRepository().AnyWithConditionAsync(x => x.id_regla == entidad.id_regla
                                             && x.id_nivel == entidad.id_nivel && x.id_cargo_titulo == entidad.id_cargo_titulo
                                             && x.id_capacidad == entidad.id_capacidad);
 
@@ -98,7 +98,7 @@ namespace DIMARCore.Business.Logica
             }
             else
             {
-                var existeRelacion = await new ReglaCargoRepository().AnyWithCondition(x => x.id_regla == entidad.id_regla
+                var existeRelacion = await new ReglaCargoRepository().AnyWithConditionAsync(x => x.id_regla == entidad.id_regla
                                            && x.id_nivel == entidad.id_nivel && x.id_cargo_titulo == entidad.id_cargo_titulo
                                            && x.id_capacidad == entidad.id_capacidad && x.id_cargo_regla != entidad.id_cargo_regla);
 
@@ -112,7 +112,7 @@ namespace DIMARCore.Business.Logica
         {
             if (habilitacionesId.Any())
             {
-                var tasks = habilitacionesId.Select(item => new HabilitacionRepository().AnyWithCondition(x => x.id_habilitacion == item));
+                var tasks = habilitacionesId.Select(item => new HabilitacionRepository().AnyWithConditionAsync(x => x.id_habilitacion == item));
                 var firstCompletedTask = await Task.WhenAny(tasks);
                 var existehabilitacion = await firstCompletedTask;
                 if (!existehabilitacion)

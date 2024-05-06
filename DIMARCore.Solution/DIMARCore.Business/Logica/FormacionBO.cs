@@ -53,9 +53,9 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new FormacionRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.formacion.Equals(data.formacion));
+                var validate = await repo.AnyWithConditionAsync(x => x.formacion.Equals(data.formacion));
                 if (validate)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La formación {data.formacion} ya esta registrada."));
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La formación {data.formacion} ya se encuentra registrada."));
                 await repo.Create(data);
                 return Responses.SetCreatedResponse(data);
             }
@@ -71,14 +71,16 @@ namespace DIMARCore.Business.Logica
             Respuesta respuesta = new Respuesta();
             using (var repo = new FormacionRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_formacion == data.id_formacion);
-                if (validate == null)
+                var entidad = await repo.GetWithConditionAsync(x => x.id_formacion == data.id_formacion);
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("La formación no existe."));
 
-                data.id_formacion = validate.id_formacion;
-                data.activo = validate.activo;
-                await new FormacionRepository().Update(data);
-                return Responses.SetUpdatedResponse(validate);
+                var validate = await repo.AnyWithConditionAsync(x => x.formacion.Equals(data.formacion) && x.id_formacion != data.id_formacion);
+                if (validate)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La formación {data.formacion} ya se encuentra registrada."));
+                entidad.formacion = data.formacion;
+                await new FormacionRepository().Update(entidad);
+                return Responses.SetUpdatedResponse(entidad);
             }
         }
         /// <summary>
@@ -90,7 +92,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new FormacionRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_formacion == id);
+                var validate = await repo.GetWithConditionAsync(x => x.id_formacion == id);
                 if (validate == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("La formación no existe."));
                 validate.activo = !validate.activo;

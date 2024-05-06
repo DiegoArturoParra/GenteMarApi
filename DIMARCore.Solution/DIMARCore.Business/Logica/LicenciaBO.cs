@@ -1,5 +1,4 @@
-﻿using DIMARCore.Business.Helpers;
-using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Enums;
@@ -12,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace DIMARCore.Business.Logica
 {
@@ -39,9 +39,11 @@ namespace DIMARCore.Business.Logica
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
         public async Task<LicenciaDTO> GetlicenciaIdAsync(int id)
         {
-            var entidad = await new LicenciaRepository().GetById(id);
+            var entidad = await new LicenciaRepository().GetByIdAsync(id);
             await new DatosBasicosBO().ValidationsStatusPersona(new ParametrosGenteMarDTO { Id = entidad.id_gentemar });
-            return await new LicenciaRepository().GetlicenciaId(id);
+            var data = await new LicenciaRepository().GetlicenciaId(id);
+            data.MaxDateFechaVencimiento = data.FechaVencimiento.Value.AddMonths(1);
+            return data;
         }
 
         /// <summary>
@@ -61,12 +63,9 @@ namespace DIMARCore.Business.Logica
         /// <returns></returns>
         public async Task<Respuesta> CrearLicencia(GENTEMAR_LICENCIAS data, string rutaInicial)
         {
-            Respuesta respuesta = new Respuesta();
             using (var repo = new LicenciaRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.radicado == data.radicado);
-                if (validate)
-                    throw new HttpStatusCodeException(HttpStatusCode.Conflict, "Ya se encuentra registrado el radicado.");
+                await ValidacionesDeNegocio(data);
                 //completa la informacion de la licencia
                 var claimCapitania = ClaimsHelper.GetCapitaniaUsuario();
                 data.id_capitania = claimCapitania;
@@ -84,48 +83,31 @@ namespace DIMARCore.Business.Logica
                     await repo.CrearLicencia(data);
                     return Responses.SetCreatedResponse(data);
                 }
-                if (data.Observacion != null && data.Observacion.Archivo != null)
+
+                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+                if (data.Observacion != null)
                 {
-                    string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
-                    respuesta = Reutilizables.GuardarArchivo(data.Observacion.Archivo, rutaInicial, path);
-
-                    if (!respuesta.Estado)
-                        throw new HttpStatusCodeException(respuesta);
-
-                    var archivo = (Archivo)respuesta.Data;
-                    if (archivo != null)
+                    if (data.Observacion.Archivo != null)
                     {
-                        try
-                        {
-                            data.Observacion.ruta_archivo = archivo.PathArchivo;
-                            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                            {
-                                IdAplicacion = Constantes.ID_APLICACION,
-                                NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
-                                TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                FechaCargue = DateTime.Now,
-                                NombreArchivo = data.Observacion.Archivo.FileName,
-                                RutaArchivo = data.Observacion.ruta_archivo,
-                                Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                DescripcionDocumento = "observación de Licencia.",
-                            };
-                            await repo.CrearLicencia(data, repositorio);
-                            return Responses.SetCreatedResponse(data);
-                        }
-                        catch (Exception ex)
-                        {
-                            Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
-                            respuesta = Responses.SetInternalServerErrorResponse(ex);
-                            _ = new DbLogger().InsertLogToDatabase(respuesta);
-                            return respuesta;            
-                        }
+                        repositorio = SaveFileOfObservation(rutaInicial, data.Observacion.Archivo);
                     }
                 }
-                await repo.CrearLicencia(data);
-                return Responses.SetCreatedResponse(data);
+                try
+                {
+                    await repo.CrearLicencia(data, repositorio);
+                }
+                catch (Exception ex)
+                {
+                    if (repositorio != null)
+                    {
+                        Reutilizables.EliminarArchivo(rutaInicial, repositorio.RutaArchivo);
+                    }
+                    throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex));
+                }
+                return Responses.SetCreatedResponse(new { data.id_licencia });
             }
         }
-     
+
 
         /// <summary>
         /// modificar un nueva licencia 
@@ -134,99 +116,166 @@ namespace DIMARCore.Business.Logica
         /// <returns></returns>
         public async Task<Respuesta> ModificarLicencia(GENTEMAR_LICENCIAS data, string rutaInicial)
         {
-            Respuesta respuesta = new Respuesta();
-            await ValidacionesDeNegocio(data, true);
+            if (data.Observacion == null)
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "La observación es requerida.");
 
-            using (var repo = new LicenciaRepository())
+            using (var licenciaRepository = new LicenciaRepository())
             {
-                var licenciaActual = await repo.GetWithCondition(x => x.id_licencia == data.id_licencia)
+                var licenciaActual = await licenciaRepository.GetWithConditionAsync(x => x.id_licencia == data.id_licencia)
+                    ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la licencia.");
+
+                await ValidacionesDeNegocio(data, true, licenciaActual);
+                var claimCapitania = ClaimsHelper.GetCapitaniaUsuario();
+                licenciaActual.id_capitania = claimCapitania;
+                licenciaActual.id_estado_licencia = data.id_estado_licencia;
+                licenciaActual.id_cargo_licencia = data.id_cargo_licencia;
+                licenciaActual.fecha_expedicion = data.fecha_expedicion;
+                licenciaActual.fecha_vencimiento = data.fecha_vencimiento;
+                licenciaActual.id_capitania_firmante = data.id_capitania_firmante;
+                licenciaActual.ListaNaves = data.ListaNaves;
+                licenciaActual.radicado = data.radicado;
+                licenciaActual.Observacion = data.Observacion;
+
+                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+
+                if (data.Observacion.Archivo != null)
+                {
+                    repositorio = SaveFileOfObservation(rutaInicial, data.Observacion.Archivo);
+                }
+                try
+                {
+                    await licenciaRepository.ActualizarLicencia(licenciaActual, repositorio);
+                }
+                catch (Exception ex)
+                {
+                    if (repositorio != null)
+                    {
+                        Reutilizables.EliminarArchivo(rutaInicial, repositorio.RutaArchivo);
+                    }
+                    throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex));
+                }
+                return Responses.SetUpdatedResponse(new { licenciaActual.id_licencia });
+            }
+
+        }
+
+
+        /// <summary>
+        /// Cambiar el estado de la licencia
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="rutaInicial"></param>
+        /// <returns></returns>
+        /// <exception cref="HttpStatusCodeException"></exception>
+        public async Task<Respuesta> CambiarEstadoLicencia(GENTEMAR_LICENCIAS licencia, string rutaInicial)
+        {
+            if (licencia.Observacion == null)
+                throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "La observación es requerida.");
+
+            using (var licenciaRepository = new LicenciaRepository())
+            {
+                var licenciaActual = await licenciaRepository.GetWithConditionAsync(x => x.id_licencia == licencia.id_licencia)
                     ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encuentra registrada la licencia.");
 
                 var claimCapitania = ClaimsHelper.GetCapitaniaUsuario();
                 licenciaActual.id_capitania = claimCapitania;
-                licenciaActual.id_estado_licencia = data.id_estado_licencia != null ? data.id_estado_licencia : licenciaActual.id_estado_licencia;
-                licenciaActual.id_cargo_licencia = data.id_cargo_licencia != null ? data.id_cargo_licencia : licenciaActual.id_cargo_licencia;
-                licenciaActual.fecha_expedicion = data.fecha_expedicion != null ? data.fecha_expedicion : licenciaActual.fecha_expedicion;
-                licenciaActual.fecha_vencimiento = data.fecha_vencimiento != null ? data.fecha_vencimiento : licenciaActual.fecha_vencimiento;
-                licenciaActual.id_capitania_firmante = data.id_capitania_firmante != null ? data.id_capitania_firmante : licenciaActual.id_capitania_firmante;
-                licenciaActual.activo = data.activo == null ? licenciaActual.activo : data.activo;
-                licenciaActual.ListaNaves = data.ListaNaves;
+                licenciaActual.activo = licencia.activo;
+                licenciaActual.Observacion = licencia.Observacion;
 
-                if (data.Observacion == null && !data.ListaNaves.Any())
+                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+
+                if (licencia.Observacion.Archivo != null)
                 {
-                    await repo.Update(licenciaActual);
-                    return Responses.SetCreatedResponse(data);
+                    repositorio = SaveFileOfObservation(rutaInicial, licencia.Observacion.Archivo);
                 }
-
-                if (data.Observacion == null && data.ListaNaves.Any())
+                try
                 {
-                    await new LicenciaRepository().ActualizarLicencia(licenciaActual);
-                    return Responses.SetUpdatedResponse(licenciaActual);
+                    await licenciaRepository.ActualizarLicencia(licenciaActual, repositorio);
                 }
-
-                if (data.Observacion != null && data.Observacion.Archivo != null)
-
+                catch (Exception ex)
                 {
-                    licenciaActual.Observacion = data.Observacion;
-
-                    string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
-                    respuesta = Reutilizables.GuardarArchivo(data.Observacion.Archivo, rutaInicial, path);
-                    if (!respuesta.Estado)
-                        throw new HttpStatusCodeException(respuesta);
-
-                    var archivo = (Archivo)respuesta.Data;
-                    if (archivo != null)
+                    if (repositorio != null)
                     {
-                        try
-                        {
-                            data.Observacion.ruta_archivo = archivo.PathArchivo;
-
-                            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                            {
-                                IdAplicacion = Constantes.ID_APLICACION,
-                                NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
-                                TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                FechaCargue = DateTime.Now,
-                                NombreArchivo = data.Observacion.Archivo.FileName,
-                                RutaArchivo = data.Observacion.ruta_archivo,
-                                Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                DescripcionDocumento = "observación de Licencia.",
-                            };
-                            await new LicenciaRepository().ActualizarLicencia(licenciaActual, repositorio);
-                            return Responses.SetUpdatedResponse(licenciaActual);
-                        }
-
-                        catch (Exception ex)
-                        {
-                            Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
-                            respuesta = Responses.SetInternalServerErrorResponse(ex);
-                            _ = new DbLogger().InsertLogToDatabase(respuesta);
-                            return respuesta;
-                        }
+                        Reutilizables.EliminarArchivo(rutaInicial, repositorio.RutaArchivo);
                     }
+                    throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex));
                 }
-                await repo.ActualizarLicencia(licenciaActual);
-                return Responses.SetUpdatedResponse(licenciaActual);
+                return Responses.SetUpdatedResponse(new { licenciaId = licenciaActual.id_licencia, Activo = licencia.activo });
             }
 
         }
-       
-        private async Task ValidacionesDeNegocio(GENTEMAR_LICENCIAS entidad, bool isEdit = false)
+
+        private GENTEMAR_REPOSITORIO_ARCHIVOS SaveFileOfObservation(string rutaInicial, HttpPostedFile fileObservation)
         {
+            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+            string path = $"{Constantes.CARPETA_MODULO_LICENCIAS}\\{Constantes.CARPETA_OBSERVACIONES}";
+            var respuesta = Reutilizables.GuardarArchivo(fileObservation, rutaInicial, path);
+            if (!respuesta.Estado)
+                throw new HttpStatusCodeException(respuesta);
 
-            if (!isEdit)
+            var archivo = (Archivo)respuesta.Data;
+            if (archivo != null)
             {
-                var existeRadicadoSGDEA = await new SGDEARepository().AnyWithCondition(x => x.radicado.ToString().Equals(entidad.radicado));
-                if (!existeRadicadoSGDEA)
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el radicado: {entidad.radicado} en el SGDEA.");
+                repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
+                {
+                    IdAplicacion = Constantes.ID_APLICACION,
+                    NombreModulo = Constantes.CARPETA_MODULO_LICENCIAS,
+                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
+                    FechaCargue = DateTime.Now,
+                    NombreArchivo = fileObservation.FileName,
+                    RutaArchivo = archivo.PathArchivo,
+                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                    DescripcionDocumento = "observación de Licencia.",
+                };
+            }
+            return repositorio;
+        }
 
-                var SeRepiteRadicado = await new LicenciaRepository().AnyWithCondition(x => x.radicado.Equals(entidad.radicado));
-                if (SeRepiteRadicado)
-                    throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"Ya se uso el radicado: {entidad.radicado}.");
+        private async Task ValidacionesDeNegocio(GENTEMAR_LICENCIAS entidadNueva, bool isEdit = false, GENTEMAR_LICENCIAS entidadantigua = null)
+        {
+            var existRadicadoImpreso = await new SGDEARepository()
+                                    .AnyWithConditionAsync(x => x.radicado.Equals(entidadNueva.radicado) && x.estado == Constantes.PREVISTAGENERADA);
+            if (existRadicadoImpreso)
+            {
+                var message = isEdit ? $"No se puede modificar la licencia con el radicado: {entidadNueva.radicado} ya se encuentra generada la prevista." :
+                    $"No se puede crear la licencia con el radicado: {entidadNueva.radicado} ya se encuentra generada la prevista.";
+                throw new HttpStatusCodeException(HttpStatusCode.Conflict, message);
+            }
+
+            var tipoLicencia = await new CargoLicenciaRepository().GetCargoLicenciaIdAsync(entidadNueva.id_cargo_licencia);
+
+            if (tipoLicencia.IdTipoLicencia != (int)TipoLicenciaEnum.ENTRENAMIENTO
+                || (isEdit && entidadNueva.radicado != entidadantigua.radicado && tipoLicencia.IdTipoLicencia != (int)TipoLicenciaEnum.ENTRENAMIENTO))
+            {
+                var existeRadicadoSGDEA = await new SGDEARepository()
+                                    .AnyWithConditionAsync(x => x.radicado.Equals(entidadNueva.radicado) && x.estado == Constantes.PREVISTATRAMITE);
+                if (!existeRadicadoSGDEA)
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el radicado: {entidadNueva.radicado} en el SGDEA.");
+
+                if (!isEdit || entidadNueva.id_cargo_licencia != entidadantigua.id_cargo_licencia)
+                {
+                    var SeRepiteRadicado = await new LicenciaRepository().AnyWithConditionAsync(x => x.radicado.Equals(entidadNueva.radicado)
+                                                                                    && x.id_licencia != entidadantigua.id_licencia);
+                    if (SeRepiteRadicado)
+                        throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"Ya está en uso el radicado: {entidadNueva.radicado}.");
+                }
+            }
+            else
+            {
+                var existeRadicadoSGDEA = await new SGDEARepository().AnyWithConditionAsync(x => x.radicado.Equals(entidadNueva.radicado));
+                if (existeRadicadoSGDEA)
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No se puede asignar el radicado: {entidadNueva.radicado} por que pertenece a un registro en el sgda .");
+                if (!isEdit || entidadNueva.id_cargo_licencia != entidadantigua.id_cargo_licencia)
+                {
+                    var SeRepiteRadicado = await new LicenciaRepository().AnyWithConditionAsync(x => x.radicado.Equals(entidadNueva.radicado));
+                    if (SeRepiteRadicado)
+                        throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"Ya está en uso el radicado: {entidadNueva.radicado}.");
+                }
 
             }
 
-            await new DatosBasicosBO().ValidationsStatusPersona(new ParametrosGenteMarDTO { Id = entidad.id_gentemar });
+            var idGenteMar = entidadantigua == null ? entidadNueva.id_gentemar : entidadantigua.id_gentemar;
+            await new DatosBasicosBO().ValidationsStatusPersona(new ParametrosGenteMarDTO { Id = idGenteMar });
         }
     }
 

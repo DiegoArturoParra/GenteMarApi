@@ -1,11 +1,11 @@
-using System;
+using GenteMarCore.Entities.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenteMarCore.Entities.Models
 {
     [Table("GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES", Schema = "DBA")]
-    public partial class GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES
+    public partial class GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES : GENTEMAR_CAMPOS_AUDITORIA
     {
         [Key]
         public long id_aclaracion { get; set; }
@@ -18,10 +18,5 @@ namespace GenteMarCore.Entities.Models
         public string detalle_observacion_anterior_json { get; set; }
 
         public string ruta_archivo { get; set; }
-
-        [Required]
-        public string usuario_creador_registro { get; set; }
-
-        public DateTime fecha_hora_creacion { get; set; }
     }
 }

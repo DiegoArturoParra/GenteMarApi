@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -41,7 +41,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<ConsolidadoDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
             RolesEnum.ConsultasVCITE, RolesEnum.GestorVCITE)]
         [Route("listar")]
         public async Task<IHttpActionResult> GetConsolidados()
@@ -64,7 +64,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseTypeSwagger<List<ConsolidadoDTO>>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         [Route("listar-en-uso")]
         public async Task<IHttpActionResult> GetConsolidadosEnUso()
         {
@@ -85,7 +85,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseTypeSwagger<ConsolidadoDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         [Route("siguiente-a-asignar")]
         public async Task<IHttpActionResult> GetConsolidadoNext()
         {
@@ -106,7 +106,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseTypeSwagger<List<long>>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         [Route("listar-ids-estupefaciente/{consolidadoId}")]
         public async Task<IHttpActionResult> GetEstupefacientesIdPorConsolidado(int consolidadoId)
         {
@@ -130,7 +130,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseTypeSwagger<ArchivoExcelDTO>))]
         [HttpPost]
         [Route("generar-excel-para-envio-a-entidades")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> FolioExcelParaEnvioAConsultas([FromBody] CrearConsolidadoExcelDTO consolidadoDTO)
         {
             string email = GetEmail();

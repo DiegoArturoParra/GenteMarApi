@@ -1,9 +1,10 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
@@ -40,13 +41,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<DIM_IMPRESION>))]
         [HttpPost]
         [Route("listar")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetDimId(DatosBasicosDTO usuario)
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetDimIdAsync(DatosBasicosDTO usuario)
         {
-            var DimPersona = _service.GetDimImpresionId(usuario.DocumentoIdentificacion);
-            //var data = Mapear<GENTEMAR_DATOSBASICOS, DatosBasicosDTO>(DatosBasicos);
+            var DimPersona = await _service.GetDimImpresionIdAsync(usuario.DocumentoIdentificacion);
             return Ok(DimPersona);
         }
-
     }
 }

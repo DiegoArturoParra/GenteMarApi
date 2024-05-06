@@ -22,7 +22,7 @@ namespace DIMARCore.Business.Logica
 
         public async Task<IEnumerable<ExpedienteDTO>> GetExpedientesPorConsolidado(int consolidadoId)
         {
-            var hayExpedientesPorConsolidado = await new ExpedienteObservacionEstupefacienteRepository().AnyWithCondition(x => x.id_consolidado == consolidadoId);
+            var hayExpedientesPorConsolidado = await new ExpedienteObservacionEstupefacienteRepository().AnyWithConditionAsync(x => x.id_consolidado == consolidadoId);
             if (!hayExpedientesPorConsolidado)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay expedientes aún del número de consolidado."));
 
@@ -31,11 +31,11 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> GetExpedientePorConsolidadoEntidad(ExpedienteFilter filter)
         {
-            bool existeConsolidado = await new ConsolidadoEstupefacienteRepository().AnyWithCondition(x => x.id_consolidado == filter.ConsolidadoId);
+            bool existeConsolidado = await new ConsolidadoEstupefacienteRepository().AnyWithConditionAsync(x => x.id_consolidado == filter.ConsolidadoId);
             if (!existeConsolidado)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el consolidado."));
 
-            bool existeEntidad = await new EntidadEstupefacienteRepository().AnyWithCondition(x => x.id_entidad == filter.EntidadId);
+            bool existeEntidad = await new EntidadEstupefacienteRepository().AnyWithConditionAsync(x => x.id_entidad == filter.EntidadId);
             if (!existeEntidad)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe la entidad."));
 

@@ -1,11 +1,7 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.Utilities.Helpers;
-using GenteMarCore.Entities.Helpers;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Business
@@ -33,7 +29,7 @@ namespace DIMARCore.Business
             return await new PaisRepository().GetPaises();
         }
 
-   
+
 
         public async Task<IList<PAISES>> GetPaisColombia()
         {

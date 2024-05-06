@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs.Reports;
@@ -19,7 +19,7 @@ namespace DIMARCore.Api.Controllers.Reportes
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/reportes-vcite")]
-    [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+    [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
     public class ReportesVCITEController : BaseApiController
     {
         private readonly ReportesVciteBO _reportesVciteBusiness;
@@ -66,7 +66,7 @@ namespace DIMARCore.Api.Controllers.Reportes
         /// <response code="200">OK. Devuelve el historico de estupefacientes de una persona.</response>        
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(VciteHistoricoPersonaDTO))]
+        [ResponseType(typeof(ResponseTypeSwagger<VciteHistoricoPersonaDTO>))]
         [HttpGet]
         [Route("historico-persona")]
         public async Task<IHttpActionResult> GetHistoricoEstupefacientesPersona([FromUri] DocumentFilter documentoFilter)
@@ -86,12 +86,12 @@ namespace DIMARCore.Api.Controllers.Reportes
         /// <response code="200">OK. Devuelve el conteo de estados de los estupefacientes para pintarlo en un grafico pie chart.</response>        
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        [ResponseType(typeof(List<ReportPieChartVciteDTO>))]
+        [ResponseType(typeof(ResponseTypeSwagger<ReportPieChartVciteDTO>))]
         [HttpPost]
-        [Route("pie-chart-estados")]
-        public async Task<IHttpActionResult> GetPieChartEstupefacientesPorEstado([FromBody] ReportPieChartVciteFilter reportPieChartFilter)
+        [Route("generar-pie-chart-estados")]
+        public async Task<IHttpActionResult> GetPieChartEstupefacientesPorEstado([FromBody] ReportPieChartVciteFilter reportPieChartFilter, CancellationToken cancellationToken)
         {
-            var data = await _reportesVciteBusiness.GetDataByPieChartEstadosEstupefaciente(reportPieChartFilter);
+            var data = await _reportesVciteBusiness.GetDataByPieChartEstadosEstupefaciente(reportPieChartFilter, cancellationToken);
             return Ok(data);
         }
     }

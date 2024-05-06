@@ -1,6 +1,6 @@
 ﻿using DIMARCore.Utilities.Helpers;
-using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DIMARCore.UIEntities.QueryFilters
@@ -14,7 +14,7 @@ namespace DIMARCore.UIEntities.QueryFilters
         [StringLength(22, ErrorMessage = "Debe tener una longitud mínima de {2} y una longitud máxima de {1}.", MinimumLength = 4)]
         public string Identificacion { get; set; }
         public string Radicado { get; set; }
-        public int EstadoId { get; set; }
+        public List<int> EstadosId { get; set; }
         public int TramiteId { get; set; }
         public int ConsolidadoId { get; set; }
         public int ExpedienteId { get; set; }

@@ -13,6 +13,7 @@ namespace DIMARCore.Business.Interfaces
         Task<Respuesta> CrearAsync(GENTEMAR_TITULOS entidad, string pathActual);
         Task ExistById(long id);
         Task<Respuesta> ExistePersonaByIdentificacion(string identificacionConPuntos);
+        Task<PlantillaTituloDTO> GetPlantillaTitulos(long id);
         Task<Respuesta> GetTituloById(long id);
         Task<IEnumerable<ListadoTituloDTO>> GetTitulosFiltro(string identificacionConPuntos, long Id = 0);
         IQueryable<ListadoTituloDTO> GetTitulosQueryable();

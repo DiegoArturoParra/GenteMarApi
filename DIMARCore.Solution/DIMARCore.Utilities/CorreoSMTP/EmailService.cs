@@ -1,5 +1,5 @@
 ﻿using DIMARCore.Utilities.Config;
-using DIMARCore.Utilities.Middleware;
+using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Seguridad;
 using System;
 using System.Configuration;
@@ -12,7 +12,7 @@ namespace DIMARCore.Utilities.CorreoSMTP
 {
     public interface IEmailService
     {
-        Task SendMail(string[] correoDestino, string mensaje, string body, string title = "GDM", string footer = "por favor comuniquese con el administrador.");
+        Task<Respuesta> SendMail(SendEmailRequest request);
     }
     public class EMailService : IEmailService
     {
@@ -36,7 +36,7 @@ namespace DIMARCore.Utilities.CorreoSMTP
             _port = port;
         }
 
-        public async Task SendMail(string[] correosDestino, string mensaje, string body, string title = "GDM", string footer = "por favor comuniquese con el administrador.")
+        public async Task<Respuesta> SendMail(SendEmailRequest datosNotificacion)
         {
             try
             {
@@ -46,18 +46,36 @@ namespace DIMARCore.Utilities.CorreoSMTP
                 Emailtemplate.Close();
                 Emailtemplate.Dispose();
                 Emailtemplate = null;
-                var mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(_from, "Sistema GDM");
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_from, "Sistema GDM")
+                };
 
-                foreach (var item in correosDestino)
+                foreach (var item in datosNotificacion.CorreosDestino)
                 {
                     mailMessage.To.Add(item);
                 }
-
-                mailMessage.Subject = mensaje;
-                strBody = strBody.Replace("@TITLE", title);
-                strBody = strBody.Replace("@BODY", body);
-                strBody = strBody.Replace("@FOOTER", footer);
+                if (!datosNotificacion.CC.Contains(","))
+                {
+                    if (!string.IsNullOrEmpty(datosNotificacion.CC))
+                    {
+                        mailMessage.CC.Add(datosNotificacion.CC);
+                    }
+                }
+                else
+                {
+                    foreach (string item in datosNotificacion.CC.Split(','))
+                    {
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            mailMessage.CC.Add(item);
+                        }
+                    }
+                }
+                mailMessage.Subject = datosNotificacion.Asunto;
+                strBody = strBody.Replace("@TITLE", datosNotificacion.Titulo);
+                strBody = strBody.Replace("@BODY", datosNotificacion.CuerpoDelMensaje);
+                strBody = strBody.Replace("@FOOTER", datosNotificacion.Footer);
 
                 mailMessage.Body = strBody;
                 mailMessage.IsBodyHtml = true;
@@ -72,11 +90,12 @@ namespace DIMARCore.Utilities.CorreoSMTP
                     client.Credentials = new NetworkCredential(_from, _password);
                     await client.SendMailAsync(mailMessage);
                     client.Dispose();
+                    return Responses.SetOkResponse(null, "Correo enviado correctamente.");
                 }
             }
             catch (Exception ex)
             {
-                throw new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"Error: No se pudo enviar el correo, {ex.Message}");
+                return Responses.SetConflictResponse($"Error: No se pudo enviar el correo, {ex.Message}");
             }
         }
     }

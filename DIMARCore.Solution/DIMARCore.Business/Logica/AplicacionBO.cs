@@ -13,7 +13,7 @@ namespace DIMARCore.Business
         /// <returns></returns>
         public async Task<Respuesta> GetAplicacion(string nombreAplicacion)
         {
-            var existe = await new AplicacionRepository().AnyWithCondition(x => x.NOMBRE.Equals(nombreAplicacion));
+            var existe = await new AplicacionRepository().AnyWithConditionAsync(x => x.NOMBRE.Equals(nombreAplicacion));
             if (!existe)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontro la aplicación de gente de mar."));
             return Responses.SetOkResponse();

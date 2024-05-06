@@ -35,7 +35,7 @@ namespace DIMARCore.Business
         public async Task<IEnumerable<GENTEMAR_ACTIVIDAD>> GetActividadesActivo()
         {
             // Obtiene la lista
-            return await new ActividadRepository().GetAllWithConditionAsync(x => x.activo == true);
+            return await new ActividadRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace DIMARCore.Business
         public async Task<IEnumerable<GENTEMAR_ACTIVIDAD>> GetActividadesActivoTipoLicencia(int id)
         {
             // Obtiene la lista
-            return await new ActividadRepository().GetAllWithConditionAsync(x => x.activo == true && x.id_tipo_licencia == id);
+            return await new ActividadRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO && x.id_tipo_licencia == id);
         }
 
         public async Task<IEnumerable<ActividadLicenciaDTO>> GetActividadesActivasPorTiposDeLicencia(List<int> idsTipoLicencia)
@@ -64,7 +64,7 @@ namespace DIMARCore.Business
         /// <tabla>GENTEMAR_ACTIVIDAD</tabla>
         public async Task<GENTEMAR_ACTIVIDAD> GetActividad(int id)
         {
-            return await new ActividadRepository().GetById(id);
+            return await new ActividadRepository().GetByIdAsync(id);
         }
 
         /// <summary>
@@ -77,11 +77,11 @@ namespace DIMARCore.Business
         {
             using (var repo = new ActividadRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.actividad.Equals(datos.actividad) &&
+                var validate = await repo.AnyWithConditionAsync(x => x.actividad.Equals(datos.actividad) &&
                 x.id_tipo_licencia == datos.id_tipo_licencia);
                 if (validate)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la actividad {datos.actividad}"));
-                datos.activo = true;
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la actividad {datos.actividad} con el tipo de licencia seleccionada."));
+                datos.activo = Constantes.ACTIVO;
                 await repo.Create(datos);
             }
             return Responses.SetCreatedResponse(datos);
@@ -99,14 +99,15 @@ namespace DIMARCore.Business
 
             using (var repo = new ActividadRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.actividad.Equals(datos.actividad) && x.id_actividad != datos.id_actividad);
-                if (validate)
-
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la actividad {datos.actividad}"));
-
-                var objeto = await repo.GetById(datos.id_actividad);
+                var objeto = await repo.GetByIdAsync(datos.id_actividad);
                 if (objeto == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encuentra registrada la actividad indicada."));
+
+                var validate = await repo.AnyWithConditionAsync(x => x.actividad.ToUpper().Equals(datos.actividad) &&
+                                                    x.id_tipo_licencia == datos.id_tipo_licencia && x.id_actividad != objeto.id_actividad);
+                if (validate)
+
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la actividad {datos.actividad}  con el tipo de licencia seleccionada."));
 
                 objeto.actividad = datos.actividad;
                 await new ActividadRepository().Update(objeto);
@@ -121,11 +122,11 @@ namespace DIMARCore.Business
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="HttpStatusCodeException"></exception>
-        public async Task<Respuesta> cambiarActividad(int id)
+        public async Task<Respuesta> CambiarActividad(int id)
         {
             using (var repo = new ActividadRepository())
             {
-                var objeto = await repo.GetById(id);
+                var objeto = await repo.GetByIdAsync(id);
                 if (objeto == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encuentra registrada la actividad indicada."));
                 objeto.activo = !objeto.activo;
@@ -134,7 +135,7 @@ namespace DIMARCore.Business
             return Responses.SetUpdatedResponse();
         }
 
-        
+
     }
 }
 

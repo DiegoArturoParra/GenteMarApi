@@ -1,10 +1,10 @@
 ﻿using DIMARCore.Business.Interfaces;
 using DIMARCore.Repositories.Repository;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DIMARCore.Utilities.Middleware;
 namespace DIMARCore.Business.Logica
 {
     public class HabilitacionBO : IGenericCRUD<GENTEMAR_HABILITACION, int>
@@ -23,7 +23,7 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var habilitacion = await new HabilitacionRepository().GetById(Id);
+            var habilitacion = await new HabilitacionRepository().GetByIdAsync(Id);
             return habilitacion == null
                 ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la habilitación."))
                 : Responses.SetOkResponse(habilitacion);
@@ -80,14 +80,26 @@ namespace DIMARCore.Business.Logica
 
             if (Id == 0)
             {
-                existe = await new HabilitacionRepository().AnyWithCondition(x => x.habilitacion.Equals(nombre.Trim().ToUpper()));
+                existe = await new HabilitacionRepository().AnyWithConditionAsync(x => x.habilitacion.Equals(nombre.Trim().ToUpper()));
             }
             else
             {
-                existe = await new HabilitacionRepository().AnyWithCondition(x => x.habilitacion.Equals(nombre.Trim().ToUpper()) && x.id_habilitacion != Id);
+                existe = await new HabilitacionRepository().AnyWithConditionAsync(x => x.habilitacion.Equals(nombre.Trim().ToUpper()) && x.id_habilitacion != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la habilitación {nombre}"));
+        }
+
+        public async Task<IEnumerable<GENTEMAR_HABILITACION>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new HabilitacionRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+            }
         }
     }
 }

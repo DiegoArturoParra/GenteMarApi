@@ -11,10 +11,11 @@ namespace DIMARCore.Repositories.Repository
 {
     public class MultaRepository
     {
-        private readonly CoreContextDapper _coreContextDapper;
+        private readonly CoreDapperContext _coreContextDapper;
+
         public MultaRepository()
         {
-            _coreContextDapper = new CoreContextDapper();
+            _coreContextDapper = new CoreDapperContext();
         }
         public async Task<IEnumerable<MultaDTO>> GetMultasPorUsuario(string identificacion)
         {
@@ -24,12 +25,7 @@ namespace DIMARCore.Repositories.Repository
                 {
                     string estadoAnulado = EnumConfig.GetDescription(EstadoMultaEnum.Anulado);
                     string estadoTerminado = EnumConfig.GetDescription(EstadoMultaEnum.Terminado);
-                    const string sqlQuery = @"SELECT multas_info.OBSERVACION as Observacion, multas_info.FECHA_REGISTRO as FechaRegistro, 
-                                          tipo_multa.NOMBRE_MULTA as TipoMulta FROM DBA.MULTAS_INFORMACION multas_info
-                                          JOIN DBA.MULTAS_TIPO_MULTA tipo_multa ON tipo_multa.ID_TIPO_MULTA = multas_info.TIPO_DE_MULTA 
-                                          JOIN DBA.MULTAS_DEUDORES_MULTA multa_deudor_multa ON multas_info.ID_MULTA = multa_deudor_multa.ID_MULTA
-                                          JOIN DBA.MULTAS_DEUDORES mdeudor ON multa_deudor_multa.ID_DEUDOR = mdeudor.ID_DEUDOR
-                                          WHERE mdeudor.NUM_DOCUMENTO = ? AND multas_info.ESTADO_FINAL <> ? AND multas_info.ESTADO_FINAL <> ?";
+                    const string sqlQuery = @"SELECT * FROM DBA.VwGenteMarMultasPorUsuario WHERE NumDocumento = ? AND EstadoFinal <> ? AND EstadoFinal <> ?";
                     var results = await db.QueryAsync<MultaDTO>(sqlQuery, new { identificacion, estadoAnulado, estadoTerminado });
                     return results;
                 }
@@ -41,7 +37,7 @@ namespace DIMARCore.Repositories.Repository
             finally
             {
                 _coreContextDapper.CloseConnection();
-            }          
+            }
         }
     }
 }

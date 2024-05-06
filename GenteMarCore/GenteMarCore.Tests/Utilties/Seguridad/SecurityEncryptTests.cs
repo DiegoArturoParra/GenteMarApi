@@ -17,7 +17,7 @@ namespace GenteMarCore.Tests.Utilties.Seguridad
         [TestMethod]
         public void Encrypt_ShouldBe_Equals()
         {
-            string valuedesencrypt = "Wug08640";
+            string valuedesencrypt = "DEVELOPERS GDM DIEGO/CAMILO";
             string encript = SecurityEncrypt.GenerateEncrypt(valuedesencrypt);
             string decript = SecurityEncrypt.GenerateDecrypt(encript);
             Assert.AreEqual(valuedesencrypt, decript);

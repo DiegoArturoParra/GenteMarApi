@@ -1,6 +1,7 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
+using DIMARCore.UIEntities.QueryFilters.Reports;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
@@ -25,30 +26,19 @@ namespace DIMARCore.Business.Logica
 
 
         /// <summary>
-        /// Lista de Cargo 
+        /// lista de cargos por un filtro
         /// </summary>
-        /// <returns>Lista de Cargo </returns>
-        /// <entidad>CARGO </entidad>
-        /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public IEnumerable<GENTEMAR_CARGO_LICENCIA> GetCargosLicencia(CargoInfoLicenciaDTO filtro)
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<CargoInfoLicenciaDTO>> GetCargosLicenciaAsync(CargoLicenciaFilter filtro)
         {
-            var data = _repository.GetAllAsQueryable();
-            // Obtiene la lista
-            if (filtro.CargoLicencia != null)
-            {
-                data = data.Where(x => x.cargo_licencia.Contains(filtro.CargoLicencia));
-            }
-            else if (filtro.CodigoLicencia != null)
-            {
-                data = data.Where(x => x.codigo_licencia == filtro.CodigoLicencia);
-            }
-
-            return data.ToList();
+            var data = await _repository.GetCargosLicenciaAsync(filtro);
+            return data;
         }
 
 
         /// <summary>
-        /// Lista de Cargo licencia activo
+        /// Lista de Cargos licencia activo
         /// </summary>
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
@@ -73,20 +63,20 @@ namespace DIMARCore.Business.Logica
 
             using (var repo = _repository)
             {
-                var existeCargoLicencia = await repo.AnyWithCondition(x => x.cargo_licencia.Equals(entidad.cargo_licencia)
+                var existeCargoLicencia = await repo.AnyWithConditionAsync(x => x.cargo_licencia.Equals(entidad.cargo_licencia)
                 && x.id_cargo_licencia != entidad.id_cargo_licencia);
 
                 if (existeCargoLicencia)
                     throw new HttpStatusCodeException(Responses.SetConflictResponse($"El cargo licencia {entidad.cargo_licencia} ya se encuentra registrado."));
 
-                var data = await repo.GetById(entidad.id_cargo_licencia);
+                var data = await repo.GetByIdAsync(entidad.id_cargo_licencia);
 
-                var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithCondition(x => x.id_actividad
+                var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithConditionAsync(x => x.id_actividad
                      == entidad.IdActividad && x.id_seccion == entidad.IdSeccion);
                 if (actividadSeccion == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La relación de actividad y sección no existe."));
 
-                var seccionClase = await new SeccionClaseRepository().GetWithCondition(x => x.id_seccion == entidad.IdSeccion
+                var seccionClase = await new SeccionClaseRepository().GetWithConditionAsync(x => x.id_seccion == entidad.IdSeccion
                 && x.id_clase == entidad.IdClase);
 
                 if (seccionClase == null)
@@ -121,16 +111,16 @@ namespace DIMARCore.Business.Logica
 
             using (var repo = _repository)
             {
-                var data = await repo.AnyWithCondition(x => x.cargo_licencia.Equals(entidad.cargo_licencia));
+                var data = await repo.AnyWithConditionAsync(x => x.cargo_licencia.Equals(entidad.cargo_licencia));
                 if (data)
                     throw new HttpStatusCodeException(Responses.SetConflictResponse($"El cargo licencia {entidad.cargo_licencia} ya se encuentra registrado."));
 
-                var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithCondition(x => x.id_actividad
+                var actividadSeccion = await new ActividadSeccionLicenciasRepository().GetWithConditionAsync(x => x.id_actividad
                 == entidad.IdActividad && x.id_seccion == entidad.IdSeccion);
                 if (actividadSeccion == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La relación de actividad y sección no existe."));
 
-                var seccionClase = await new SeccionClaseRepository().GetWithCondition(x => x.id_seccion == entidad.IdSeccion
+                var seccionClase = await new SeccionClaseRepository().GetWithConditionAsync(x => x.id_seccion == entidad.IdSeccion
                 && x.id_clase == entidad.IdClase);
 
                 if (seccionClase == null)
@@ -164,7 +154,7 @@ namespace DIMARCore.Business.Logica
                 fecha = fecha + 1;
             }
             codigo = $"{licencia.cargo_licencia.Substring(0, 1)}{fecha}{licencia.id_cargo_licencia}";
-            var data = await _repository.AnyWithCondition(x => x.codigo_licencia == codigo);
+            var data = await _repository.AnyWithConditionAsync(x => x.codigo_licencia == codigo);
             if (data)
             {
                 codigo = await CodigoLicenciaAsync(licencia, fecha);
@@ -179,9 +169,9 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public CargoInfoLicenciaDTO GetCargoLicenciaId(long id)
+        public async Task<CargoInfoLicenciaDTO> GetCargoLicenciaIdAsync(long id)
         {
-            var data = _repository.GetCargoLicenciaId(id)
+            var data = await _repository.GetCargoLicenciaIdAsync(id)
                 ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la licencia solicitada");
             // Obtiene la lista
             return data;
@@ -192,9 +182,12 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de Cargo </returns>
         /// <entidad>CARGO </entidad>
         /// <tabla>GENTEMAR_CARGO_LICENCIA</tabla>
-        public CargoInfoLicenciaDTO GetCargoLicenciaIdDetalle(long id)
+        public async Task<CargoInfoLicenciaDTO> GetCargoLicenciaIdDetalleAsync(long id)
         {
-            var data = _repository.GetCargoLicenciaIdDetalle(id);
+            var data = await _repository.GetCargoLicenciaIdDetalleAsync(id);
+            data.FechaExpedicion = DateTime.Now.Date;
+            data.FechaVencimiento = DateTime.Now.AddDays((double)data.Vigencia).Date;
+            data.MaxDateFechaVencimiento = data.FechaVencimiento.AddMonths(1).Date;
             // Obtiene la lista
             return data;
         }
@@ -209,7 +202,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = _repository)
             {
-                var validate = await repo.GetWithCondition(x => x.id_cargo_licencia == id)
+                var validate = await repo.GetWithConditionAsync(x => x.id_cargo_licencia == id)
                     ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la licencia solicitada");
                 validate.activo = !validate.activo;
                 await repo.Update(validate);
@@ -230,9 +223,9 @@ namespace DIMARCore.Business.Logica
             return data;
         }
 
-        public async Task<IEnumerable<CargoLicenciaDTO>> GetCargosLicenciaActivosPorFiltro(CargoLicenciaFilter cargoLicenciaFilter)
+        public async Task<IEnumerable<CargoLicenciaDTO>> GetCargosLicenciaActivosPorFiltroParaReporte(CargoLicenciaReportFilter cargoLicenciaFilter)
         {
-            return await _repository.GetCargosLicenciaActivosPorFiltro(cargoLicenciaFilter);
+            return await _repository.GetCargosLicenciaActivosPorFiltroParaReporte(cargoLicenciaFilter);
         }
     }
 }

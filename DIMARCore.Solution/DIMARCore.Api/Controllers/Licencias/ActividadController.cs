@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.UIEntities;
@@ -45,7 +45,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ActividadTipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-activas-tipo-licencia/{id}")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetActividadesIdTipoLicenciaAsync(int id)
         {
             var actividades = await _service.GetActividadesActivoTipoLicencia(id);
@@ -68,7 +68,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ActividadLicenciaDTO>))]
         [HttpPost]
         [Route("lista-activas-tipos-licencia")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetActividadesPorTiposLicencia(List<int> idsTipoLicencia)
         {
             var data = await _service.GetActividadesActivasPorTiposDeLicencia(idsTipoLicencia);
@@ -89,7 +89,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ActividadTipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetActividadesAsync()
         {
             var actividades = await  _service.GetActividadesAsync();
@@ -110,7 +110,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ActividadTipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-activo")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetActividadesActivoAsync()
         {
             var actividades = await _service.GetActividadesActivo();
@@ -132,7 +132,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(GENTEMAR_ACTIVIDAD))]
         [HttpGet]
         [Route("id")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetActividadAsync(int id)
         {
             var actividad = await new ActividadBO().GetActividad(id);
@@ -156,7 +156,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearActividadAsync(ActividadTipoLicenciaDTO datos)
         {
             var data = Mapear<ActividadTipoLicenciaDTO, GENTEMAR_ACTIVIDAD>(datos);
@@ -182,7 +182,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarActividadAsync(ActividadTipoLicenciaDTO datos)
         {
             var data = Mapear<ActividadTipoLicenciaDTO, GENTEMAR_ACTIVIDAD>(datos);
@@ -207,10 +207,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarActividadAsync(int id)
         {
-            var respuesta = await _service.cambiarActividad(id);
+            var respuesta = await _service.CambiarActividad(id);
             return Ok(respuesta);
         }
     }

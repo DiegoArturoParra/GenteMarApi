@@ -7,9 +7,10 @@ namespace DIMARCore.Business.Logica
 {
     public class MenuBO
     {
-        public Task<IEnumerable<MenuDTO>> GetUsuarioWithMenu(int AplicacionId, string LoginName)
+        public async Task<IEnumerable<MenuDTO>> GetMenuPorUsuarioLoginName(int AplicacionId, string LoginName)
         {
-            return new MenuRepository().GetUsuarioWithMenu(AplicacionId, LoginName);
+            var menu = await new MenuRepository().GetMenuPorUsuarioLoginName(AplicacionId, LoginName);
+            return menu;
         }
     }
 }

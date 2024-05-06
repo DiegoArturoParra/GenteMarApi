@@ -15,10 +15,10 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de los estados </returns>
         /// <entidad>GENTEMAR_ESTADO</entidad>
         /// <tabla>GENTEMAR_ESTADO</tabla>
-        public IList<GENTEMAR_ESTADO> GetEstados()
+        public async Task<IList<GENTEMAR_ESTADO>> GetEstadosAsync()
         {
             // Obtiene la lista
-            return new GenteDeMarEstadoRepository().GetEstado();
+            return await new GenteDeMarEstadoRepository().GetEstadosAsync();
         }
 
         /// <summary>
@@ -27,10 +27,11 @@ namespace DIMARCore.Business.Logica
         /// <returns>Lista de los estados </returns>
         /// <entidad>GENTEMAR_ESTADO</entidad>
         /// <tabla>GENTEMAR_ESTADO</tabla>
-        public IList<GENTEMAR_ESTADO> GetEstadosActivo()
+        public async Task<IList<GENTEMAR_ESTADO>> GetEstadosActivoAsync()
         {
             // Obtiene la lista
-            return new GenteDeMarEstadoRepository().GetAllAsQueryable().Where(x => x.activo == true).ToList();
+            var data = await new GenteDeMarEstadoRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO);
+            return data.ToList();
         }
         /// <summary>
         /// crea un nuevo estado 
@@ -41,42 +42,54 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new GenteDeMarEstadoRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.sigla.Equals(data.sigla) || x.descripcion.Equals(data.descripcion));
+                data.descripcion = data.descripcion.Trim();
+                data.sigla = data.sigla.Trim();
+                var validate = await repo.AnyWithConditionAsync(x => x.descripcion.Equals(data.descripcion.Trim()));
                 if (validate)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El estado {data.descripcion} ya esta registrado."));
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El estado {data.descripcion} ya se encuentra registrado."));
+
+                data.activo = Constantes.ACTIVO;
                 await repo.Create(data);
                 return Responses.SetCreatedResponse(data);
             }
 
         }
         /// <summary>
-        /// actualiza un estado existente 
+        ///  actualiza un estado existente 
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<Respuesta> actualizarEstado(GENTEMAR_ESTADO data)
+        /// <exception cref="HttpStatusCodeException"></exception>
+        public async Task<Respuesta> ActualizarEstado(GENTEMAR_ESTADO data)
         {
             using (var repo = new GenteDeMarEstadoRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_estado == data.id_estado);
-                if (validate == null)
+                data.descripcion = data.descripcion.Trim();
+                data.sigla = data.sigla.Trim();
+                var entidad = await repo.GetWithConditionAsync(x => x.id_estado == data.id_estado);
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado no existe."));
-                validate.descripcion = data.descripcion;
-                validate.sigla = data.sigla;
-                await repo.Update(validate);
-                return Responses.SetUpdatedResponse(validate);
+
+                var validate = await repo.AnyWithConditionAsync(x => x.descripcion.Equals(data.descripcion.Trim()) && x.id_estado != data.id_estado);
+                if (validate)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El estado {data.descripcion} ya se encuentra registrado."));
+                entidad.descripcion = data.descripcion;
+                entidad.sigla = data.sigla;
+                await repo.Update(entidad);
+                return Responses.SetUpdatedResponse(entidad);
             }
         }
         /// <summary>
-        /// cambia el estado de un estado registrado 
+        /// cambia el estado activo/inactivo de un estado
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambiarEstado(int id)
+        /// <exception cref="HttpStatusCodeException"></exception>
+        public async Task<Respuesta> CambiarEstado(int id)
         {
             using (var repo = new GenteDeMarEstadoRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_estado == id);
+                var validate = await repo.GetWithConditionAsync(x => x.id_estado == id);
                 if (validate == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado no existe."));
                 validate.activo = !validate.activo;

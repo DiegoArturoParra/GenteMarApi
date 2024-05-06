@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 
 namespace DIMARCore.Repositories.Repository
 {
     public class UsuarioRepository : GenericRepository<APLICACIONES_LOGINS>
     {
-        public async Task CreateUserTriton(APLICACIONES_LOGINS user, List<int> rolesId)
+        public async Task CreateUserGDM(APLICACIONES_LOGINS user, List<int> rolesId)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -66,18 +67,20 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task<List<int>> GetRolesByLoginName(string Loginname)
         {
-            return await (from login in _context.APLICACIONES_LOGINS
-                          join login_rol in _context.APLICACIONES_LOGIN_ROL on login.ID_LOGIN equals login_rol.ID_LOGIN
-                          join roles in _context.APLICACIONES_ROLES on login_rol.ID_ROL equals roles.ID_ROL
-                          where login.LOGIN_NAME.Equals(Loginname) && roles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
-                          && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
-                          select roles.ID_ROL).ToListAsync();
+            var rolesIds = (from login in _context.APLICACIONES_LOGINS
+                            join login_rol in _context.APLICACIONES_LOGIN_ROL on login.ID_LOGIN equals login_rol.ID_LOGIN
+                            join roles in _context.APLICACIONES_ROLES on login_rol.ID_ROL equals roles.ID_ROL
+                            where login.LOGIN_NAME.Equals(Loginname) && roles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
+                            && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
+                            select roles.ID_ROL);
+
+            return await rolesIds.ToListAsync();
         }
 
         public async Task<UserSesionDTO> GetUsuarioByLoginName(string loginName)
         {
             UserSesionDTO userSesion = null;
-            var user = await GetWithCondition(x => x.LOGIN_NAME.ToUpper().Equals(loginName.ToUpper()));
+            var user = await GetWithConditionAsync(x => x.LOGIN_NAME.ToUpper().Equals(loginName.ToUpper()));
             if (user != null)
             {
                 var query = (from login in _context.APLICACIONES_LOGINS
@@ -116,7 +119,11 @@ namespace DIMARCore.Repositories.Repository
                              from detalleRoles in rol.DefaultIfEmpty()
                              where login_rol.ID_LOGIN == user.ID_LOGIN && detalleRoles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
                              && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
-                             select new RolSession { Id = detalleRoles.ID_ROL, NombreRol = detalleRoles.ROL }).ToList()
+                             select new RolSession
+                             {
+                                 Id = detalleRoles.ID_ROL,
+                                 NombreRol = detalleRoles.ROL
+                             }).ToList()
                 }).AsNoTracking().FirstOrDefaultAsync();
             }
             return userSesion;
@@ -125,7 +132,7 @@ namespace DIMARCore.Repositories.Repository
         public async Task<UserSesionDTO> GetUsuarioByLoginNameTesting(string username, string password)
         {
             UserSesionDTO userSesion = null;
-            var user = await GetWithCondition(x => x.LOGIN_NAME.ToUpper().Equals(username.ToUpper()) && x.PASSWORD.Equals(password));
+            var user = await GetWithConditionAsync(x => x.LOGIN_NAME.ToUpper().Equals(username.ToUpper()) && x.PASSWORD.Equals(password));
             if (user != null)
             {
                 var query = (from login in _context.APLICACIONES_LOGINS
@@ -198,7 +205,7 @@ namespace DIMARCore.Repositories.Repository
                     Capitania = (from logins in _context.APLICACIONES_LOGINS
                                  join capitania in _context.APLICACIONES_CAPITANIAS on logins.ID_CAPITANIA equals capitania.ID_CAPITANIA
                                  where logins.ID_CAPITANIA == grupo.FirstOrDefault().login.ID_CAPITANIA
-                                 select new CapitaniaSession()
+                                 select new CapitaniaSession
                                  {
                                      Id = capitania.ID_CAPITANIA,
                                      Descripcion = capitania.DESCRIPCION,
@@ -211,7 +218,11 @@ namespace DIMARCore.Repositories.Repository
                              && roles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
                              && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
                              group roles by new { roles.ID_ROL, roles.ROL, roles.DESCRIPCION } into grupoRol
-                             select new RolSession { Id = grupoRol.Key.ID_ROL, NombreRol = grupoRol.Key.DESCRIPCION }).ToList()
+                             select new RolSession
+                             {
+                                 Id = grupoRol.Key.ID_ROL,
+                                 NombreRol = grupoRol.Key.DESCRIPCION
+                             }).ToList()
                 }).AsNoTracking().ToListAsync();
         }
 
@@ -233,7 +244,7 @@ namespace DIMARCore.Repositories.Repository
                 .GroupBy(item => item.Email)
                 .Where(group => group.Sum(item => item.RoleCount) >= 1) // Filter groups by sum of role counts
                 .Select(group => group.Key)
-                .ToListAsync();
+                .AsNoTracking().ToListAsync();
 
 
             return emailsWithMultipleRoles.ToArray();
@@ -258,6 +269,18 @@ namespace DIMARCore.Repositories.Repository
                 await SaveAllAsync();
             }
             return activar;
+        }
+
+        public async Task<List<int>> GetRolesByLoginId(int loginId)
+        {
+            var rolesIds = (from login in _context.APLICACIONES_LOGINS
+                            join login_rol in _context.APLICACIONES_LOGIN_ROL on login.ID_LOGIN equals login_rol.ID_LOGIN
+                            join roles in _context.APLICACIONES_ROLES on login_rol.ID_ROL equals roles.ID_ROL
+                            where login.ID_LOGIN == loginId && roles.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar
+                            && login_rol.ID_ESTADO == (byte)EstadoUsuarioLoginEnum.ACTIVO
+                            select roles.ID_ROL);
+
+            return await rolesIds.ToListAsync();
         }
     }
 }

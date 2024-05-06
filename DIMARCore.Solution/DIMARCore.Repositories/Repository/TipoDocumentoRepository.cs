@@ -18,7 +18,7 @@ namespace DIMARCore.Repositories.Repository
         {
             return await (from documento in Table select documento).Where(x => x.ID_TIPO_DOCUMENTO
                              != (int)TipoDocumentoEnum.ID && x.ID_TIPO_DOCUMENTO != (int)TipoDocumentoEnum.NIT)
-                             .OrderBy(p => p.DESCRIPCION).ToListAsync();
+                             .OrderBy(p => p.DESCRIPCION).AsNoTracking().ToListAsync();
 
         }
     }

@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -50,11 +50,11 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(List<TramiteEstupefacienteDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
             RolesEnum.ConsultasVCITE)]
-        public IHttpActionResult Listado([FromUri] ActivoDTO dto)
+        public async Task<IHttpActionResult> ListadoAsync([FromUri] ActivoDTO dto)
         {
-            var query = _serviceTramite.GetAll(dto != null ? dto.Activo : null);
+            var query = await _serviceTramite.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_TRAMITE_ANTECEDENTE>, IEnumerable<TramiteEstupefacienteDTO>>(query);
             return Ok(listado);
         }
@@ -75,7 +75,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseTypeSwagger<TramiteEstupefacienteDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> GetTramite(int id)
         {
             var tramite = await _serviceTramite.GetByIdAsync(id);
@@ -103,7 +103,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] TramiteEstupefacienteDTO tramite)
         {
             var data = Mapear<TramiteEstupefacienteDTO, GENTEMAR_TRAMITE_ANTECEDENTE>(tramite);
@@ -128,7 +128,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Editar([FromBody] TramiteEstupefacienteDTO tramite)
         {
             var data = Mapear<TramiteEstupefacienteDTO, GENTEMAR_TRAMITE_ANTECEDENTE>(tramite);
@@ -151,7 +151,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceTramite.AnulaOrActivaAsync(id);

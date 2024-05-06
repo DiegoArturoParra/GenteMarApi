@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;

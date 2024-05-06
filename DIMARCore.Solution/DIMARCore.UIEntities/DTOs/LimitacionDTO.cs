@@ -9,7 +9,7 @@ namespace DIMARCore.UIEntities.DTOs
         private string _Limitaciones;
         public string Limitaciones
         {
-            get => _Limitaciones?.ToUpper();
+            get => _Limitaciones?.Trim().ToUpper();
             set => _Limitaciones = value;
         }
         public bool? Activo { get; set; }

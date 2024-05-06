@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -46,7 +46,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(List<DetalleExpedienteObservacionEstupefacienteDTO>))]
         [HttpGet]
         [Route("estupefaciente/lista/{EstupefacienteId}")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> GetObservacionesEntidadPorEstupefaciente(long EstupefacienteId)
         {
             var data = await _service.GetObservacionesEntidadPorEstupefacienteId(EstupefacienteId);
@@ -70,7 +70,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("estupefaciente/crear-masivo")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> CrearMasivo([FromBody] ObservacionesEntidadBulkDTO observacionesPorEntidad)
         {
             var data = Mapear<IList<ObservacionEntidadEstupefacienteDTO>, IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>>(observacionesPorEntidad.ObservacionesPorEntidad);
@@ -94,7 +94,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("estupefaciente/crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] CrearObservacionEntidadVciteDTO obj)
         {
             var data = Mapear<ObservacionEntidadEstupefacienteDTO, GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>(obj.ObservacionPorEntidad);
@@ -119,12 +119,37 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("edicion-masiva-parcial-de-estupefacientes")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> EdicionParcialDeEstupefacientesIds([FromBody] EditBulkPartialEstupefacientesDTO observacionDeEstupefacientes)
         {
             ValidateModelAndThrowIfInvalid(observacionDeEstupefacientes.ObservacionEntidad);
             var response = await _service.EdicionParcialDeEstupefacientes(observacionDeEstupefacientes, PathActual);
             return Ok(response);
         }
+        /// <summary>
+        /// Servicio para editar masivamente estados de estupefacientes
+        /// </summary>
+        /// <param name="estupefacientes"></param>
+        /// <remarks>
+        /// <Autor>Diego Parra</Autor>
+        /// <Fecha>28/04/2023</Fecha>
+        /// </remarks>
+        /// <response code="200">OK. se ha actualizado los recursos (estupefacientes).</response>   
+        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
+        /// <returns></returns>
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
+        [HttpPut]
+        [Route("edicion-masiva-de-estupefacientes")]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        public async Task<IHttpActionResult> EditarMasivoDeEstupefacientesIds([FromBody] EditBulkEstupefacientesDTO estupefacientes)
+        {
+            ValidateModelAndThrowIfInvalid(estupefacientes.ObservacionesPorEntidad);
+            var response = await _service.EdicionBulkDeEstupefacientes(estupefacientes, PathActual);
+            return Ok(response);
+        }
+
     }
 }

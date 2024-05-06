@@ -25,7 +25,7 @@ namespace DIMARCore.Business.Logica
         }
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var entidad = await new EstadoTituloRepository().GetById(Id);
+            var entidad = await new EstadoTituloRepository().GetByIdAsync(Id);
             if (entidad == null)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encuentra el estado indicado."));
 
@@ -79,16 +79,29 @@ namespace DIMARCore.Business.Logica
 
             if (Id == 0)
             {
-                existe = await new EstadoTituloRepository().AnyWithCondition(x => x.descripcion_tramite.Equals(nombre));
+                existe = await new EstadoTituloRepository().AnyWithConditionAsync(x => x.descripcion_tramite.Equals(nombre));
             }
             else
             {
-                existe = await new EstadoTituloRepository().AnyWithCondition(x => x.descripcion_tramite.Equals(nombre) && x.id_estado_tramite != Id);
+                existe = await new EstadoTituloRepository().AnyWithConditionAsync(x => x.descripcion_tramite.Equals(nombre) && x.id_estado_tramite != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el estado {nombre}"));
         }
 
-
+        public async Task<IEnumerable<GENTEMAR_ESTADO_TITULO>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new EstadoTituloRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                else
+                {
+                    return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+                }
+            }
+        }
     }
 }

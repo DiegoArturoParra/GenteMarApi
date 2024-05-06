@@ -18,7 +18,7 @@ namespace DIMARCore.Business
         public async Task<IEnumerable<GENTEMAR_TIPO_LICENCIA>> GetTipoLicencias()
         {
             // Obtiene la lista
-            return await  new TipoLicenciaRepository().GetTipoLicencias();
+            return await new TipoLicenciaRepository().GetTipoLicencias();
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace DIMARCore.Business
         public async Task<IEnumerable<GENTEMAR_TIPO_LICENCIA>> GetTipoLicenciasActivo()
         {
             // Obtiene la lista
-            return await new TipoLicenciaRepository().GetAllWithConditionAsync(x => x.activo == true);
+            return await new TipoLicenciaRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO);
         }
 
 
@@ -55,10 +55,10 @@ namespace DIMARCore.Business
         {
             using (var repo = new TipoLicenciaRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.tipo_licencia.Equals(datos.tipo_licencia));
+                var validate = await repo.GetWithConditionAsync(x => x.tipo_licencia.Equals(datos.tipo_licencia));
                 if (validate != null)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse("El tipo de licencia ya esta creada."));
-                datos.activo = true;
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El tipo de licencia {datos.tipo_licencia} ya está creada."));
+                datos.activo = Constantes.ACTIVO;
                 await repo.Create(datos);
                 return Responses.SetCreatedResponse(datos);
             }
@@ -76,13 +76,19 @@ namespace DIMARCore.Business
             using (var repo = new TipoLicenciaRepository())
             {
                 // busca el tipo de licencia
-                var validate = await repo.GetWithCondition(x => x.id_tipo_licencia == datos.id_tipo_licencia);
-                if (validate == null)
+                var entidad = await repo.GetWithConditionAsync(x => x.id_tipo_licencia == datos.id_tipo_licencia);
+
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El tipo de licencia no existe."));
-                datos.id_tipo_licencia = validate.id_tipo_licencia;
-                datos.activo = validate.activo;
-                await repo.Update(datos);
-                return Responses.SetUpdatedResponse(datos);
+
+
+                var validate = await repo.GetWithConditionAsync(x => x.tipo_licencia.Equals(datos.tipo_licencia));
+                if (validate != null)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El tipo de licencia {datos.tipo_licencia} ya está creada."));
+
+                entidad.tipo_licencia = datos.tipo_licencia;
+                await repo.Update(entidad);
+                return Responses.SetUpdatedResponse(entidad);
             }
         }
 
@@ -95,12 +101,12 @@ namespace DIMARCore.Business
         {
             using (var repo = new TipoLicenciaRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_tipo_licencia == id);
-                if (validate == null)
+                var entidad = await repo.GetWithConditionAsync(x => x.id_tipo_licencia == id);
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El tipo de licencia no existe"));
-                validate.activo = !validate.activo;
-                await repo.Update(validate);
-                return Responses.SetUpdatedResponse(validate);
+                entidad.activo = !entidad.activo;
+                await repo.Update(entidad);
+                return Responses.SetUpdatedResponse(entidad);
             }
         }
 

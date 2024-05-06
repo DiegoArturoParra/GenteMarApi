@@ -1,30 +1,22 @@
 ﻿using DIMARCore.Repositories.Repository;
-using GenteMarCore.Entities.Models;
+using DIMARCore.UIEntities.DTOs;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 namespace DIMARCore.Business.Logica
 {
     public class ServiciosAplicacionesBO
     {
-        public IList<GENTEMAR_ESTADO_TITULO> GetEstadosTramite()
-        {
-            using (ServiciosAplicacionesRepository<GENTEMAR_ESTADO_TITULO> _repo = new ServiciosAplicacionesRepository<GENTEMAR_ESTADO_TITULO>())
-            {
-                return _repo.Table.OrderBy(x => x.id_estado_tramite).ToList();
-            }
-        }
 
-        public IEnumerable<APLICACIONES_TIPO_SOLICITUD> GetTiposSolicitud()
+        public async Task<IEnumerable<TipoSolicitudDTO>> GetTiposSolicitud()
         {
             List<string> excepto = new List<string>()
             {
                 "RENUEVA",
                 "EXPIDE"
             };
-
-            using (ServiciosAplicacionesRepository<APLICACIONES_TIPO_SOLICITUD> _repo = new ServiciosAplicacionesRepository<APLICACIONES_TIPO_SOLICITUD>())
+            using (AplicacionTipoSolicitudRepository _repo = new AplicacionTipoSolicitudRepository())
             {
-                return _repo.Table.Where(x => !excepto.Contains(x.DESCRIPCION)).OrderBy(x => x.ID_TIPO_SOLICITUD).ToList();
+                return await _repo.GetTiposSolicitud(excepto);
             }
         }
 
@@ -32,29 +24,21 @@ namespace DIMARCore.Business.Logica
         /// Listar los tipos de refrendos
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<APLICACIONES_TIPO_REFRENDO> GetTipoRefrendos()
+        public async Task<IEnumerable<TipoRefrendoDTO>> GetTiposRefrendoAsync()
         {
-            using (ServiciosAplicacionesRepository<APLICACIONES_TIPO_REFRENDO> _repo = new ServiciosAplicacionesRepository<APLICACIONES_TIPO_REFRENDO>())
+            using (AplicacionTipoRefrendoRepository _repo = new AplicacionTipoRefrendoRepository())
             {
-                return _repo.Table.OrderBy(x => x.DESCRIPCION).ToList();
+                return await _repo.GetTiposRefrendo();
             }
 
         }
 
-        public IEnumerable<APLICACIONES_CAPITANIAS> GetCapitanias()
+        public async Task<IEnumerable<CapitaniaDTO>> GetCapitaniasAsync()
         {
 
-            using (ServiciosAplicacionesRepository<APLICACIONES_CAPITANIAS> _repo = new ServiciosAplicacionesRepository<APLICACIONES_CAPITANIAS>())
+            using (AplicacionCapitaniaRepository _capitaniaRepository = new AplicacionCapitaniaRepository())
             {
-                return _repo.Table.OrderBy(x => x.SIGLA_CAPITANIA).ToList();
-            }
-        }
-
-        public IEnumerable<APLICACIONES_CAPITANIAS> GetCapitaniasFirmante()
-        {
-            using (ServiciosAplicacionesRepository<APLICACIONES_CAPITANIAS> _repo = new ServiciosAplicacionesRepository<APLICACIONES_CAPITANIAS>())
-            {
-                return _repo.Table.Where(x => x.SIGLA_CAPITANIA.Equals("DIMAR")).ToList();
+                return await _capitaniaRepository.GetCapitanias();
             }
         }
     }

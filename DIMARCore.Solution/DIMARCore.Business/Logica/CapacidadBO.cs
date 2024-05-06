@@ -6,6 +6,7 @@ using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using System.Linq;
 
 namespace DIMARCore.Business.Logica
 {
@@ -22,17 +23,16 @@ namespace DIMARCore.Business.Logica
                 return repo.GetAllWithCondition(x => x.activo == activo);
             }
         }
-
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var entidad = await new CapacidadRepository().GetById(Id);
+            var entidad = await new CapacidadRepository().GetByIdAsync(Id);
             return entidad == null
                 ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la capacidad."))
                 : Responses.SetOkResponse(entidad);
         }
         public async Task<Respuesta> ExisteCapacidadById(int capacidadId)
         {
-            var existe = await new CapacidadRepository().AnyWithCondition(x => x.id_capacidad == capacidadId);
+            var existe = await new CapacidadRepository().AnyWithConditionAsync(x => x.id_capacidad == capacidadId);
             if (!existe)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra la capacidad."));
             return Responses.SetOkResponse();
@@ -85,25 +85,40 @@ namespace DIMARCore.Business.Logica
             await new ReglaBO().ExisteReglaById(itemsId.ReglaId);
             await new CargoTituloBO().ExisteCargoTituloById(itemsId.CargoTituloId);
         }
-        public async Task<IEnumerable<GENTEMAR_REGLAS_CARGO>> CapacidadesActivasByReglaCargo(IdsLlaveCompuestaDTO items)
+        public async Task<IEnumerable<CapacidadDTO>> CapacidadesByReglaCargo(IdsLlaveCompuestaDTO items)
         {
             await IsExistItemsCargoAndRegla(items);
-            return await new CapacidadRepository().CapacidadesActivasByReglaCargo(items);
+            var data =  await new CapacidadRepository().CapacidadesByReglaCargo(items);
+            if (!data.Any())
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontraron capacidades con la relación."));
+            return data;
         }
         public async Task ExisteByNombreAsync(string nombre, int id = 0)
         {
             bool existe;
             if (id == 0)
             {
-                existe = await new CapacidadRepository().AnyWithCondition(x => x.capacidad.Equals(nombre.Trim().ToUpper()));
+                existe = await new CapacidadRepository().AnyWithConditionAsync(x => x.capacidad.Equals(nombre.Trim().ToUpper()));
             }
             else
             {
-                existe = await new CapacidadRepository().AnyWithCondition(x => x.capacidad.Equals(nombre.Trim().ToUpper()) && x.id_capacidad != id);
+                existe = await new CapacidadRepository().AnyWithConditionAsync(x => x.capacidad.Equals(nombre.Trim().ToUpper()) && x.id_capacidad != id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la capacidad {nombre}"));
 
+        }
+
+        public async Task<IEnumerable<GENTEMAR_CAPACIDAD>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new CapacidadRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+            }
         }
     }
 }

@@ -1,41 +1,20 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DIMARCore.Utilities.Middleware;
-using System;
-using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace DIMARCore.Business.Logica
 {
     public class ClaseLicenciasBO
     {
-        public async Task<Respuesta> ActualizarAsync(GENTEMAR_CLASE_LICENCIAS datos, IList<GENTEMAR_SECCION_LICENCIAS> secciones)
-        {
-            Respuesta respuesta = new Respuesta();
-            using (var repo = new ClaseLicenciasRepository())
-            {
-                // busca la Limitación en el sistema
-
-                var validate = await repo.GetWithCondition(x => x.id_clase == datos.id_clase);
-
-                if (validate == null)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("La clase no existe."));
-
-                datos.id_clase = validate.id_clase;
-                datos.activo = validate.activo;
-                await new ClaseLicenciasRepository().ActualizarClaseSeccion(datos, secciones);
-                return Responses.SetUpdatedResponse(respuesta);
-            }
-        }
-
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var entidad = await new ClaseLicenciasRepository().GetById(Id);
+            var entidad = await new ClaseLicenciasRepository().GetByIdAsync(Id);
             return entidad == null
-                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No encuentra registrada la clase de la clase."))
+                ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encuentra registrada la clase."))
                 : Responses.SetOkResponse(entidad);
         }
 
@@ -43,9 +22,9 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new ClaseLicenciasRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_clase == id);
+                var validate = await repo.GetWithConditionAsync(x => x.id_clase == id);
                 if (validate == null)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("La clase no existe."));
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la clase."));
                 validate.activo = !validate.activo;
                 await repo.Update(validate);
                 return Responses.SetUpdatedResponse(validate);
@@ -56,20 +35,41 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new ClaseLicenciasRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.descripcion_clase.Equals(entidad.descripcion_clase));
+                entidad.descripcion_clase = entidad.descripcion_clase.ToUpper();
+                var validate = await repo.AnyWithConditionAsync(x => x.descripcion_clase.Equals(entidad.descripcion_clase));
                 if (validate)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse("La clase ya existe."));
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La clase {entidad.descripcion_clase} ya se encuentra registrada."));
 
-                entidad.activo = true;
+                entidad.activo = Constantes.ACTIVO;
                 await repo.CrearClaseSeccion(entidad, secciones);
                 return Responses.SetCreatedResponse(entidad);
             }
         }
-
-
-        public IEnumerable<ClaseDTO> GetAllClaseLicencias()
+        public async Task<Respuesta> ActualizarAsync(GENTEMAR_CLASE_LICENCIAS datos, IList<GENTEMAR_SECCION_LICENCIAS> secciones)
         {
-            return new ClaseLicenciasRepository().GetTableClase();
+            Respuesta respuesta = new Respuesta();
+            using (var repo = new ClaseLicenciasRepository())
+            {
+                // busca la Limitación en el sistema
+                datos.descripcion_clase = datos.descripcion_clase.ToUpper();
+                var entidad = await repo.GetWithConditionAsync(x => x.id_clase == datos.id_clase);
+
+                if (entidad == null)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la clase."));
+
+                var validate = await repo.AnyWithConditionAsync(x => x.descripcion_clase.Equals(datos.descripcion_clase) && x.id_clase != datos.id_clase);
+                if (validate)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"La clase {datos.descripcion_clase} ya se encuentra registrada."));
+
+                entidad.descripcion_clase = datos.descripcion_clase;
+                await new ClaseLicenciasRepository().ActualizarClaseSeccion(entidad, secciones);
+                return Responses.SetUpdatedResponse(respuesta);
+            }
+        }
+
+        public async Task<IEnumerable<ClaseDTO>> GetAllClaseLicenciasAsync()
+        {
+            return await new ClaseLicenciasRepository().GetTableClase();
         }
 
         public async Task<IEnumerable<ClaseDTO>> GetClasesPorSeccionId(int id)
@@ -79,7 +79,7 @@ namespace DIMARCore.Business.Logica
 
         public async Task<IEnumerable<GENTEMAR_CLASE_LICENCIAS>> GetAllClaseLicenciasActivas()
         {
-            return await new ClaseLicenciasRepository().GetAllWithConditionAsync(x => x.activo == true);
+            return await new ClaseLicenciasRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO);
         }
 
         public async Task<IEnumerable<ClaseDTO>> GetClasesPorSeccionesIds(List<int> ids)

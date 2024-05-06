@@ -7,7 +7,5 @@ namespace GenteMarCore.Entities.Models
     {
         [NotMapped]
         public List<int> Habilitaciones { get; set; }
-        [NotMapped]
-        public List<string> HabilitacionesString { get; set; }
     }
 }

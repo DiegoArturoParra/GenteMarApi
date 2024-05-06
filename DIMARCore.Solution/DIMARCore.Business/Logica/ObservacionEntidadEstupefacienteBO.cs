@@ -29,7 +29,7 @@ namespace DIMARCore.Business.Logica
             await ValidationsIsExistData(data);
             using (var repo = new ObservacionEntidadEstupefacienteRepository())
             {
-                var dataActual = await repo.GetWithCondition(x => x.id_entidad == data.id_entidad && x.id_antecedente == data.id_antecedente)
+                var dataActual = await repo.GetWithConditionAsync(x => x.id_entidad == data.id_entidad && x.id_antecedente == data.id_antecedente)
                     ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El antecedente no tiene un consolidado y expediente aún, debe tener uno."));
 
                 dataActual.verificacion_exitosa = data.verificacion_exitosa;
@@ -42,16 +42,16 @@ namespace DIMARCore.Business.Logica
 
         private async Task ValidationsIsExistData(GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES data, bool isEdit = false)
         {
-            var existeEstupefaciente = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == data.id_antecedente);
+            var existeEstupefaciente = await new EstupefacienteRepository().AnyWithConditionAsync(x => x.id_antecedente == data.id_antecedente);
 
             if (!existeEstupefaciente)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El antecedente no se encuentra registrado."));
 
-            var existeEntidad = await new EntidadEstupefacienteRepository().AnyWithCondition(x => x.id_entidad == data.id_entidad && x.activo == true);
+            var existeEntidad = await new EntidadEstupefacienteRepository().AnyWithConditionAsync(x => x.id_entidad == data.id_entidad && x.activo == Constantes.ACTIVO);
             if (!existeEntidad)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La entidad no se encuentra registrada."));
 
-            var existeRegistroEntidadEnAclaracion = await new ObservacionEntidadEstupefacienteRepository().AnyWithCondition(x => x.id_entidad == data.id_entidad &&
+            var existeRegistroEntidadEnAclaracion = await new ObservacionEntidadEstupefacienteRepository().AnyWithConditionAsync(x => x.id_entidad == data.id_entidad &&
             x.descripcion_observacion.Length > 0 && x.fecha_respuesta_entidad != null && x.id_antecedente == data.id_antecedente);
 
             if (existeRegistroEntidadEnAclaracion)
@@ -63,7 +63,7 @@ namespace DIMARCore.Business.Logica
         #region Creación y edición masiva de observaciones
         public async Task<Respuesta> CrearObservacionesEntidad(IList<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> data, long antecedenteId)
         {
-            var existeEstupefaciente = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == antecedenteId);
+            var existeEstupefaciente = await new EstupefacienteRepository().AnyWithConditionAsync(x => x.id_antecedente == antecedenteId);
 
             if (!existeEstupefaciente)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El antecedente no se encuentra registrado."));
@@ -74,7 +74,7 @@ namespace DIMARCore.Business.Logica
                 var responses = await repo.CrearObservacionesEntidadCascade(antecedenteId, data);
                 if (responses.Any())
                 {
-                    _ = new DbLogger().InsertLogsToDatabase(responses);
+                    _ = new DbLoggerHelper().InsertSomeLogsToDatabase(responses);
                 }
                 return Responses.SetCreatedResponse();
             }
@@ -84,7 +84,7 @@ namespace DIMARCore.Business.Logica
         {
             var repoEntidadEstupefaciente = new EntidadEstupefacienteRepository();
             var repoObservacionEntidadEstupefaciente = new ObservacionEntidadEstupefacienteRepository();
-            var count = repoEntidadEstupefaciente.GetAllAsQueryable().Where(x => x.activo == true).Count();
+            var count = repoEntidadEstupefaciente.GetAllAsQueryable().Where(x => x.activo == Constantes.ACTIVO).Count();
             if (count != data.Count)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"El rango de observaciones debe ser: {count}, ya que existen {count} entidades."));
 
@@ -99,10 +99,10 @@ namespace DIMARCore.Business.Logica
 
             foreach (var item in data)
             {
-                if (!await repoEntidadEstupefaciente.AnyWithCondition(x => x.id_entidad == item.id_entidad && x.activo == true))
+                if (!await repoEntidadEstupefaciente.AnyWithConditionAsync(x => x.id_entidad == item.id_entidad && x.activo == Constantes.ACTIVO))
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La entidad no se encuentra registrada."));
 
-                var dataActual = await repoObservacionEntidadEstupefaciente.GetWithCondition(x => x.id_entidad == item.id_entidad
+                var dataActual = await repoObservacionEntidadEstupefaciente.GetWithConditionAsync(x => x.id_entidad == item.id_entidad
                                                                                              && x.id_antecedente == antecedenteId)
                      ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El antecedente no tiene un consolidado y expediente aún, debe tener uno."));
 
@@ -189,8 +189,6 @@ namespace DIMARCore.Business.Logica
                             var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
                             {
                                 detalle_aclaracion = Constantes.SIN_ACLARACION,
-                                fecha_hora_creacion = DateTime.Now,
-                                usuario_creador_registro = usuarioCreador,
                                 id_expediente_observacion = item.id_expediente_observacion,
                                 ruta_archivo = archivo.PathArchivo,
                                 detalle_observacion_anterior_json = JsonConvert.SerializeObject(json)
@@ -208,11 +206,137 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(pathInitial, archivo.PathArchivo);
                     }
                     var response = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(response);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(response);
                     return response;
                 }
             }
             return Responses.SetUpdatedResponse();
         }
+
+        public async Task<Respuesta> EdicionBulkDeEstupefacientes(EditBulkEstupefacientesDTO estupefacientesBulk, string pathInitial)
+        {
+            using (var observacionExpedienteRepository = new ExpedienteObservacionEstupefacienteRepository())
+            {
+                var existeEstado = await new EstadoEstupefacienteRepository()
+                    .AnyWithConditionAsync(x => x.id_estado_antecedente == estupefacientesBulk.EstadoAntecedenteId);
+
+                if (!existeEstado)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el estado."));
+
+                var data = await new EstupefacienteRepository().GetAllWithConditionAsync(x => estupefacientesBulk.EstupefacientesId.Select(id => id)
+                                                                                                                            .Contains(x.id_antecedente));
+
+                if (data.Count() != estupefacientesBulk.EstupefacientesId.Count)
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontraron todos los registros a actualizar."));
+
+                IList<GENTEMAR_ANTECEDENTES> antecedentesList = new List<GENTEMAR_ANTECEDENTES>();
+
+                antecedentesList = data.Select(entidad =>
+               {
+                   // Realizar los cambios necesarios en cada objeto de la lista
+                   // por ejemplo, modificar una propiedad
+                   entidad.id_estado_antecedente = estupefacientesBulk.EstadoAntecedenteId;
+                   entidad.fecha_aprobacion = estupefacientesBulk.ObservacionesPorEntidad.Select(x => x.FechaAprobacion).FirstOrDefault();
+                   entidad.fecha_vigencia = estupefacientesBulk.ObservacionesPorEntidad.Select(x => x.FechaVigencia).FirstOrDefault();
+                   return entidad;
+               }).ToList();
+
+                var expedientes = await observacionExpedienteRepository
+               .GetAllWithConditionAsync(x => estupefacientesBulk.EstupefacientesId.Contains(x.id_antecedente) && x.id_consolidado == estupefacientesBulk.ConsolidadoId);
+
+                List<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES> expedientesList = new List<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>();
+
+                foreach (var item in estupefacientesBulk.ObservacionesPorEntidad)
+                {
+                    var expedientesPorEntidad = expedientes.Where(x => x.id_entidad == item.EntidadId && x.id_expediente == item.ExpedienteId);
+                    var expedientesAdd = expedientesPorEntidad.Select(entidad =>
+                     {
+                         // Realizar los cambios necesarios en cada objeto de la lista se cambia el estado
+                         entidad.verificacion_exitosa = estupefacientesBulk.EstadoAntecedenteId == (int)EstadoEstupefacienteEnum.Exitosa;
+                         entidad.descripcion_observacion = item.Observacion;
+                         entidad.fecha_respuesta_entidad = item.FechaRespuestaEntidad;
+                         entidad.descripcion_observacion = Constantes.SIN_OBSERVACION;
+                         return entidad;
+                     }).ToList();
+                    expedientesList.AddRange(expedientesAdd);
+                }
+
+                List<Archivo> archivos = new List<Archivo>();
+                try
+                {
+
+                    string rutaModulo = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_ACLARACION_EXPEDIENTE}";
+
+                    List<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES> historialAclaracionDeExpedientes = new List<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES>();
+                    List<GENTEMAR_REPOSITORIO_ARCHIVOS> repositorios = new List<GENTEMAR_REPOSITORIO_ARCHIVOS>();
+                    var usuarioCreador = ClaimsHelper.GetNombreCompletoUsuario();
+
+
+                    foreach (var item in estupefacientesBulk.ObservacionesPorEntidad)
+                    {
+                        var nombreArchivo = $"{Guid.NewGuid()}.{item.Extension}";
+                        var respuesta = Reutilizables.GuardarArchivoDeBytes(item.FileBytes, pathInitial, rutaModulo, nombreArchivo);
+                        var archivo = (Archivo)respuesta.Data;
+                        if (archivo != null)
+                        {
+                            var repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
+                            {
+                                IdAplicacion = Constantes.ID_APLICACION,
+                                NombreModulo = Constantes.CARPETA_MODULO_ESTUPEFACIENTES,
+                                TipoDocumento = Constantes.CARPETA_ACLARACION_EXPEDIENTE,
+                                FechaCargue = DateTime.Now,
+                                NombreArchivo = nombreArchivo,
+                                Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                                RutaArchivo = archivo.PathArchivo,
+                                DescripcionDocumento = Reutilizables.DescribirDocumento(Path.GetExtension(archivo.NombreArchivo)),
+                                IdExpedienteObservacion = item.ExpedienteId
+                            };
+
+                            repositorios.Add(repositorio);
+
+                            var expedientesPorEntidad = expedientes.Where(x => x.id_entidad == item.EntidadId && x.id_expediente == item.ExpedienteId);
+                            foreach (var itemExpediente in expedientesPorEntidad)
+                            {
+                                var json = new ObservacionAnteriorDTO()
+                                {
+                                    DetalleAnterior = itemExpediente.descripcion_observacion,
+                                    VerificacionExitosaBefore = itemExpediente.verificacion_exitosa.Value,
+                                    VerificacionExitosaAfter = itemExpediente.verificacion_exitosa.Value
+                                };
+                                var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
+                                {
+                                    detalle_aclaracion = Constantes.SIN_ACLARACION,
+                                    id_expediente_observacion = itemExpediente.id_expediente_observacion,
+                                    ruta_archivo = archivo.PathArchivo,
+                                    detalle_observacion_anterior_json = JsonConvert.SerializeObject(json)
+                                };
+                                historialAclaracionDeExpedientes.Add(dataAclaracion);
+                            }
+                            archivos.Add(archivo);
+                        }
+                    }
+                    if (archivos.Any() && repositorios.Any() && antecedentesList.Any() && historialAclaracionDeExpedientes.Any())
+                    {
+                        await observacionExpedienteRepository.EdicionObservacionesMasivaDeEstupefacientes(antecedentesList, expedientesList,
+                            historialAclaracionDeExpedientes, repositorios, estupefacientesBulk.ObservacionesPorEntidad, _numeroDeLotes);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (archivos.Any())
+                    {
+                        foreach (var item in archivos)
+                        {
+                            Reutilizables.EliminarArchivo(pathInitial, item.PathArchivo);
+                        }
+                    }
+                    var response = Responses.SetInternalServerErrorResponse(ex);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(response);
+                    return response;
+                }
+            }
+            return Responses.SetUpdatedResponse();
+        }
+
     }
 }

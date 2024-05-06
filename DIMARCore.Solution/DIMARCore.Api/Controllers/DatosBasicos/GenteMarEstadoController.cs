@@ -1,4 +1,5 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -42,10 +43,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GENTEMAR_ESTADO>))]
         [HttpGet]
         [Route("listaActivo")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetEstadoActivo()
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetEstadoActivoAsync()
         {
-            var ListaEstado = _service.GetEstadosActivo();
+            var ListaEstado = await _service.GetEstadosActivoAsync();
             return Ok(ListaEstado);
         }
 
@@ -67,10 +68,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<GENTEMAR_ESTADO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetEstados()
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetEstadosAsync()
         {
-            var ListaEstado = _service.GetEstados();
+            var ListaEstado = await _service.GetEstadosAsync();
             return Ok(ListaEstado);
         }
 
@@ -89,10 +90,10 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearEstado(EstadoDTO estado)
         {
             var data = Mapear<EstadoDTO, GENTEMAR_ESTADO>(estado);
@@ -113,14 +114,14 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> actualizarEstado(EstadoDTO estado)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ActualizarEstado(EstadoDTO estado)
         {
             var data = Mapear<EstadoDTO, GENTEMAR_ESTADO>(estado);
-            var respuesta = await new GenteDeMarEstadoBO().actualizarEstado(data);
+            var respuesta = await new GenteDeMarEstadoBO().ActualizarEstado(data);
             return Ok(respuesta);
         }
 
@@ -140,14 +141,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarEstado(int id)
         {
-            var respuesta = await new GenteDeMarEstadoBO().cambiarEstado(id);
+            var respuesta = await new GenteDeMarEstadoBO().CambiarEstado(id);
             return Ok(respuesta);
         }
-
-
     }
-
 }

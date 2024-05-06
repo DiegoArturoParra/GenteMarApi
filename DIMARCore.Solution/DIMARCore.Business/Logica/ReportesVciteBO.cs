@@ -5,7 +5,6 @@ using DIMARCore.UIEntities.QueryFilters.Reports;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,12 +39,25 @@ namespace DIMARCore.Business.Logica
             }
         }
 
-        public async Task<IEnumerable<ReportPieChartVciteDTO>> GetDataByPieChartEstadosEstupefaciente(ReportPieChartVciteFilter reportPieChartFilter)
+        public async Task<Respuesta> GetDataByPieChartEstadosEstupefaciente(ReportPieChartVciteFilter reportPieChartFilter,
+            CancellationToken cancellationToken)
         {
-            return await _reportesvciteRepository.GetDataByPieChartEstadosEstupefaciente(reportPieChartFilter);
+            using (var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                var data = await _reportesvciteRepository.GetDataByPieChartEstadosEstupefaciente(reportPieChartFilter, tokenSource);
+                if (!data.Any())
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay datos para generar el reporte."));
+
+
+                return Responses.SetOkResponse(new ReportPieChartVciteDTO
+                {
+                    CantidadTotal = data.Sum(x => x.data),
+                    DataByChart = data
+                }, "Se obtuvo los datos para generar el gráfico Pie.");
+            }
         }
 
-        public async Task<VciteHistoricoPersonaDTO> GetHistoricoByPersonaIdentificacion(DocumentFilter documentoFilter)
+        public async Task<Respuesta> GetHistoricoByPersonaIdentificacion(DocumentFilter documentoFilter)
         {
             var data = await new EstupefacienteDatosBasicosRepository().GetPersonaConDocumento(documentoFilter);
             if (data is null)
@@ -54,7 +66,7 @@ namespace DIMARCore.Business.Logica
             var historico = await _reportesvciteRepository.GetHistoricoByPersonaIdentificacion(data.GenteDeMarId);
 
             data.Historico = historico;
-            return data;
+            return Responses.SetOkResponse(data);
         }
     }
 }

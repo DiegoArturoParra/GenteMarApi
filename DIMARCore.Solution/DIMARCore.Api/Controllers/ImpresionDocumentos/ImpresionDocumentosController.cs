@@ -1,12 +1,9 @@
-﻿
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
-using DIMARCore.Business;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
-using GenteMarCore.Entities.Models;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -19,17 +16,20 @@ namespace DIMARCore.Api.Controllers
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/impresionDocumentos")]
+    [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
     public class ImpresionDocumentosController : BaseApiController
     {
 
         private readonly ImpresionDocumentosBO _service;
 
-
+        /// <summary>
+        /// constructor
+        /// </summary>
         public ImpresionDocumentosController()
         {
             _service = new ImpresionDocumentosBO();
         }
-        #region secciones Previstas
+        #region generación y muestra de previstas licencias y titulos
 
         /// <summary>
         ///  Generacion de la prevista del documento 
@@ -64,7 +64,6 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ImpresionDocumentoDTO))]
         [HttpGet]
         [Route("previstaTitulo/{idTitulo}")]
-        [AllowAnonymous]
         public async Task<IHttpActionResult> GetPrevistaTitulo(int idTitulo)
         {
             var data = await _service.GetPrevistaTitulo(idTitulo);
@@ -86,7 +85,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<Respuesta>))]
         [HttpPost]
         [Route("GuardarPrevista")]
-        public async Task<IHttpActionResult> SavePrevistas(ImpresionDocumentoDTO impresionDocumento)
+        public async Task<IHttpActionResult> SavePrevista(ImpresionDocumentoDTO impresionDocumento)
         {
             var response = await _service.SavePrevista(impresionDocumento);
             return Ok(response);

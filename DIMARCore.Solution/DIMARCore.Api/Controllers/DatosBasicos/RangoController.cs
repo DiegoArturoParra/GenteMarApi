@@ -1,14 +1,11 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -47,10 +44,10 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(List<FormacionDTO>))]
         [HttpGet]
         [Route("lista/{estado}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetRango(bool estado)
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetRangoAsync(bool estado)
         {
-            var rango = _service.GetFormacion(estado);
+            var rango = await _service.GetRangosAsync(estado);
             var data = Mapear<IList<APLICACIONES_RANGO>, IList<RangoDTO>>(rango);
             return Ok(data);
         }
@@ -68,15 +65,15 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         /// <response code="409">Conflict. conflicto de solicitud de la formación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearRangoAsync(RangoDTO rango)
         {
             var data = Mapear<RangoDTO, APLICACIONES_RANGO>(rango);
-            var respuesta = await _service.CrearRango(data);
-            return ResultadoStatus(respuesta);
+            var response = await _service.CrearRango(data);
+            return Created(string.Empty, response);
         }
         /// <summary>
         /// Servicio para editar un rango 
@@ -92,15 +89,15 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         /// <response code="409">Conflict. conflicto de solicitud de la formación.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public async Task<IHttpActionResult> actualizarRangoAsync(RangoDTO rango)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ActualizarRangoAsync(RangoDTO rango)
         {
             var data = Mapear<RangoDTO, APLICACIONES_RANGO>(rango);
-            var respuesta = await _service.actualizarRango(data);
-            return ResultadoStatus(respuesta);
+            var respuesta = await _service.ActualizarRango(data);
+            return Ok(respuesta);
         }
         /// <summary>
         /// Servicio para Inactivar un rango 
@@ -118,10 +115,10 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarRangoAsync(int id)
         {
-            var respuesta = await _service.cambiarRango(id);
+            var respuesta = await _service.CambiarRango(id);
             return ResultadoStatus(respuesta);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using DIMARCore.Api.Core;
-using DIMARCore.Api.Core.Atributos;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;

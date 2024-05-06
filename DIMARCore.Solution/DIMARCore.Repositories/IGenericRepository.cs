@@ -9,13 +9,13 @@ namespace DIMARCore.Repositories
     public interface IGenericRepository<T> where T : class
     {
         Task Create(T entidad);
-        Task<T> GetById(object id);
+        Task<T> GetByIdAsync(object id);
         Task Update(T entidad);
         IQueryable<T> GetAllAsQueryable();
-        Task<T> GetWithCondition(Expression<Func<T, bool>> whereCondition);
+        Task<T> GetWithConditionAsync(Expression<Func<T, bool>> whereCondition);
         IEnumerable<T> GetAll();
         IEnumerable<T> GetAllWithCondition(Expression<Func<T, bool>> whereCondition);
         Task<IEnumerable<T>> GetAllWithConditionAsync(Expression<Func<T, bool>> whereCondition);
-        Task<bool> AnyWithCondition(Expression<Func<T, bool>> whereCondition);
+        Task<bool> AnyWithConditionAsync(Expression<Func<T, bool>> whereCondition);
     }
 }

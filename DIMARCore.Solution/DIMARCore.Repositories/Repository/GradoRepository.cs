@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -12,12 +13,12 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task<IEnumerable<GradoDTO>> GetGradosActivos()
         {
-            return await _context.APLICACIONES_GRADO.Where(x => x.activo == true).Select(x => new GradoDTO
+            return await _context.APLICACIONES_GRADO.Where(x => x.activo == Constantes.ACTIVO).Select(x => new GradoDTO
             {
                 Id = x.id_grado,
                 Descripcion = x.grado,
                 IsActive = x.activo
-            }).ToListAsync();
+            }).AsNoTracking().ToListAsync();
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace DIMARCore.Repositories.Repository
             if (status)
                 resultado = resultado.Where(x => x.activo == status);
 
-            return await resultado.OrderBy(x => x.grado).ToListAsync();
+            return await resultado.OrderBy(x => x.grado).AsNoTracking().ToListAsync();
         }
         /// <summary>
         /// Lista de grados con formacion
@@ -75,17 +76,16 @@ namespace DIMARCore.Repositories.Repository
 
             if (isActivos)
             {
-                resultado = resultado.Where(x => x.activo == true);
+                resultado = resultado.Where(x => x.activo == Constantes.ACTIVO);
             }
-            return await resultado.OrderBy(x => x.grado).ToListAsync();
+            return await resultado.OrderBy(x => x.grado).AsNoTracking().ToListAsync();
         }
 
 
         /// <summary>
         /// Metodo para crear los grados asociandolo a su formacion
         /// </summary>
-        /// <param name="entidad"></param>
-        /// <param name="fotografia"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
         public async Task CrearGrados(GradoInfoDTO data)
         {
@@ -97,13 +97,13 @@ namespace DIMARCore.Repositories.Repository
                 {
                     grado.grado = data.grado;
                     grado.sigla = data.sigla;
-                    grado.id_rango = data.id_rango;
+                    grado.id_rango = data.id_rango.Value;
                     grado.activo = data.activo;
                     _context.APLICACIONES_GRADO.Add(grado);
                     await SaveAllAsync();
                     var formacionGrado = new GENTEMAR_FORMACION_GRADO
                     {
-                        id_formacion = data.formacion.id_formacion,
+                        id_formacion = data.formacion.id_formacion.Value,
                         id_grado = grado.id_grado
                     };
                     _context.GENTEMAR_FORMACION_GRADO.Add(formacionGrado);
@@ -130,7 +130,7 @@ namespace DIMARCore.Repositories.Repository
                     grado.id_grado = (int)data.id_grado; //revisar excepcion que no salta cuando se genra un error  
                     grado.grado = data.grado;
                     grado.sigla = data.sigla;
-                    grado.id_rango = data.id_rango;
+                    grado.id_rango = data.id_rango.Value;
                     grado.activo = data.activo;
 
                     _context.APLICACIONES_GRADO.Attach(grado);
@@ -138,11 +138,23 @@ namespace DIMARCore.Repositories.Repository
                     entry.State = EntityState.Modified;
                     await SaveAllAsync();
                     var formacionGrado = _context.GENTEMAR_FORMACION_GRADO.Where(x => x.id_formacion_grado == data.formacion.id_formacion_grado).FirstOrDefault();
-                    formacionGrado.id_formacion = data.formacion.id_formacion;
-                    formacionGrado.id_grado = grado.id_grado;
-                    _context.GENTEMAR_FORMACION_GRADO.Attach(formacionGrado);
-                    var entry2 = _context.Entry(formacionGrado);
-                    entry2.State = EntityState.Modified;
+                    if (formacionGrado != null)
+                    {
+                        formacionGrado.id_formacion = data.formacion.id_formacion.Value;
+                        formacionGrado.id_grado = grado.id_grado;
+                        _context.GENTEMAR_FORMACION_GRADO.Attach(formacionGrado);
+                        var entry2 = _context.Entry(formacionGrado);
+                        entry2.State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        formacionGrado = new GENTEMAR_FORMACION_GRADO
+                        {
+                            id_formacion = data.formacion.id_formacion.Value,
+                            id_grado = grado.id_grado
+                        };
+                        _context.GENTEMAR_FORMACION_GRADO.Add(formacionGrado);
+                    }
                     await SaveAllAsync();
                     transaction.Commit();
 
@@ -153,9 +165,6 @@ namespace DIMARCore.Repositories.Repository
                     ObtenerException(ex, grado);
                 }
             }
-
         }
-
-
     }
 }

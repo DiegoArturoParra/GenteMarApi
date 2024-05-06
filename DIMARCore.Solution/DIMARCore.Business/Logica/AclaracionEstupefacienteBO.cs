@@ -1,7 +1,6 @@
 ﻿using DIMARCore.Business.Helpers;
 using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
-using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
@@ -22,11 +21,11 @@ namespace DIMARCore.Business.Logica
             if (aclaracionEdit.FileBytes == null)
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "El archivo no puede ir vacio.");
 
-            var expedienteObservacion = await new ExpedienteObservacionEstupefacienteRepository().GetById(aclaracionEdit.ExpedienteObservacionId);
+            var expedienteObservacion = await new ExpedienteObservacionEstupefacienteRepository().GetByIdAsync(aclaracionEdit.ExpedienteObservacionId);
             if (expedienteObservacion == null)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El expediente con observación no existe."));
 
-            var antecedente = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == aclaracionEdit.AntecedenteId);
+            var antecedente = await new EstupefacienteRepository().AnyWithConditionAsync(x => x.id_antecedente == aclaracionEdit.AntecedenteId);
             if (!antecedente)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estupefaciente no existe."));
 
@@ -54,18 +53,16 @@ namespace DIMARCore.Business.Logica
                         };
 
 
-                            aclaracionEdit.ObservacionAnterior = new ObservacionAnteriorDTO()
-                            {
-                                DetalleAnterior = expedienteObservacion.descripcion_observacion,
-                                VerificacionExitosaBefore = expedienteObservacion.verificacion_exitosa.Value,
-                                VerificacionExitosaAfter = aclaracionEdit.VerificacionExitosa
-                            };
+                        aclaracionEdit.ObservacionAnterior = new ObservacionAnteriorDTO()
+                        {
+                            DetalleAnterior = expedienteObservacion.descripcion_observacion,
+                            VerificacionExitosaBefore = expedienteObservacion.verificacion_exitosa.Value,
+                            VerificacionExitosaAfter = aclaracionEdit.VerificacionExitosa
+                        };
 
                         var dataAclaracion = new GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES()
                         {
                             detalle_aclaracion = aclaracionEdit.DetalleAclaracion,
-                            fecha_hora_creacion = DateTime.Now,
-                            usuario_creador_registro = ClaimsHelper.GetNombreCompletoUsuario(),
                             id_expediente_observacion = expedienteObservacion.id_expediente_observacion,
                             ruta_archivo = archivo.PathArchivo,
                             detalle_observacion_anterior_json = JsonConvert.SerializeObject(aclaracionEdit.ObservacionAnterior)
@@ -83,7 +80,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
                     }
                     var response = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(response);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(response);
                     return response;
                 }
                 return Responses.SetCreatedResponse(null, "La aclaración se agregó satisfactoriamente.");
@@ -109,7 +106,7 @@ namespace DIMARCore.Business.Logica
                             }
                             else
                             {
-                                _ = new DbLogger().InsertLogToDatabase(respuestaBuscarArchivo);
+                                _ = new DbLoggerHelper().InsertLogToDatabase(respuestaBuscarArchivo);
                             }
                         }
                     }

@@ -1,5 +1,5 @@
 ﻿using DIMARCore.Business;
-using DIMARCore.UIEntities.DTOs;
+using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -27,7 +27,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="404">NotFound. No se ha encontrado data.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <returns></returns>
-        [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
+        [ResponseType(typeof(IEnumerable<APLICACIONES_TIPO_DOCUMENTO>))]
         [HttpGet]
         [Route("lista")]
         [Authorize]

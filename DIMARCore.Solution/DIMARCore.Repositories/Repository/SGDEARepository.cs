@@ -17,62 +17,56 @@ namespace DIMARCore.Repositories.Repository
 {
     public class SGDEARepository : GenericRepository<SGDEA_PREVISTAS>
     {
-        private readonly CoreContextDapper _coreContextDapper;
+        private readonly CoreDapperContext _coreContextDapper;
         public SGDEARepository()
         {
-            _coreContextDapper = new CoreContextDapper();
+            _coreContextDapper = new CoreDapperContext();
         }
         public async Task<IEnumerable<RadicadoDTO>> GetRadicadosTitulosByCedula(string cedula)
         {
-            var radicadoEnUso = await (from titulo in _context.GENTEMAR_TITULOS
-                                       join usuario in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals usuario.id_gentemar
-                                       where usuario.documento_identificacion.Equals(cedula)
-                                       select titulo.radicado
-                         ).ToListAsync();
+            var radicadosEnUso = await (from titulo in _context.GENTEMAR_TITULOS
+                                        join usuario in _context.GENTEMAR_DATOSBASICOS on titulo.id_gentemar equals usuario.id_gentemar
+                                        where usuario.documento_identificacion.Equals(cedula)
+                                        select titulo.radicado).ToListAsync();
 
             List<RadicadoDTO> radicados = new List<RadicadoDTO>();
-            radicados = await (from listado in _context.TABLA_SGDEA_PREVISTAS
-                               where listado.numero_identificacion_usuario.Equals(cedula) && listado.tipo_tramite.Contains(Constantes.TRAMITE_TITULOS)
-                               && listado.estado.Equals(Constantes.ESTADOTRAMITESGDA)
-                               && !radicadoEnUso.Contains(listado.radicado.ToString())
-                               group listado by new { listado.radicado, listado.tipo_tramite } into grouped
-                               where grouped.Count() == 1
-                               select new RadicadoDTO
-                               {
-                                   Radicado = grouped.Key.radicado,
-                                   Conteo = grouped.Count(),
-                                   TipoTramite = grouped.Key.tipo_tramite
-                               }).ToListAsync();
+            var query = (from listado in _context.TABLA_SGDEA_PREVISTAS
+                         where listado.numero_identificacion_usuario.Equals(cedula)
+                         && listado.tipo_tramite.Contains(Constantes.TRAMITE_TITULOS)
+                         && !radicadosEnUso.Contains(listado.radicado.ToString())
+                         group listado by new { listado.radicado, listado.tipo_tramite } into grouped
+                         select new RadicadoDTO
+                         {
+                             Radicado = grouped.Key.radicado,
+                             Conteo = grouped.Count(),
+                             TipoTramite = grouped.Key.tipo_tramite
+                         });
 
-
+            radicados = await query.Where(x => x.Conteo == 1).AsNoTracking().ToListAsync();
             return radicados;
         }
 
 
         public async Task<IEnumerable<RadicadoDTO>> GetRadicadosLicenciaByCedula(string cedula)
         {
+            List<RadicadoDTO> radicados = new List<RadicadoDTO>();
             var radicadosEnUso = await (from licencia in _context.GENTEMAR_LICENCIAS
                                         join usuario in _context.GENTEMAR_DATOSBASICOS on licencia.id_gentemar equals usuario.id_gentemar
                                         where usuario.documento_identificacion.Equals(cedula)
-                                        select licencia.radicado
-                         ).ToListAsync();
+                                        select licencia.radicado).ToListAsync();
+            var query = (from listado in _context.TABLA_SGDEA_PREVISTAS
+                         where listado.numero_identificacion_usuario.Equals(cedula)
+                         && listado.tipo_tramite.Contains(Constantes.TRAMITE_LICENCIA)
+                         && !radicadosEnUso.Contains(listado.radicado)
+                         group listado by new { listado.radicado, listado.tipo_tramite } into grouped
+                         select new RadicadoDTO
+                         {
+                             Radicado = grouped.Key.radicado,
+                             Conteo = grouped.Count(),
+                             TipoTramite = grouped.Key.tipo_tramite
+                         });
 
-            List<RadicadoDTO> radicados = new List<RadicadoDTO>();
-            radicados = await (from listado in _context.TABLA_SGDEA_PREVISTAS
-                               where listado.numero_identificacion_usuario.Equals(cedula)
-                               && listado.tipo_tramite.Contains(Constantes.TRAMITE_LICENCIA)
-                               && listado.estado.Equals(Constantes.ESTADOTRAMITESGDA)
-                               && !radicadosEnUso.Contains(listado.radicado)
-                               group listado by new { listado.radicado, listado.tipo_tramite } into grouped
-                               where grouped.Count() == 1
-                               select new RadicadoDTO
-                               {
-                                   Radicado = grouped.Key.radicado,
-                                   Conteo = grouped.Count(),
-                                   TipoTramite = grouped.Key.tipo_tramite
-                               }).ToListAsync();
-
-
+            radicados = await query.Where(x => x.Conteo == 1).AsNoTracking().ToListAsync();
             return radicados;
         }
 
@@ -96,8 +90,7 @@ namespace DIMARCore.Repositories.Repository
             {
                 if (!string.IsNullOrWhiteSpace(filter.Identificacion))
                 {
-                    bool isExisteInGenteDeMar = await _context.GENTEMAR_DATOSBASICOS.
-                                                AnyAsync(x => x.documento_identificacion.Equals(filter.Identificacion));
+                    bool isExisteInGenteDeMar = await _context.GENTEMAR_DATOSBASICOS.AnyAsync(x => x.documento_identificacion.Equals(filter.Identificacion));
                     return await GetRadicadosInfoPersonaParaEstupefacientesPorIdentificacion(filter, isExisteInGenteDeMar, tokenSource);
                 }
                 else
@@ -125,22 +118,23 @@ namespace DIMARCore.Repositories.Repository
         private async Task<IEnumerable<RadicadoInfoDTO>> GetRadicadosInfoPersonaParaEstupefacientesPorIdentificacion(RadicadoSGDEAFilter filter,
             bool isExistInGenteDeMar, CancellationTokenSource tokenSource)
         {
-            IList<RadicadoInfoDTO> data = new List<RadicadoInfoDTO>();
+            IList<RadicadoInfoDTO> radicados = new List<RadicadoInfoDTO>();
             var filtroTituloLicencia = filter.IsTituloNavegacion ? Constantes.TRAMITE_TITULOS : Constantes.TRAMITE_LICENCIA;
-            data = await (from sgdea in _context.TABLA_SGDEA_PREVISTAS
-                          where sgdea.tipo_tramite.Contains(filtroTituloLicencia)
-                          && sgdea.estado.Equals(Constantes.ESTADOTRAMITESGDA) && sgdea.numero_identificacion_usuario
-                          .Equals(filter.Identificacion)
-                          && !_context.GENTEMAR_ANTECEDENTES.Any(antecedente => antecedente.numero_sgdea == sgdea.radicado.ToString())
-                          group sgdea by new { sgdea.radicado, cedula = sgdea.numero_identificacion_usuario } into grouped
-                          where grouped.Count() == 1
-                          select new RadicadoInfoDTO
-                          {
-                              Radicado = grouped.Key.radicado.ToString(),
-                              Conteo = grouped.Count(),
-                              FechaRadicado = grouped.FirstOrDefault().fecha_estado,
-                              NumeroIdentificacionSGDEA = grouped.Key.cedula,
-                          }).ToListAsync(tokenSource.Token);
+            var query = (from sgdea in _context.TABLA_SGDEA_PREVISTAS
+                         where sgdea.tipo_tramite.Contains(filtroTituloLicencia)
+                         && sgdea.numero_identificacion_usuario.Equals(filter.Identificacion)
+                         && !_context.GENTEMAR_ANTECEDENTES.Any(antecedente => antecedente.numero_sgdea == sgdea.radicado.ToString())
+                         group sgdea by new { sgdea.radicado, cedula = sgdea.numero_identificacion_usuario } into grouped
+                         select new RadicadoInfoDTO
+                         {
+                             Radicado = grouped.Key.radicado.ToString(),
+                             Conteo = grouped.Count(),
+                             FechaRadicado = grouped.FirstOrDefault().fecha_estado,
+                             NumeroIdentificacionSGDEA = grouped.Key.cedula,
+                         });
+
+            radicados = await query.Where(x => x.Conteo == 1).AsNoTracking().ToListAsync(tokenSource.Token);
+
             if (isExistInGenteDeMar)
             {
                 var dataGenteDeMar = await (from gente in _context.GENTEMAR_DATOSBASICOS
@@ -156,7 +150,7 @@ namespace DIMARCore.Repositories.Repository
                                                 documento.DESCRIPCION
                                             }).FirstOrDefaultAsync(tokenSource.Token);
 
-                foreach (var item in data)
+                foreach (var item in radicados)
                 {
                     item.Nombres = dataGenteDeMar.nombres;
                     item.Apellidos = dataGenteDeMar.apellidos;
@@ -182,7 +176,7 @@ namespace DIMARCore.Repositories.Repository
                                                    }).FirstOrDefaultAsync(tokenSource.Token);
                 if (dataGenteDeMarInVCITE != null)
                 {
-                    foreach (var item in data)
+                    foreach (var item in radicados)
                     {
                         item.Nombres = dataGenteDeMarInVCITE.nombres;
                         item.Apellidos = dataGenteDeMarInVCITE.apellidos;
@@ -197,7 +191,7 @@ namespace DIMARCore.Repositories.Repository
             {
                 throw new OperationCanceledException();
             }
-            return data;
+            return radicados;
         }
 
         private async Task<IEnumerable<RadicadoInfoDTO>> GetRadicadosInfoPersonaParaEstupefacientesDapper(RadicadoSGDEAFilter filter,

@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -42,7 +42,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<ExpedienteDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
             RolesEnum.ConsultasVCITE, RolesEnum.GestorVCITE)]
         [Route("listar")]
         public async Task<IHttpActionResult> GetExpedientes()
@@ -64,7 +64,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<ExpedienteDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE,
             RolesEnum.ConsultasVCITE, RolesEnum.GestorVCITE)]
         [Route("listar-por-consolidado")]
         public async Task<IHttpActionResult> GetExpedientesPorConsolidado([FromUri] int consolidadoId)
@@ -87,7 +87,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseTypeSwagger<ExpedienteDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         [Route("one/por-consolidado-entidad")]
         public async Task<IHttpActionResult> GetExpedientePorConsolidadoEntidad([FromUri] ExpedienteFilter filter)
         {

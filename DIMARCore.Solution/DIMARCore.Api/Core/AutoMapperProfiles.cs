@@ -187,6 +187,7 @@ namespace DIMARCore.Api.Core
                 .ForMember(ent => ent.Apellidos, dto => dto.MapFrom(s => s.apellidos))
                 .ForMember(ent => ent.Direccion, dto => dto.MapFrom(s => s.direccion))
                 .ForMember(ent => ent.Nombres, dto => dto.MapFrom(s => s.nombres))
+                .ForMember(ent => ent.Telefono, dto => dto.MapFrom(s => s.telefono))
                 .ReverseMap();
 
                 cfg.CreateMap<GENTEMAR_FORMACION, FormacionDTO>().ReverseMap();
@@ -260,6 +261,10 @@ namespace DIMARCore.Api.Core
                  .ForMember(ent => ent.ListaNaves, dto => dto.MapFrom(s => s.ListaNaves))
                  .ReverseMap();
 
+                cfg.CreateMap<CambioEstadoLicenciaDTO, GENTEMAR_LICENCIAS>()
+               .ForMember(ent => ent.id_licencia, dto => dto.MapFrom(s => s.IdLicencia))
+               .ForMember(ent => ent.activo, dto => dto.MapFrom(s => s.Activo));
+
                 cfg.CreateMap<EstadoLicenciaDTO, GENTEMAR_ESTADO_LICENCIA>()
                 .ForMember(ent => ent.id_estado_licencias, dto => dto.MapFrom(s => s.IdEstadoLicencias))
                 .ForMember(ent => ent.descripcion_estado, dto => dto.MapFrom(s => s.DescripcionEstado))
@@ -287,8 +292,8 @@ namespace DIMARCore.Api.Core
                 cfg.CreateMap<EstupefacienteDatosBasicosDTO, GENTEMAR_ANTECEDENTES_DATOSBASICOS>()
                 .ForMember(ent => ent.identificacion, dto => dto.MapFrom(s => s.Identificacion))
                 .ForMember(ent => ent.fecha_nacimiento, dto => dto.MapFrom(s => s.FechaNacimiento))
-                .ForMember(ent => ent.nombres, dto => dto.MapFrom(s => s.Nombres))
-                .ForMember(ent => ent.apellidos, dto => dto.MapFrom(s => s.Apellidos))
+                .ForMember(ent => ent.nombres, dto => dto.MapFrom(s => s.Nombres.Trim()))
+                .ForMember(ent => ent.apellidos, dto => dto.MapFrom(s => s.Apellidos.Trim()))
                 .ForMember(ent => ent.id_tipo_documento, dto => dto.MapFrom(s => s.TipoDocumentoId))
                 .ForMember(ent => ent.IsExist, dto => dto.MapFrom(s => s.IsExist));
 

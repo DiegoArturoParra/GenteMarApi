@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -50,11 +50,11 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(List<EntidadDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE,
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE,
             RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
-        public IHttpActionResult Listado([FromUri] ActivoDTO dto)
+        public async Task<IHttpActionResult> Listado([FromUri] ActivoDTO dto)
         {
-            var query = _serviceEntidad.GetAll(dto != null ? dto.Activo : null);
+            var query = await _serviceEntidad.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_ENTIDAD_ANTECEDENTE>, IEnumerable<EntidadDTO>>(query);
             return Ok(listado);
         }
@@ -75,7 +75,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseTypeSwagger<EntidadDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> GetEntidad(int id)
         {
             var entidad = await _serviceEntidad.GetByIdAsync(id);
@@ -104,7 +104,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] EntidadDTO Entidad)
         {
             var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD_ANTECEDENTE>(Entidad);
@@ -130,7 +130,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> Editar([FromBody] EntidadDTO Entidad)
         {
             var data = Mapear<EntidadDTO, GENTEMAR_ENTIDAD_ANTECEDENTE>(Entidad);
@@ -154,7 +154,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceEntidad.AnulaOrActivaAsync(id);

@@ -47,13 +47,13 @@ namespace DIMARCore.Business.Logica
             await new ReglaBO().ExisteReglaById(entidad.ReglaId);
             foreach (var item in entidad.Funciones)
             {
-                var existeFuncion = await new FuncionRepository().AnyWithCondition(y => y.id_funcion == item);
+                var existeFuncion = await new FuncionRepository().AnyWithConditionAsync(y => y.id_funcion == item);
 
                 if (!existeFuncion)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe la función solicitada."));
 
                 if (!update)
-                    existeRelacion = await new ReglaFuncionRepository().AnyWithCondition(x => x.id_regla == entidad.ReglaId && x.id_funcion == item);
+                    existeRelacion = await new ReglaFuncionRepository().AnyWithConditionAsync(x => x.id_regla == entidad.ReglaId && x.id_funcion == item);
 
                 if (existeRelacion)
                     throw new HttpStatusCodeException(Responses.SetConflictResponse("Ya existe la relación indicada, ingrese una valida."));

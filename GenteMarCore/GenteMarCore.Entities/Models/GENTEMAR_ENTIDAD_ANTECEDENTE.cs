@@ -9,7 +9,7 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public int id_entidad { get; set; }
 
-        [StringLength(100)]
+        [StringLength(200)]
         public string entidad { get; set; }
 
         public bool activo { get; set; }

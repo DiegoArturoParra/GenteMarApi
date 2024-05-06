@@ -9,9 +9,9 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public int id_formacion_grado { get; set; }
 
-        public int? id_formacion { get; set; }
+        public int id_formacion { get; set; }
 
-        public int? id_grado { get; set; }
+        public int id_grado { get; set; }
 
         public virtual APLICACIONES_GRADO APLICACIONES_GRADO { get; set; }
 

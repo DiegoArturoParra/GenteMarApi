@@ -77,7 +77,7 @@ namespace DIMARCore.Business
 
         private async Task IsExistLoginNameOfUser(string loginName)
         {
-            bool exist = await new UsuarioRepository().AnyWithCondition(x => x.LOGIN_NAME.ToUpper().Equals(loginName.ToUpper()));
+            bool exist = await new UsuarioRepository().AnyWithConditionAsync(x => x.LOGIN_NAME.ToUpper().Equals(loginName.ToUpper()));
             if (!exist)
                 throw new HttpStatusCodeException(Responses.SetUnathorizedResponse("El usuario no tiene permisos para acceder a este aplicativo."));
         }

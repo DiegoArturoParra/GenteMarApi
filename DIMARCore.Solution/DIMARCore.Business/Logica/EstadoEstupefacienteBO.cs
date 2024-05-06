@@ -27,7 +27,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
 
-            var entidad = await new EstadoEstupefacienteRepository().GetById(Id);
+            var entidad = await new EstadoEstupefacienteRepository().GetByIdAsync(Id);
             if (entidad == null)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No se encuentra el estado indicado."));
 
@@ -77,21 +77,36 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, mensaje);
         }
 
-       
+
         public async Task ExisteByNombreAsync(string nombre, int Id = 0)
         {
             bool existe;
 
             if (Id == 0)
             {
-                existe = await new EstadoEstupefacienteRepository().AnyWithCondition(x => x.descripcion_estado_antecedente.Equals(nombre));
+                existe = await new EstadoEstupefacienteRepository().AnyWithConditionAsync(x => x.descripcion_estado_antecedente.Equals(nombre));
             }
             else
             {
-                existe = await new EstadoEstupefacienteRepository().AnyWithCondition(x => x.descripcion_estado_antecedente.Equals(nombre) && x.id_estado_antecedente != Id);
+                existe = await new EstadoEstupefacienteRepository().AnyWithConditionAsync(x => x.descripcion_estado_antecedente.Equals(nombre) && x.id_estado_antecedente != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el estado {nombre}"));
-        }   
+        }
+
+        public async Task<IEnumerable<GENTEMAR_ESTADO_ANTECEDENTE>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new EstadoEstupefacienteRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                else
+                {
+                    return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+                }
+            }
+        }
     }
 }

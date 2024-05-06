@@ -14,7 +14,7 @@ namespace DIMARCore.Repositories.Repository
         public async Task<IList<APLICACIONES_MUNICIPIO>> GetMunicipios()
         {
             // Obtiene la lista
-            return await Table.OrderBy(x => x.NOMBRE_MUNICIPIO).ToListAsync();
+            return await Table.OrderBy(x => x.NOMBRE_MUNICIPIO).AsNoTracking().ToListAsync();
         }
     }
 }

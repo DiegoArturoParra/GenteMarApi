@@ -6,7 +6,7 @@ namespace GenteMarCore.Entities.Models
     using System.ComponentModel.DataAnnotations.Schema;
 
     [Table("GENTEMAR_DATOSBASICOS", Schema = "DBA")]
-    public partial class    GENTEMAR_DATOSBASICOS : GENTEMAR_CAMPOS_AUDITORIA
+    public partial class GENTEMAR_DATOSBASICOS : GENTEMAR_CAMPOS_AUDITORIA
     {
         public GENTEMAR_DATOSBASICOS()
         {
@@ -38,9 +38,10 @@ namespace GenteMarCore.Entities.Models
         public int id_genero { get; set; }
 
         public DateTime fecha_nacimiento { get; set; }
-
-        public int? id_pais_nacimiento { get; set; }
-        public int? id_pais_residencia { get; set; }
+        [StringLength(3)]
+        public string id_pais_nacimiento { get; set; }
+        [StringLength(3)]
+        public string id_pais_residencia { get; set; }
 
         [StringLength(100)]
         public string direccion { get; set; }

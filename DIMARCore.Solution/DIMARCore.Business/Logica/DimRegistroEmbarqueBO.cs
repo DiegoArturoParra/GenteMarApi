@@ -10,7 +10,7 @@ namespace DIMARCore.Business.Logica
     {
         public async Task<IEnumerable<DimRegistroEmbarqueDTO>> GetDimRegistroEmbarqueAsync(long usuarioId)
         {
-            var data = await new DatosBasicosRepository().GetWithCondition(y => y.id_gentemar == usuarioId);
+            var data = await new DatosBasicosRepository().GetWithConditionAsync(y => y.id_gentemar == usuarioId);
             return data == null
                 ? throw new HttpStatusCodeException(System.Net.HttpStatusCode.NotFound, "No se encontraron datos del usuario.")
                 : await new DimRegistroEmbarqueRepository().GetDimRegistroEmbarque(data.documento_identificacion);

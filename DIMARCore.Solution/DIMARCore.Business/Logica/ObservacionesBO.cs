@@ -64,7 +64,7 @@ namespace DIMARCore.Business.Logica
                             }
                             else
                             {
-                                _ = new DbLogger().InsertLogToDatabase(respuestaBuscarArchivo);
+                                _ = new DbLoggerHelper().InsertLogToDatabase(respuestaBuscarArchivo);
                             }
 
                         }
@@ -79,7 +79,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearObservacionesDatosBasicos(GENTEMAR_OBSERVACIONES_DATOSBASICOS datos, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-            var valid = await new DatosBasicosRepository().AnyWithCondition(x => x.id_gentemar == datos.id_gentemar);
+            var valid = await new DatosBasicosRepository().AnyWithConditionAsync(x => x.id_gentemar == datos.id_gentemar);
             if (!valid)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("Id gente de mar no encontrado."));
 
@@ -128,7 +128,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(respuesta);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -139,7 +139,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearObservacionesTitulos(GENTEMAR_OBSERVACIONES_TITULOS datos, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-            var valid = await new TituloRepository().AnyWithCondition(x => x.id_titulo == datos.id_titulo);
+            var valid = await new TituloRepository().AnyWithConditionAsync(x => x.id_titulo == datos.id_titulo);
             if (!valid)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("Titulo no encontrado."));
             using (var repo = new ObservacionesTitulosRepository())
@@ -187,7 +187,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(respuesta);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -199,7 +199,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearObservacionesLicencias(GENTEMAR_OBSERVACIONES_LICENCIAS datos, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-            var valid = await new LicenciaRepository().AnyWithCondition(x => x.id_licencia == datos.id_licencia);
+            var valid = await new LicenciaRepository().AnyWithConditionAsync(x => x.id_licencia == datos.id_licencia);
             if (!valid)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("Licencia no encontrada."));
 
@@ -248,7 +248,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(respuesta);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;
@@ -259,7 +259,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> CrearObservacionesEstupefacientes(GENTEMAR_OBSERVACIONES_ANTECEDENTES datos, string rutaInicial)
         {
             Respuesta respuesta = new Respuesta();
-            var valid = await new EstupefacienteRepository().AnyWithCondition(x => x.id_antecedente == datos.id_antecedente);
+            var valid = await new EstupefacienteRepository().AnyWithConditionAsync(x => x.id_antecedente == datos.id_antecedente);
             if (!valid)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("Estupefaciente no encontrado."));
 
@@ -308,7 +308,7 @@ namespace DIMARCore.Business.Logica
                         Reutilizables.EliminarArchivo(rutaInicial, archivo.PathArchivo);
                     }
                     respuesta = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(respuesta);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(respuesta);
                 }
             }
             return respuesta;

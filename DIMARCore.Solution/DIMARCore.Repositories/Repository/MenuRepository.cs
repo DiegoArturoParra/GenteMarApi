@@ -9,7 +9,7 @@ namespace DIMARCore.Repositories.Repository
 
     public class MenuRepository : GenericRepository<APLICACIONES_ROL_MENU>
     {
-        public async Task<IEnumerable<MenuDTO>> GetUsuarioWithMenu(int aplicacionId, string loginName)
+        public async Task<IEnumerable<MenuDTO>> GetMenuPorUsuarioLoginName(int aplicacionId, string loginName)
         {
             var query = (from Menu in _context.APLICACIONES_MENU
                          join MenuRol in _context.APLICACIONES_ROL_MENU on Menu.ID_MENU equals MenuRol.ID_MENU
@@ -33,7 +33,7 @@ namespace DIMARCore.Repositories.Repository
                 Nombre = m.Menu.NOMBRE,
                 PadreId = m.Menu.ID_PADRE,
                 Vista = m.Menu.VISTA
-            }).ToListAsync();
+            }).OrderBy(x => x.Nombre).AsNoTracking().ToListAsync();
         }
     }
 }

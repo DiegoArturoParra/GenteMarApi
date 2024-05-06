@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -28,5 +29,10 @@ namespace DIMARCore.UIEntities.DTOs
         public List<int> IdLimitacion { get; set; }
         public List<int> IdCategoria { get; set; }
         public List<int> IdLimitante { get; set; }
+        public DateTime FechaExpedicion { get; set; }
+        public DateTime FechaVencimiento { get; set; }
+        public DateTime MaxDateFechaVencimiento { get; set; }
+
+
     }
 }

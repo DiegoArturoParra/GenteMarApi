@@ -10,7 +10,7 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task<IList<APLICACIONES_GENERO>> GetGeneros()
         {
-            return await (from genero in Table select genero).OrderBy(p => p.DESCRIPCION).ToListAsync();
+            return await (from genero in Table select genero).OrderBy(p => p.DESCRIPCION).AsNoTracking().ToListAsync();
         }
     }
 }

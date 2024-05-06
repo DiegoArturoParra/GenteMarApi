@@ -1,5 +1,8 @@
-﻿using DIMARCore.Repositories.Repository;
+﻿using DIMARCore.Business.Helpers;
+using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Config;
+using DIMARCore.Utilities.CorreoSMTP;
 using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;
@@ -8,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DIMARCore.Business.Logica
@@ -41,50 +45,48 @@ namespace DIMARCore.Business.Logica
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado la licencia."));
             if (data.Radicado == 0)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el radicado del tramite para generar la prevista."));
+
+            var sgda = await sgdeaBo.GetPrevistaEstado(data.Radicado, Constantes.PREVISTAGENERADA, Constantes.TRAMITE_LICENCIA);
+
+            impresionDocumentoDTO.NombrePDF = data.NombreLicencia;
+            impresionDocumentoDTO.Radicado = data.Radicado;
+            impresionDocumentoDTO.Tramite = Constantes.TRAMITE_LICENCIA;
+            if (sgda != null)
+            {
+                string rutaServidor = ConfigurationManager.AppSettings["UrlSGDA"];
+                impresionDocumentoDTO.Impreso = true;
+                impresionDocumentoDTO.PdfBase64 = Reutilizables.DescargarArchivoServidor(rutaServidor + sgda.ruta_prevista);
+                return impresionDocumentoDTO;
+            }
+
+            // plantilla del fromato html 
+            string templateDirectory = "";
+            switch (data.TipoLicencia.id_tipo_licencia)
+            {
+                case (int)TipoLicenciaEnum.NAVEGACIÓN:
+                    templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PATH_PLANTILLA_LICENCIA_NAVEGACION;
+                    break;
+                case (int)TipoLicenciaEnum.PERITOS:
+                    templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPERITO;
+                    break;
+                case (int)TipoLicenciaEnum.PILOTOS:
+                    if (data.ActividadLicencia.id_actividad == (int)TipoActividadEnum.PERMISOPRACTICAJE)
+                    {
+                        templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPEP;
+                        data.ParametroDinamico = Reutilizables.TablaHtmlVariables(data.Naves);
+                    }
+                    else
+                    {
+                        var edad = Reutilizables.CalcularEdad(data.FechaNacimiento);
+                        data.ParametroDinamico = edad >= 60 ? $"NOTA:<br />Debe certificar su aptitud física cada día de cumpleaños (Fecha de nacimiento {data.FechaNacimiento.ToString("dd/MM/yyyy")})" : "";
+                        templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPILOTO;
+                    }
+                    break;
+                default:
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse("La licencia solicitada no tiene permitido generar prevista"));
+            }
             try
             {
-
-                var sgda = await sgdeaBo.GetPrevistaEstado(data.Radicado, Constantes.PREVISTAGENERADA, Constantes.TRAMITE_LICENCIA);
-
-                impresionDocumentoDTO.NombrePDF = data.NombreLicencia;
-                impresionDocumentoDTO.Radicado = data.Radicado;
-                impresionDocumentoDTO.Tramite = Constantes.TRAMITE_LICENCIA;
-                if (sgda != null)
-                {
-                    string rutaServidor = ConfigurationManager.AppSettings["UrlSGDA"];
-                    impresionDocumentoDTO.Impreso = true;
-                    impresionDocumentoDTO.PdfBase64 = Reutilizables.DescargarArchivoServidor(rutaServidor + sgda.ruta_prevista);
-                    return impresionDocumentoDTO;
-
-                }
-
-                // plantilla del fromato html 
-                string templateDirectory = "";
-                switch (data.TipoLicencia.id_tipo_licencia)
-                {
-                    case (int)TipoLicenciaEnum.NAVEGACIÓN:
-                        templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PATH_PLANTILLA_LICENCIA_NAVEGACION;
-                        break;
-                    case (int)TipoLicenciaEnum.PERITOS:
-                        templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPERITO;
-                        break;
-                    case (int)TipoLicenciaEnum.PILOTOS:
-                        if (data.ActividadLicencia.id_actividad == (int)TipoActividadEnum.PERMISOPRACTICAJE)
-                        {
-                            templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPEP;
-                            data.ParametroDinamico = Reutilizables.TablaHtmlVariables(data.Naves);
-                        }
-                        else
-                        {
-                            var edad = Reutilizables.CalcularEdad(data.FechaNacimiento);
-                            data.ParametroDinamico = edad >= 60 ? $"NOTA:<br />Debe certificar su aptitud física cada día de cumpleaños (Fecha de nacimiento {data.FechaNacimiento.ToString("dd/MM/yyyy")})" : "";
-                            templateDirectory = AppDomain.CurrentDomain.BaseDirectory + Constantes.PLANTILLALICENCIAPILOTO;
-                        }
-                        break;
-                    default:
-                        throw new HttpStatusCodeException(Responses.SetConflictResponse("La licencia solicitada no tiene permitido generar prevista"));
-                }
-
                 // repmplaza las variables en el archivo html
                 var HTML = Reutilizables.ReplaceVariables(Reutilizables.ReadFile(templateDirectory), data, "<br>");
                 HTML = HTML.Replace("{url}", $"{ConfigurationManager.AppSettings["WebSite_API"]}");
@@ -92,8 +94,6 @@ namespace DIMARCore.Business.Logica
                 // objeto con la informacion 
                 impresionDocumentoDTO.Impreso = false;
                 impresionDocumentoDTO.PdfBase64 = base64;
-
-
                 return impresionDocumentoDTO;
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace DIMARCore.Business.Logica
             var previstaTramite = await sgdeaBo.GetPrevistaEstado(Convert.ToDecimal(impresionDocumento.Radicado), Constantes.PREVISTATRAMITE, impresionDocumento.Tramite);
             if (previstaTramite is null)
             {
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el radicado del tramite para generar la prevista."));
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se ha encontrado el radicado del trámite para generar la prevista."));
             }
             try
             {
@@ -202,6 +202,25 @@ namespace DIMARCore.Business.Logica
                 lisPrevista.Add(previstaImpreso);
                 // gurda los registros en la tabla previstas.
                 await sgdeaRepository.CreateSgdaPrevista(lisPrevista);
+
+                String[] emails = await new UsuarioRepository().GetEmailsAdministradores();
+
+                string emailLogeado = ClaimsHelper.GetEmail();
+                var nombres = await new DatosBasicosRepository().GetNombrePorIdentificacion(previstaTramite.numero_identificacion_usuario);
+                SendEmailRequest request = new SendEmailRequest
+                {
+                    Titulo = $"Prevista generada {previstaTramite.tipo_tramite}",
+                    CorreosDestino = emails,
+                    Asunto = $"Prevista generada {previstaTramite.tipo_tramite} radicado: {previstaTramite.radicado}",
+                    CC = !string.IsNullOrEmpty(emailLogeado) && !emails.Contains(emailLogeado) ? emailLogeado : string.Empty,
+                    CuerpoDelMensaje = $"Se generó la prevista con trámite {previstaTramite.tipo_tramite} y radicado: " +
+                                        $"{previstaTramite.radicado} para el usuario {nombres}" +
+                                        $" con {previstaTramite.tipo_documento_usuario} {previstaTramite.numero_identificacion_usuario}",
+                    Footer = Constantes.FOOTER_EMAIL
+                };
+
+                await new EnvioNotificacionesHelper().SendNotificationByEmail(request);
+
                 return Responses.SetOkResponse(null, "Se ha guardado la prevista correctamente.");
             }
             catch (Exception ex)

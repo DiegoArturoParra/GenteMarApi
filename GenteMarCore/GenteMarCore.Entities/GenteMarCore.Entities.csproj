@@ -43,7 +43,7 @@
       <HintPath>..\..\DIMARCore.Solution\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\DIMARCore.Solution\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\DIMARCore.Solution\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -57,20 +57,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoreContextDapper.cs" />
+    <Compile Include="CoreDapperContext.cs" />
     <Compile Include="GenteDeMarCoreContext.cs" />
+    <Compile Include="Helpers\GENTEMAR_SECCION.cs" />
     <Compile Include="Migrations\202307020253242_Initial.cs" />
     <Compile Include="Migrations\202307020253242_Initial.designer.cs">
       <DependentUpon>202307020253242_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\APLICACIONES_ESTADO_TRAMITE.cs" />
     <Compile Include="Models\APLICACIONES_TIPO_REFRENDO.cs" />
-    <Compile Include="Models\GENTEMAR_ESTADO_ANTECEDENTES.cs" />
-    <Compile Include="Models\GENTEMAR_ESTADO_LICENCIAS.cs" />
     <Compile Include="Models\GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES.cs" />
     <Compile Include="Models\GENTEMAR_CARGO_LICENCIA_LIMITANTE.cs" />
-    <Compile Include="Helpers\BanderaBasic.cs" />
     <Compile Include="Helpers\GENTEMAR_CAMPOS_AUDITORIA.cs" />
     <Compile Include="Helpers\GENTEMAR_CLASE.cs" />
     <Compile Include="Helpers\GENTEMAR_OBSERVACIONES.cs" />
@@ -122,7 +119,6 @@
     <Compile Include="Models\GENTEMAR_ESTADO_LICENCIA.cs" />
     <Compile Include="Models\GENTEMAR_FORMACION.cs" />
     <Compile Include="Models\GENTEMAR_FORMACION_GRADO.cs" />
-    <Compile Include="Models\GENTEMAR_FOTOGRAFIA.cs" />
     <Compile Include="Models\GENTEMAR_FUNCIONES.cs" />
     <Compile Include="Models\GENTEMAR_HABILITACION.cs" />
     <Compile Include="Models\GENTEMAR_LICENCIAS.cs" />
@@ -145,7 +141,6 @@
     <Compile Include="Models\GENTEMAR_TITULO_REGLA_CARGOS.cs" />
     <Compile Include="Models\NAVES_BASE.cs" />
     <Compile Include="Models\PAISES.cs" />
-    <Compile Include="Models\REPOSITORIO_ARCHIVOS.cs" />
     <Compile Include="Models\SGDEA_PREVISTAS.cs" />
     <Compile Include="Models\DETALLE_NAVE.cs" />
     <Compile Include="Partials\GENTEMAR_ANTECEDENTES.cs" />
@@ -157,6 +152,11 @@
     <Compile Include="Partials\GENTEMAR_TITULOS.cs" />
     <Compile Include="Partials\SGDEA_PREVISTAS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewsSQL\ViewGenteMarListarReglasCargo.cs" />
+    <Compile Include="ViewsSQL\ViewGenteMarReporteAntecedentes.cs" />
+    <Compile Include="ViewsSQL\ViewGenteMarReporteDatosBasicos.cs" />
+    <Compile Include="ViewsSQL\ViewGenteMarReporteLicencias.cs" />
+    <Compile Include="ViewsSQL\ViewGenteMarReporteTitulos.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

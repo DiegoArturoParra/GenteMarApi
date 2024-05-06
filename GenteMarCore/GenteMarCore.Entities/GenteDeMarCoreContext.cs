@@ -2,6 +2,7 @@
 using DIMARCore.Utilities.Config;
 using GenteMarCore.Entities.Helpers;
 using GenteMarCore.Entities.Models;
+using GenteMarCore.Entities.ViewsSQL;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -34,7 +35,6 @@ namespace GenteMarCore.Entities
 
 
         #region DBSET DE LAS TABLAS DE LA BD
-
         public virtual DbSet<SGDEA_PREVISTAS> TABLA_SGDEA_PREVISTAS { get; set; }
         public virtual DbSet<APLICACIONES> APLICACIONES { get; set; }
         public virtual DbSet<APLICACIONES_TIPO_REFRENDO> APLICACIONES_TIPO_REFRENDO { get; set; }
@@ -70,7 +70,6 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_ESTADO_LICENCIA> GENTEMAR_ESTADO_LICENCIAS { get; set; }
         public virtual DbSet<GENTEMAR_FORMACION> GENTEMAR_FORMACION { get; set; }
         public virtual DbSet<GENTEMAR_FORMACION_GRADO> GENTEMAR_FORMACION_GRADO { get; set; }
-        public virtual DbSet<GENTEMAR_FOTOGRAFIA> GENTEMAR_FOTOGRAFIA { get; set; }
         public virtual DbSet<GENTEMAR_FUNCIONES> GENTEMAR_FUNCIONES { get; set; }
         public virtual DbSet<GENTEMAR_HABILITACION> GENTEMAR_HABILITACION { get; set; }
         public virtual DbSet<GENTEMAR_LICENCIAS> GENTEMAR_LICENCIAS { get; set; }
@@ -113,18 +112,27 @@ namespace GenteMarCore.Entities
         public virtual DbSet<GENTEMAR_LOGS> GENTEMAR_LOGS { get; set; }
         #endregion
 
+        #region VIEWS sql convertidas en tablas
+        public virtual DbSet<ViewGenteMarListarReglasCargo> VIEW_LISTAR_REGLA_CARGO { get; set; }
+        public virtual DbSet<ViewGenteMarReporteTitulos> VIEW_REPORTE_TITULOS { get; set; }
+        public virtual DbSet<ViewGenteMarReporteLicencias> VIEW_REPORTE_LICENCIAS { get; set; }
+        public virtual DbSet<ViewGenteMarReporteAntecedentes> VIEW_REPORTE_ANTECEDENTES { get; set; }
+        public virtual DbSet<ViewGenteMarReporteDatosBasicos> VIEW_REPORTE_DATOSBASICOS { get; set; }
+        #endregion
+
+
 
         #region Se crea la auditoria por columnas antes de guardar a la base de datos
 
         public override int SaveChanges()
         {
-            //ProcesarAuditoria();
+            ProcesarAuditoria();
             return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync()
         {
-            //ProcesarAuditoria();
+            ProcesarAuditoria();
             return base.SaveChangesAsync();
         }
 
@@ -135,21 +143,22 @@ namespace GenteMarCore.Entities
 
         private void ProcesarAuditoria()
         {
-            string usuario = ClaimsHelper.GetNombreCompletoUsuario();
+            int usuarioId = ClaimsHelper.GetLoginId();
             foreach (var item in ChangeTracker.Entries()
                          .Where(e => e.State == EntityState.Added && e.Entity is GENTEMAR_CAMPOS_AUDITORIA))
             {
                 var entidad = item.Entity as GENTEMAR_CAMPOS_AUDITORIA;
-                entidad.usuario_creador_registro = usuario;
-                entidad.fecha_hora_creacion = DateTime.Now;
+                entidad.LoginCreacionId = usuarioId;
+                entidad.FechaCreacion = DateTime.Now;
+                entidad.LoginModificacionId = usuarioId;
             }
 
             foreach (var item in ChangeTracker.Entries()
                          .Where(e => e.State == EntityState.Modified && e.Entity is GENTEMAR_CAMPOS_AUDITORIA))
             {
                 var entidad = item.Entity as GENTEMAR_CAMPOS_AUDITORIA;
-                entidad.usuario_actualiza_registro = usuario;
-                entidad.fecha_hora_actualizacion = DateTime.Now;
+                entidad.LoginModificacionId = usuarioId;
+                entidad.FechaModificacion = DateTime.Now;
             }
         }
 
@@ -298,13 +307,6 @@ namespace GenteMarCore.Entities
                 .Property(e => e.numero_sgdea)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_ANTECEDENTES>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_ANTECEDENTES>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_CAPACIDAD>()
                 .Property(e => e.capacidad)
@@ -375,15 +377,6 @@ namespace GenteMarCore.Entities
                 .Property(e => e.numero_movil)
                 .IsUnicode(false);
 
-
-            modelBuilder.Entity<GENTEMAR_DATOSBASICOS>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_DATOSBASICOS>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
-
             modelBuilder.Entity<GENTEMAR_ENTIDAD_ANTECEDENTE>()
                 .Property(e => e.entidad)
                 .IsUnicode(false);
@@ -408,22 +401,6 @@ namespace GenteMarCore.Entities
                 .Property(e => e.formacion)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_FOTOGRAFIA>()
-                .Property(e => e.detalle)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_FOTOGRAFIA>()
-                .Property(e => e.fotografia)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_FOTOGRAFIA>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_FOTOGRAFIA>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
-
             modelBuilder.Entity<GENTEMAR_FUNCIONES>()
                 .Property(e => e.funcion)
                 .IsUnicode(false);
@@ -439,14 +416,6 @@ namespace GenteMarCore.Entities
             modelBuilder.Entity<GENTEMAR_LICENCIAS>()
                 .Property(e => e.radicado)
                 .HasPrecision(20, 0);
-
-            modelBuilder.Entity<GENTEMAR_LICENCIAS>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_LICENCIAS>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_LIMITACION>()
                 .Property(e => e.limitaciones)
@@ -464,15 +433,6 @@ namespace GenteMarCore.Entities
                 .Property(e => e.ruta_archivo)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_OBSERVACIONES_ANTECEDENTES>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_OBSERVACIONES_ANTECEDENTES>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
-
-
             modelBuilder.Entity<GENTEMAR_OBSERVACIONES_DATOSBASICOS>()
                 .Property(e => e.observacion)
                 .IsUnicode(false);
@@ -481,28 +441,12 @@ namespace GenteMarCore.Entities
                 .Property(e => e.ruta_archivo)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_OBSERVACIONES_DATOSBASICOS>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_OBSERVACIONES_DATOSBASICOS>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
-
             modelBuilder.Entity<GENTEMAR_OBSERVACIONES_TITULOS>()
                 .Property(e => e.observacion)
                 .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_OBSERVACIONES_TITULOS>()
                 .Property(e => e.ruta_archivo)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_OBSERVACIONES_TITULOS>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_OBSERVACIONES_TITULOS>()
-                .Property(e => e.usuario_actualiza_registro)
                 .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_REGLAS>()
@@ -532,14 +476,6 @@ namespace GenteMarCore.Entities
 
             modelBuilder.Entity<GENTEMAR_TITULOS>()
                 .Property(e => e.radicado)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_TITULOS>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_TITULOS>()
-                .Property(e => e.usuario_actualiza_registro)
                 .IsUnicode(false);
 
             modelBuilder.Entity<SGDEA_PREVISTAS>()
@@ -588,27 +524,12 @@ namespace GenteMarCore.Entities
                 .Property(e => e.descripcion_observacion)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES>()
-                .Property(e => e.usuario_actualiza_registro)
-                .IsUnicode(false);
-
             modelBuilder.Entity<GENTEMAR_TITULO_REGLA_CARGOS_HABILITACION>()
              .HasKey(x => new { x.id_titulo_cargo_regla, x.id_habilitacion });
 
             modelBuilder.Entity<GENTEMAR_TITULO_REGLA_CARGOS_FUNCION>()
              .HasKey(x => new { x.id_titulo_cargo_regla, x.id_funcion });
 
-            modelBuilder.Entity<GENTEMAR_CONSOLIDADO>()
-               .Property(e => e.usuario_creador_registro)
-               .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_EXPEDIENTE>()
-                .Property(e => e.usuario_creador_registro)
-                .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES>()
                 .Property(e => e.detalle_aclaracion)
@@ -616,10 +537,6 @@ namespace GenteMarCore.Entities
 
             modelBuilder.Entity<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES>()
                 .Property(e => e.ruta_archivo)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<GENTEMAR_HISTORIAL_ACLARACION_ANTECEDENTES>()
-                .Property(e => e.usuario_creador_registro)
                 .IsUnicode(false);
 
             modelBuilder.Entity<GENTEMAR_LOGS>()

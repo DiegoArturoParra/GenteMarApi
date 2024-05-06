@@ -1,7 +1,7 @@
 ﻿using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
-using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
@@ -39,11 +39,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(IEnumerable<TipoSolicitudDTO>))]
         [HttpGet]
         [Route("tipos-solicitud")]
-        public IHttpActionResult GetTiposSolicitud()
+        public async Task<IHttpActionResult> GetTiposSolicitudAsync()
         {
-            var response = _serviciosBO.GetTiposSolicitud();
-            var listado = Mapear<IEnumerable<APLICACIONES_TIPO_SOLICITUD>, IEnumerable<TipoSolicitudDTO>>(response);
-            return Ok(listado);
+            var response = await _serviciosBO.GetTiposSolicitud();
+            return Ok(response);
         }
 
         /// <summary>
@@ -62,11 +61,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(IEnumerable<TipoRefrendoDTO>))]
         [HttpGet]
         [Route("tipos-refrendo")]
-        public IHttpActionResult ListarRefrendos()
+        public async Task<IHttpActionResult> ListarRefrendosAsync()
         {
-            var response = _serviciosBO.GetTipoRefrendos();
-            var listado = Mapear<IEnumerable<APLICACIONES_TIPO_REFRENDO>, IEnumerable<TipoRefrendoDTO>>(response);
-            return Ok(listado);
+            var response = await _serviciosBO.GetTiposRefrendoAsync();
+            return Ok(response);
         }
 
         /// <summary>
@@ -83,30 +81,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
         [HttpGet]
         [Route("capitanias")]
-        public IHttpActionResult GetCapitaniasFirma()
+        public async Task<IHttpActionResult> GetCapitaniasFirmaAsync()
         {
-            var response = _serviciosBO.GetCapitanias();
-            var listado = Mapear<IEnumerable<APLICACIONES_CAPITANIAS>, IEnumerable<CapitaniaDTO>>(response);
-            return Ok(listado);
-        }
-        /// <summary>
-        /// servicio para las capitanias firmante
-        /// </summary>
-        /// <Autor>Diego Parra</Autor>
-        /// <Fecha>05/03/2022</Fecha>
-        /// <response code="200">OK. Devuelve el objeto solicitado.</response>        
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="404">NotFound. No se ha encontrado data.</response>
-        /// <response code="500">Internal Server. Error En el servidor. </response>
-        /// <returns></returns>
-        [ResponseType(typeof(IEnumerable<CapitaniaDTO>))]
-        [HttpGet]
-        [Route("capitanias-firmante")]
-        public IHttpActionResult GetCapitaniasFirmante()
-        {
-            var response = _serviciosBO.GetCapitaniasFirmante();
-            var listado = Mapear<IEnumerable<APLICACIONES_CAPITANIAS>, IEnumerable<CapitaniaDTO>>(response);
-            return Ok(listado);
+            var response = await _serviciosBO.GetCapitaniasAsync();
+            return Ok(response);
         }
     }
 }

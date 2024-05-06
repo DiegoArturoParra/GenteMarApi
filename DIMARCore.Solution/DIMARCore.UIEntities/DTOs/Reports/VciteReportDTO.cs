@@ -20,9 +20,9 @@ namespace DIMARCore.UIEntities.DTOs.Reports
         [Name("Número de radicado")]
         public string NumeroRadicadoSGDEA { get; set; }
         [Ignore]
-        public DateTime FechaRadicadoSGDEA { get; set; }
+        public DateTime? FechaRadicadoSGDEA { get; set; }
         [Name("Fecha radicado")]
-        public string FechaRadicadoSGDEAString => this.FechaRadicadoSGDEA.ToString("dd/MM/yyyy");
+        public string FechaRadicadoSGDEAString => this.FechaRadicadoSGDEA.HasValue ? this.FechaRadicadoSGDEA.Value.ToString("dd/MM/yyyy") : "No aplica.";
         [Name("Tipo de tramite")]
         public string TipoTramite { get; set; }
         [Ignore]

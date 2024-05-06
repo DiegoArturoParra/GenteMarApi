@@ -16,8 +16,7 @@ namespace DIMARCore.Business.Logica
         /// <exception cref="HttpStatusCodeException"></exception>
         public async Task<Respuesta> ExisteRolesByAplicacion()
         {
-            var hayRolesEnAplicacion = await new AplicacionRolesRepository().
-                AnyWithCondition(x => x.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar);
+            var hayRolesEnAplicacion = await new AplicacionRolesRepository().AnyWithConditionAsync(x => x.ID_APLICACION == (int)TipoAplicacionEnum.GenteDeMar);
             if (!hayRolesEnAplicacion)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay roles asignados a la aplicación de gente de mar."));
             return Responses.SetOkResponse();

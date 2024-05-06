@@ -10,10 +10,10 @@ namespace DIMARCore.UIEntities.DTOs
         public string _TipoLicencia;
         public string TipoLicencia
         {
-            get => _TipoLicencia?.ToUpper();
+            get => _TipoLicencia?.Trim().ToUpper();
             set => _TipoLicencia = value;
         }
 
-        public bool? Activo { get; set; }
+        public bool Activo { get; set; }
     }
 }

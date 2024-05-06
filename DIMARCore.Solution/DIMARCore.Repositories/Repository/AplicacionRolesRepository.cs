@@ -18,7 +18,7 @@ namespace DIMARCore.Repositories.Repository
                     Id = y.ID_ROL,
                     NombreRol = y.DESCRIPCION,
                     EstadoId = y.ID_ESTADO
-                }).ToListAsync();
+                }).AsNoTracking().ToListAsync();
         }
     }
 }

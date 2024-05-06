@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -44,9 +44,9 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="500">Internal Server. Error En el servidor. </response>
         /// <param name="ids">objeto que contiene las foraneas para busquedes de nivel por cargo-regla-id</param>
         /// <returns></returns>
-        [ResponseType(typeof(NivelDTO))]
+        [ResponseType(typeof(List<NivelDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("nivel-by-regla-cargo")]
         public async Task<IHttpActionResult> NivelPorCargoRegla([FromUri] IdsTablasForaneasDTO ids)
         {
@@ -70,10 +70,10 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<NivelDTO>))]
         [HttpGet]
         [Route("niveles/lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public IHttpActionResult Listado([FromUri] ActivoDTO dto)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ListadoAsync([FromUri] ActivoDTO dto)
         {
-            var query = _service.GetAll(dto != null ? dto.Activo : null);
+            var query = await _service.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_NIVEL>, IEnumerable<NivelDTO>>(query);
             return Ok(listado);
         }
@@ -96,7 +96,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseTypeSwagger<NivelDTO>))]
         [HttpGet]
         [Route("niveles/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetNivel(int id)
         {
             var entidad = await _service.GetByIdAsync(id);
@@ -123,7 +123,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("niveles/crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] NivelDTO nivel)
         {
             var data = Mapear<NivelDTO, GENTEMAR_NIVEL>(nivel);
@@ -149,7 +149,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("niveles/editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] NivelDTO nivel)
         {
             var data = Mapear<NivelDTO, GENTEMAR_NIVEL>(nivel);
@@ -172,7 +172,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("niveles/anula-or-activa/{id}")]
         public async Task<IHttpActionResult> AnularOrActivar(int id)

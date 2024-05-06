@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GenteMarCore.Entities.Helpers;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,7 +7,7 @@ namespace GenteMarCore.Entities.Models
 {
 
     [Table("GENTEMAR_REPOSITORIO_ARCHIVOS", Schema = "DBA")]
-    public partial class GENTEMAR_REPOSITORIO_ARCHIVOS
+    public partial class GENTEMAR_REPOSITORIO_ARCHIVOS : GENTEMAR_CAMPOS_AUDITORIA
     {
         [Key]
         public int Id { get; set; }
@@ -19,9 +20,7 @@ namespace GenteMarCore.Entities.Models
         public string DescripcionDocumento { get; set; }
         public string NombreArchivo { get; set; }
         public string RutaArchivo { get; set; }
-        public string IdUsuarioCreador { get; set; }
-        public DateTime FechaHoraCreacion { get; set; }
-        public string IdUsuarioUltimaActualizacion { get; set; }
-        public DateTime? FechaHoraUltimaActualizacion { get; set; }
+        [NotMapped]
+        public int IdExpedienteObservacion { get; set; }
     }
 }

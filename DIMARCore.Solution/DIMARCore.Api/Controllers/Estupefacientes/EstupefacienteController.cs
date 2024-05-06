@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -50,7 +50,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(Paginador<ListadoEstupefacientesDTO>))]
         [HttpPost]
         [Route("filtro")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE,
             RolesEnum.ConsultasVCITE)]
         public async Task<IHttpActionResult> PaginarAsync([FromBody] EstupefacientesFilter filtro)
         {
@@ -69,14 +69,26 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
             var queryable = _serviceEstupefacientes.GetEstupefacientesByFiltro(filtro);
             if (!queryable.Any())
             {
-                var fechaActual = DateTime.Now;
-                if (filtro.EstadoId == 0)
-                    return ResultadoStatus(Responses.SetOkResponse(null,
-                    $"No hay estupefacientes en estado" +
-                    $" {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)}" +
-                    $" y {EnumConfig.GetDescription(EstadoEstupefacienteEnum.Consulta)} de la fecha: {fechaActual:dd-MM-yyyy}"));
 
-                return Content(HttpStatusCode.OK, Responses.SetOkResponse(null, "No se encontraron resultados."));
+                if (filtro.FechaInicial.HasValue && filtro.FechaFinal.HasValue)
+                    return Content(HttpStatusCode.OK, Responses.SetOkResponse(null, $"No se encontraron resultados entre la fecha {filtro.FechaInicial:dd-MM-yyyy} - {filtro.FechaFinal:dd-MM-yyyy}"));
+                else
+                {
+                    var fechaActual = DateTime.Now;
+                    if (filtro.EstadosId.Any() && string.IsNullOrWhiteSpace(filtro.Identificacion)
+                        && string.IsNullOrWhiteSpace(filtro.Radicado) && filtro.ConsolidadoId == 0)
+                    {
+                        return ResultadoStatus(Responses.SetOkResponse(null, $"No se encontraron resultados de la fecha: {fechaActual:dd-MM-yyyy}"));
+                    }
+                    else if (!string.IsNullOrWhiteSpace(filtro.Identificacion) || filtro.EstadosId.Any())
+                    {
+                        return ResultadoStatus(Responses.SetOkResponse(null, $"No se encontraron resultados."));
+                    }
+                    return ResultadoStatus(Responses.SetOkResponse(null,
+                                                $"No se encontraron resultados en estado {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)}" +
+                                                $" y {EnumConfig.GetDescription(EstadoEstupefacienteEnum.Consulta)} de la fecha: {fechaActual:dd-MM-yyyy}"));
+                }
+
             }
             var listado = await GetPaginacion(filtro.Paginacion, queryable);
             var paginador = Paginador<ListadoEstupefacientesDTO>.CrearPaginador(queryable.Count(), listado, filtro.Paginacion);
@@ -98,7 +110,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(ResponseTypeSwagger<UsuarioGenteMarDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("datos-gentemar-por-cedula")]
         public async Task<IHttpActionResult> GetGenteMarEstupefaciente([FromUri] CedulaDTO obj)
         {
@@ -122,7 +134,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [ResponseType(typeof(Respuesta))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE, RolesEnum.ConsultasVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE, RolesEnum.ConsultasVCITE)]
         [Route("info/{id}")]
         public async Task<IHttpActionResult> GetDetallePersonaEstupefaciente(long id)
         {
@@ -146,7 +158,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <returns></returns>
         [ResponseType(typeof(List<EstupefacientesBulkDTO>))]
         [HttpPost]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         [Route("listar/sin-observaciones-para-edicion-masiva")]
         public async Task<IHttpActionResult> GetEstupefacientesSinObservaciones([FromBody] List<long> ids)
         {
@@ -171,7 +183,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Crear([FromBody] EstupefacienteCrearDTO estupefaciente)
         {
             var dataEstupefaciente = Mapear<EstupefacienteCrearDTO, GENTEMAR_ANTECEDENTES>(estupefaciente);
@@ -198,7 +210,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
         public async Task<IHttpActionResult> Editar()
         {
             Respuesta respuesta = new Respuesta();
@@ -215,37 +227,11 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
                 estupefaciente.Observacion.Archivo = archivo;
 
             ValidateModelAndThrowIfInvalid(estupefaciente);
-            estupefaciente.CapitaniaId = GetIdCapitania();
             var dataEstupefaciente = Mapear<EditInfoEstupefacienteDTO, GENTEMAR_ANTECEDENTES>(estupefaciente);
             var datosBasicos = Mapear<EstupefacienteDatosBasicosDTO, GENTEMAR_ANTECEDENTES_DATOSBASICOS>(estupefaciente.DatosBasicos);
             respuesta = await _serviceEstupefacientes.EditarAsync(dataEstupefaciente, datosBasicos, PathActual);
             return ResultadoStatus(respuesta);
         }
-
-        /// <summary>
-        /// Servicio para editar masivamente estados de estupefacientes
-        /// </summary>
-        /// <param name="estupefacientes"></param>
-        /// <remarks>
-        /// <Autor>Diego Parra</Autor>
-        /// <Fecha>28/04/2023</Fecha>
-        /// </remarks>
-        /// <response code="200">OK. se ha actualizado los recursos (estupefacientes).</response>   
-        /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-        /// <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-        /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
-        /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        /// <returns></returns>
-        [ResponseType(typeof(ResponseEditTypeSwagger))]
-        [HttpPut]
-        [Route("edicion-masiva")]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE)]
-        public async Task<IHttpActionResult> EditarBulk([FromBody] EditBulkEstupefacientesDTO estupefacientes)
-        {
-            var response = await _serviceEstupefacientes.EditBulk(estupefacientes);
-            return Ok(response);
-        }
-
 
         // GET: radicados-sgdea-titulos
         /// <summary>
@@ -261,7 +247,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<string>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("radicados-sgdea-titulos")]
         public async Task<IHttpActionResult> GetRadicadosTitulos([FromUri] CedulaDTO obj)
         {
@@ -283,7 +269,7 @@ namespace DIMARCore.Api.Controllers.Estupefacientes
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [ResponseType(typeof(List<string>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorVCITE, RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.ConsultasVCITE)]
         [Route("radicados-sgdea-licencias")]
         public async Task<IHttpActionResult> GetRadicadosLicencias([FromUri] CedulaDTO obj)
         {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DIMARCore.UIEntities.DTOs
 {
@@ -15,6 +10,6 @@ namespace DIMARCore.UIEntities.DTOs
         [StringLength(11, ErrorMessage = "Debe tener una longitud mínima de {2} y una longitud máxima de {1}.", MinimumLength = 2)]
         [Required(ErrorMessage = "Sigla Requerida.")]
         public string sigla { get; set; }
-        public bool? activo { get; set; }
+        public bool activo { get; set; }
     }
 }

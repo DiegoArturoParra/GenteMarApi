@@ -1,11 +1,11 @@
-using System.Web.Http;
-using WebActivatorEx;
 using DIMARCore.Api;
-using Swashbuckle.Swagger;
 using Swashbuckle.Application;
+using Swashbuckle.Swagger;
 using System.Collections.Generic;
-using System.Web.Http.Description;
 using System.IO;
+using System.Web.Http;
+using System.Web.Http.Description;
+using WebActivatorEx;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
@@ -37,20 +37,12 @@ namespace DIMARCore.Api
                 {
                     c.SingleApiVersion("V1", "Api GENTE DE MAR con Token JWT");
                     c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
-                    // If you annotate Controllers and API Types with
-                    // Xml comments (http://msdn.microsoft.com/en-us/library/b2s063f7(v=vs.110).aspx), you can incorporate
-                    // those comments into the generated docs and UI. You can enable this by providing the path to one or
-                    // more Xml comment files.
-                    //
-                    // HABILITAMOS EL ARCHIVO DE DOCUMENTACIÓN XML.
                     c.IncludeXmlComments(GetXmlCommentsPath());
-
-                    // If you want the output Swagger docs to be indented properly, enable the "PrettyPrint" option.
                     c.PrettyPrint();
                 })
                 .EnableSwaggerUi();
 
-        
+
         }
 
         /// <summary>

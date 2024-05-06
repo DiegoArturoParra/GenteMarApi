@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs.Reports;
@@ -17,7 +17,7 @@ namespace DIMARCore.Api.Controllers.Reportes
     /// </summary>
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/reportes-gdm")]
-    [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+    [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
     public class ReportesGDMController : BaseApiController
     {
         private readonly ReportesGDMBO _reportesGDMBusiness;

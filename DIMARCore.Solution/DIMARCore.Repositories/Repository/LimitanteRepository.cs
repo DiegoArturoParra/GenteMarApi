@@ -1,6 +1,8 @@
 ﻿using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DIMARCore.Repositories.Repository
 {
@@ -11,31 +13,10 @@ namespace DIMARCore.Repositories.Repository
         /// </summary>
         /// <returns>Lista de Limitante</returns>
         /// <tabla>GENTEMAR_LIMITACION</tabla>
-        public IList<GENTEMAR_LIMITANTE> GetLimitantes()
+        public async Task<IList<GENTEMAR_LIMITANTE>> GetLimitantesAsync()
         {
 
-            var resultado = (from a in Table
-                             select a
-                             ).OrderBy(p => p.descripcion).ToList();
-            return resultado;
-
-        }
-
-
-        /// <summary>
-        /// Limitante dado el Id
-        /// </summary>
-        /// <param name="id">Id de la Limitacion</param>
-        /// <returns>LIMITACIONES</returns>
-        /// <tabla>GENTEMAR_LIMITACION</tabla>
-        public GENTEMAR_LIMITANTE GetLimitante(int id)
-        {
-
-            var resultado = (from c in Table
-                             where c.id_limitante == id
-                             select c
-                            ).FirstOrDefault();
-
+            var resultado = await (from a in Table select a).OrderBy(p => p.descripcion).AsNoTracking().ToListAsync();
             return resultado;
         }
     }

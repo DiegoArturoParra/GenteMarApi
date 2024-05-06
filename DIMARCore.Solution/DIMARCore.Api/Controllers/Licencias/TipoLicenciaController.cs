@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -42,7 +42,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<TipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetTipoLicenciasAsync()
         {
             var tipoLicencias = await _service.GetTipoLicencias();
@@ -64,7 +64,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<TipoLicenciaDTO>))]
         [HttpGet]
         [Route("lista-activo")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetTipoLicenciasActivo()
         {
             var tipoLicencias = await _service.GetTipoLicenciasActivo();
@@ -86,7 +86,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(GENTEMAR_TIPO_LICENCIA))]
         [HttpGet]
         [Route("id")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetTipoLicencia(int id)
         {
             var tipoLicencia = _service.GetTipoLicencia(id);
@@ -111,7 +111,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearTipoLicenciaAsync(TipoLicenciaDTO datos)
         {
             var data = Mapear<TipoLicenciaDTO, GENTEMAR_TIPO_LICENCIA>(datos);
@@ -137,7 +137,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarTipoLicenciaAsync(TipoLicenciaDTO datos)
         {
             var data = Mapear<TipoLicenciaDTO, GENTEMAR_TIPO_LICENCIA>(datos);
@@ -161,7 +161,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarTipoLicenciaAsync(int id)
         {
             var respuesta = await _service.CambiarTipoLicencia(id);

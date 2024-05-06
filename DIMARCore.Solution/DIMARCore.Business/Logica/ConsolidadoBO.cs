@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DIMARCore.Business.Helpers;
 using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Config;
@@ -34,25 +35,25 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> GenerarExcelConConsolidadoDeEstupefacientes(string email, CrearConsolidadoExcelDTO consolidadoDTO)
         {
             string numeroConsolidado = string.Empty;
-            IList<EstupefacientesExcelDTO> data;
+            int totalEstupefacientesEstadoPorEnviar = 0;
+            List<EstupefacientesExcelDTO> dataExcel = new List<EstupefacientesExcelDTO>();
             using (var repository = new EstupefacienteRepository())
             {
                 using (var ConsolidadoRepository = new ConsolidadoEstupefacienteRepository())
                 {
-                    bool repiteConsolidado = consolidadoDTO.IsNew
-                        ? await ConsolidadoRepository.AnyWithCondition(y => y.numero_consolidado == consolidadoDTO.Consolidado) : false;
+                    bool repiteConsolidado = consolidadoDTO.IsNew ?
+                        await ConsolidadoRepository.AnyWithConditionAsync(y => y.numero_consolidado == consolidadoDTO.Consolidado) : false;
 
                     if (repiteConsolidado)
-                        throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el número de consolidado {consolidadoDTO.Consolidado}"));
+                        throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el número de consolidado {consolidadoDTO.Consolidado}"));
 
-                    data = await repository.GetEstupefacientesEstadoInicial();
-                    if (!data.Any())
+                    dataExcel = await repository.GetEstupefacientesEstadoInicial();
+                    totalEstupefacientesEstadoPorEnviar = dataExcel.Count();
+                    if (!dataExcel.Any())
                         throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No hay estupefacientes en estado {EnumConfig.GetDescription(EstadoEstupefacienteEnum.ParaEnviar)} para exportar el Excel."));
 
-                    IEnumerable<long> EstupefacientesIds = data.Select(x => x.EstupefacienteId).ToList();
+                    IEnumerable<long> EstupefacientesIds = dataExcel.Select(x => x.EstupefacienteId).ToList();
                     var datosAEditar = await repository.GetAllWithConditionAsync(x => EstupefacientesIds.Contains(x.id_antecedente));
-
-
                     datosAEditar = datosAEditar.Select(entidad =>
                     {
                         // Realizar los cambios necesarios en cada objeto de la lista
@@ -68,31 +69,29 @@ namespace DIMARCore.Business.Logica
                     else
                     {
                         int consolidadoId = int.Parse(consolidadoDTO.Consolidado);
-                        var consolidado = await ConsolidadoRepository.GetById(consolidadoId)
+                        var consolidado = await ConsolidadoRepository.GetByIdAsync(consolidadoId)
                        ?? throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el consolidado.");
                         numeroConsolidado = consolidado.numero_consolidado;
+                        var dataEnConsultaPorConsolidado = await ConsolidadoRepository.GetEstupefacientesEnConsultaPorConsolidado(numeroConsolidado);
+                        dataExcel.AddRange(dataEnConsultaPorConsolidado);
                         await repository.EditBulkWithconsolidated(datosAEditar.ToList(), _numeroDeLotes, consolidado.id_consolidado.ToString(), consolidadoDTO.ArrayExpedientesEntidad, false);
                     }
                 }
             }
-
-            var archivoBytes = GenerateExcel(data, numeroConsolidado);
+            var archivoBytes = GenerateExcel(dataExcel, numeroConsolidado);
             var archivoBase64 = Convert.ToBase64String(archivoBytes);
 
-            _ = Task.Run(async () =>
+
+            String[] correos = { email };
+            SendEmailRequest request = new SendEmailRequest
             {
-                String[] correos = { email };
-                SendEmailRequest request = new SendEmailRequest
-                {
-                    CorreosAEnviar = correos,
-                    Asunto = $"Se generó consolidado {numeroConsolidado} excel para enviar el día: {DateTime.Now:dd/MM/yyyy hh: mm:ss tt}",
-                    CuerpoDelMensaje = $"Se actualizaron {data.Count()} estupefacientes a estado EN CONSULTA para el consolidado con número: {numeroConsolidado}",
-                    Footer = Constantes.FOOTER_EMAIL
-                };
+                CorreosDestino = correos,
+                Asunto = $"Se generó consolidado {numeroConsolidado} excel para enviar el día: {DateTime.Now:dd/MM/yyyy hh: mm:ss tt}",
+                CuerpoDelMensaje = $"Se actualizaron {totalEstupefacientesEstadoPorEnviar} estupefacientes a estado EN CONSULTA para el consolidado con número: {numeroConsolidado}",
+                Footer = Constantes.FOOTER_EMAIL
+            };
 
-                await new EnvioNotificacionesBO().SendNotificationByEmail(_logger, request);
-            });
-
+            await new EnvioNotificacionesHelper().SendNotificationByEmail(request);
 
             return Responses.SetOkResponse(new ArchivoExcelDTO { ArchivoBase64 = archivoBase64, Extension = Constantes.EXTENSION_EXCEL });
         }

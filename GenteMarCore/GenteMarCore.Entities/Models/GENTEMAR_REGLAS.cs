@@ -22,9 +22,6 @@ namespace GenteMarCore.Entities.Models
 
         public virtual ICollection<GENTEMAR_REGLAS_CARGO> GENTEMAR_CARGO_REGLAS { get; set; }
 
-        [NotMapped]
-        public List<string> Funciones { get; set; }
-
     }
 
 }

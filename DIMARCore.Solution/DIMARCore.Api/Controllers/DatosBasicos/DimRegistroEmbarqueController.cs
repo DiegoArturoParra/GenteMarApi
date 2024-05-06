@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -41,7 +41,7 @@ namespace DIMARCore.Api.Controllers.DatosBasicos
         [ResponseType(typeof(List<DimRegistroEmbarqueDTO>))]
         [HttpGet]
         [Route("listar/{usuarioId}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetDimRegistrosEmbarque(string usuarioId)
         {
             var DimPersona = await _service.GetDimRegistroEmbarqueAsync(Convert.ToInt64(usuarioId));

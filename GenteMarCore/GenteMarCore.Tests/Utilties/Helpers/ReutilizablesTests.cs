@@ -11,7 +11,22 @@ namespace GenteMarCore.Tests.Utilties.Helpers
     {
         private const string RutaInicial = "Recursos";
         private const string RutaModuloTipoDocumento = "DATOS_BASICOS/IMAGENES_GENTE_MAR";
-        private const string NombreArchivo = "test-imagen.png";
+        private const string NombreArchivo = "imagen-test.png";
+
+        [TestMethod]
+        public void GetDelimitedList_ReturnsCorrectList_WhenInputHasElements()
+        {
+            // Arrange
+            string input = "apple,banana,cherry";
+            char delimiter = ',';
+            List<string> expected = new List<string> { "apple", "banana", "cherry" };
+
+            // Act
+            List<string> result = Reutilizables.GetDelimitedList(input, delimiter);
+
+            // Assert
+            CollectionAssert.AreEqual(expected, result);
+        }
 
         [TestMethod]
         public void EliminarArchivo_WhenGivenValidPaths_ShouldReturnOkResponse()
@@ -132,6 +147,29 @@ namespace GenteMarCore.Tests.Utilties.Helpers
         }
 
 
+
+        [TestMethod]
+        public void CleanSpaces_ShouldRemoveSpacesFromProperties()
+        {
+
+            var myObject = new MyObject
+            {
+                Property1 = "   Texto con espacios   ",
+                Property2 = "Otra cadena   ",
+                Property3 = "   Cadena con espacios   ",
+                Property4 = DateTime.Now
+                // Otros campos...
+            };
+
+            // Act
+            var cleanedObject = Reutilizables.CleanSpaces(myObject);
+
+            // Assert
+            Assert.AreEqual("Texto con espacios", cleanedObject.Property1);
+            Assert.AreEqual("Otra cadena", cleanedObject.Property2);
+            Assert.AreEqual("Cadena con espacios", cleanedObject.Property3);
+        }
+
         [TestMethod]
         [DataRow(1234567, "1.234.567")]
         [DataRow("639609832", "639.609.832")]
@@ -237,5 +275,12 @@ namespace GenteMarCore.Tests.Utilties.Helpers
             Assert.AreEqual(new DateTime(2023, 1, 2, 23, 59, 59), resultado.DateEnd);
         }
     }
-
+    class MyObject
+    {
+        public string Property1 { get; set; }
+        public string Property2 { get; set; }
+        public string Property3 { get; set; }
+        public DateTime Property4 { get; set; }
+        // Otros campos...
+    }
 }

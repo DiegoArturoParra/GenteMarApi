@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace DIMARCore.Business.Logica
 {
@@ -35,8 +36,6 @@ namespace DIMARCore.Business.Logica
             using (var repo = new EstupefacienteRepository())
             {
                 long idGenteDeMarEstupefaciente = await new EstupefacienteDatosBasicosRepository().GetAntecedenteDatosBasicosId(datosBasicos.identificacion);
-                datosBasicos.nombres = datosBasicos.nombres.Trim();
-                datosBasicos.apellidos = datosBasicos.apellidos.Trim();
                 if (idGenteDeMarEstupefaciente > 0)
                 {
                     datosBasicos.IsExist = true;
@@ -58,90 +57,89 @@ namespace DIMARCore.Business.Logica
         }
         public async Task<Respuesta> EditarAsync(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicos, string pathActual)
         {
-            datosBasicos.id_gentemar_antecedente = entidad.id_gentemar_antecedente;
-            Respuesta respuesta = new Respuesta();
+
             if (entidad.Observacion == null)
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "La observación es requerida.");
 
             using (var estupefacienteRepository = new EstupefacienteRepository())
             {
+                datosBasicos.id_gentemar_antecedente = entidad.id_gentemar_antecedente;
                 await ValidacionesDeNegocio(entidad, datosBasicos, true);
 
-                GENTEMAR_ANTECEDENTES estupefacienteActual = await estupefacienteRepository.GetById(entidad.id_antecedente);
+                GENTEMAR_ANTECEDENTES estupefacienteActual = await estupefacienteRepository.GetByIdAsync(entidad.id_antecedente);
                 if (estupefacienteActual == null)
                     throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro el estupefaciente.");
 
                 GENTEMAR_ANTECEDENTES_DATOSBASICOS estupefacienteDatosBasicosActual = await new EstupefacienteDatosBasicosRepository()
-                    .GetById(datosBasicos.id_gentemar_antecedente);
+                    .GetByIdAsync(datosBasicos.id_gentemar_antecedente);
 
                 if (estupefacienteDatosBasicosActual == null)
                     throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro la persona de gente de mar.");
 
+                estupefacienteActual.id_capitania = entidad.id_capitania;
+                estupefacienteActual.fecha_vigencia = entidad.fecha_vigencia;
+                estupefacienteActual.fecha_aprobacion = entidad.fecha_aprobacion;
+                estupefacienteActual.id_tipo_tramite = entidad.id_tipo_tramite;
+                estupefacienteActual.id_estado_antecedente = entidad.id_estado_antecedente;
+                estupefacienteActual.Observacion = entidad.Observacion;
+                estupefacienteActual.fecha_sgdea = entidad.fecha_sgdea;
+                estupefacienteActual.numero_sgdea = entidad.numero_sgdea;
+                estupefacienteActual.fecha_solicitud_sede_central = entidad.fecha_solicitud_sede_central;
+
+                estupefacienteDatosBasicosActual.identificacion = datosBasicos.identificacion;
+                estupefacienteDatosBasicosActual.fecha_nacimiento = datosBasicos.fecha_nacimiento;
+                estupefacienteDatosBasicosActual.apellidos = datosBasicos.apellidos;
+                estupefacienteDatosBasicosActual.nombres = datosBasicos.nombres;
+                estupefacienteDatosBasicosActual.id_tipo_documento = datosBasicos.id_tipo_documento;
+
+                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+
+                if (entidad.Observacion.Archivo != null)
+                {
+                    repositorio = SaveFileOfObservation(pathActual, entidad.Observacion.Archivo);
+                }
                 try
                 {
-                    estupefacienteActual.id_capitania = entidad.id_capitania;
-                    estupefacienteActual.fecha_vigencia = entidad.fecha_vigencia;
-                    estupefacienteActual.fecha_aprobacion = entidad.fecha_aprobacion;
-                    estupefacienteActual.id_tipo_tramite = entidad.id_tipo_tramite;
-                    estupefacienteActual.id_estado_antecedente = entidad.id_estado_antecedente;
-                    estupefacienteActual.Observacion = entidad.Observacion;
-                    estupefacienteActual.fecha_sgdea = entidad.fecha_sgdea;
-                    estupefacienteActual.numero_sgdea = entidad.numero_sgdea;
-                    estupefacienteActual.fecha_solicitud_sede_central = entidad.fecha_solicitud_sede_central;
-
-                    estupefacienteDatosBasicosActual.identificacion = datosBasicos.identificacion;
-                    estupefacienteDatosBasicosActual.fecha_nacimiento = datosBasicos.fecha_nacimiento;
-                    estupefacienteDatosBasicosActual.apellidos = datosBasicos.apellidos;
-                    estupefacienteDatosBasicosActual.nombres = datosBasicos.nombres;
-                    estupefacienteDatosBasicosActual.id_tipo_documento = datosBasicos.id_tipo_documento;
-
-                    if (entidad.Observacion.Archivo != null)
-                    {
-                        string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_OBSERVACIONES}";
-                        respuesta = Reutilizables.GuardarArchivo(entidad.Observacion.Archivo, pathActual, path);
-                        if (respuesta.Estado)
-                        {
-                            var archivo = (Archivo)respuesta.Data;
-                            if (archivo != null)
-                            {
-                                entidad.Observacion.ruta_archivo = archivo.PathArchivo;
-
-                                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                                {
-                                    IdAplicacion = Constantes.ID_APLICACION,
-                                    NombreModulo = Constantes.CARPETA_MODULO_ESTUPEFACIENTES,
-                                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                    FechaCargue = DateTime.Now,
-                                    NombreArchivo = entidad.Observacion.Archivo.FileName,
-                                    RutaArchivo = entidad.Observacion.ruta_archivo,
-                                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                    DescripcionDocumento = Reutilizables.DescribirDocumento(archivo.NombreArchivo),
-                                };
-                                await estupefacienteRepository.ActualizarAntecedenteWithGenteDeMar(estupefacienteActual,
-                                    estupefacienteDatosBasicosActual, repositorio);
-                                respuesta = Responses.SetUpdatedResponse();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        await estupefacienteRepository.ActualizarAntecedenteWithGenteDeMar(estupefacienteActual, estupefacienteDatosBasicosActual);
-                        respuesta = Responses.SetUpdatedResponse();
-                    }
+                    await estupefacienteRepository.ActualizarAntecedenteWithGenteDeMar(estupefacienteActual, estupefacienteDatosBasicosActual, repositorio);
+                    return Responses.SetUpdatedResponse(new { estupefacienteActual.id_antecedente });
                 }
                 catch (Exception ex)
                 {
-                    var archivo = (Archivo)respuesta.Data;
-                    if (archivo != null)
+                    if (repositorio != null)
                     {
-                        Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
+                        Reutilizables.EliminarArchivo(pathActual, repositorio.RutaArchivo);
                     }
-                    respuesta = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(respuesta);
+                    throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex));
                 }
             }
-            return respuesta;
         }
+
+        private GENTEMAR_REPOSITORIO_ARCHIVOS SaveFileOfObservation(string rutaInicial, HttpPostedFile fileObservation)
+        {
+            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS();
+            string path = $"{Constantes.CARPETA_MODULO_ESTUPEFACIENTES}\\{Constantes.CARPETA_OBSERVACIONES}";
+            var respuesta = Reutilizables.GuardarArchivo(fileObservation, rutaInicial, path);
+            if (!respuesta.Estado)
+                throw new HttpStatusCodeException(respuesta);
+
+            var archivo = (Archivo)respuesta.Data;
+            if (archivo != null)
+            {
+                repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
+                {
+                    IdAplicacion = Constantes.ID_APLICACION,
+                    NombreModulo = Constantes.CARPETA_MODULO_ESTUPEFACIENTES,
+                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
+                    FechaCargue = DateTime.Now,
+                    NombreArchivo = fileObservation.FileName,
+                    RutaArchivo = archivo.PathArchivo,
+                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                    DescripcionDocumento = Reutilizables.DescribirDocumento(archivo.NombreArchivo),
+                };
+            }
+            return repositorio;
+        }
+
         private async Task<DateTime?> ValidacionesDeNegocio(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicos, bool isEdit)
         {
             DateTime? dateRadicado = null;
@@ -151,74 +149,36 @@ namespace DIMARCore.Business.Logica
 
             if (!isEdit)
             {
-                var existeRadicado = await new EstupefacienteRepository().AnyWithCondition(x => x.numero_sgdea.Equals(entidad.numero_sgdea));
+                var existeRadicado = await new EstupefacienteRepository().AnyWithConditionAsync(x => x.numero_sgdea.Equals(entidad.numero_sgdea));
                 if (existeRadicado)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el radicado {entidad.numero_sgdea}"));
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el radicado {entidad.numero_sgdea}"));
             }
             else
             {
-                var existeRadicado = await new EstupefacienteRepository().AnyWithCondition(x => x.numero_sgdea.Equals(entidad.numero_sgdea)
+                var existeRadicado = await new EstupefacienteRepository().AnyWithConditionAsync(x => x.numero_sgdea.Equals(entidad.numero_sgdea)
                 && x.id_antecedente != entidad.id_antecedente);
                 if (existeRadicado)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya está registrado el radicado {entidad.numero_sgdea}"));
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el radicado {entidad.numero_sgdea}"));
             }
 
             if (entidad.id_tipo_tramite == (int)TipoTramiteEstupefacienteEnum.GENTES)
             {
                 var existeRadicadoSGDEA = await new SGDEARepository().FechaRadicado(entidad.numero_sgdea);
                 if (!existeRadicadoSGDEA.Radicado.HasValue)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El radicado {entidad.numero_sgdea} no está registrado en el SGDEA."));
+                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"El radicado {entidad.numero_sgdea} no se encuentra registrado en el SGDEA."));
 
                 dateRadicado = existeRadicadoSGDEA.Fecha;
             }
 
-            bool existeTramite = await new TramiteEstupefacienteRepository().AnyWithCondition(x => x.id_tipo_tramite == entidad.id_tipo_tramite);
+            bool existeTramite = await new TramiteEstupefacienteRepository().AnyWithConditionAsync(x => x.id_tipo_tramite == entidad.id_tipo_tramite);
             if (!existeTramite)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El tramite no existe."));
 
-            bool existeEstado = await new EstadoEstupefacienteRepository().AnyWithCondition(x => x.id_estado_antecedente == entidad.id_estado_antecedente);
+            bool existeEstado = await new EstadoEstupefacienteRepository().AnyWithConditionAsync(x => x.id_estado_antecedente == entidad.id_estado_antecedente);
             if (!existeEstado)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado del estupefaciente no existe."));
 
             return dateRadicado;
-
-        }
-
-        public async Task<Respuesta> EditBulk(EditBulkEstupefacientesDTO estupefacientesBulk)
-        {
-            using (var repository = new EstupefacienteRepository())
-            {
-                var existeEstado = await new EstadoEstupefacienteRepository()
-                    .AnyWithCondition(x => x.id_estado_antecedente == estupefacientesBulk.EstadoAntecedenteId);
-
-                if (!existeEstado)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el estado."));
-
-                var data = await repository.GetAllWithConditionAsync(x => estupefacientesBulk.EstupefacientesId.Select(id => id).Contains(x.id_antecedente));
-                if (data.Count() != estupefacientesBulk.EstupefacientesId.Count)
-                    throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontraron todos los registros a actualizar."));
-                try
-                {
-                    var newData = data.Select(entidad =>
-                    {
-                        // Realizar los cambios necesarios en cada objeto de la lista
-                        // por ejemplo, modificar una propiedad
-                        entidad.id_estado_antecedente = estupefacientesBulk.EstadoAntecedenteId;
-                        entidad.fecha_aprobacion = estupefacientesBulk.FechaAprobacion;
-                        entidad.fecha_vigencia = estupefacientesBulk.FechaVigencia;
-                        return entidad;
-                    }).ToList();
-                    await repository.EditBulk(newData, _numeroDeLotes);
-
-                    return Responses.SetUpdatedResponse();
-                }
-                catch (Exception ex)
-                {
-                    var response = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(response);
-                    return response;
-                }
-            }
 
         }
 
@@ -229,8 +189,6 @@ namespace DIMARCore.Business.Logica
                 await estupefacienteRepository.ChangeNarcoticStateIfAllVerifications(idAntecedente);
             }
         }
-
-
 
         public async Task<IEnumerable<decimal>> GetRadicadosLicenciasByDocumento(string identificacion)
         {
@@ -253,7 +211,7 @@ namespace DIMARCore.Business.Logica
                 else if (IsExistInGenteDeMar && data is null)
                 {
                     var response = Responses.SetNotFoundResponse($"No se encontró la persona registrada en VCITE.");
-                    _ = new DbLogger().InsertLogToDatabase(response);
+                    _ = new DbLoggerHelper().InsertLogToDatabase(response);
                     return response;
                 }
 

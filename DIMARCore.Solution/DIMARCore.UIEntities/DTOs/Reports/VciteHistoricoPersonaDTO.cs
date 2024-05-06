@@ -21,8 +21,8 @@ namespace DIMARCore.UIEntities.DTOs.Reports
         public string Estado { get; set; }
         public string NumeroRadicadoSGDEA { get; set; }
         [JsonIgnore]
-        public DateTime FechaRadicadoSGDEA { get; set; }
-        public string FechaRadicadoSGDEAString => FechaRadicadoSGDEA.ToString("dd/MM/yyyy");
+        public DateTime? FechaRadicadoSGDEA { get; set; }
+        public string FechaRadicadoSGDEAString => this.FechaRadicadoSGDEA.HasValue ? this.FechaRadicadoSGDEA.Value.ToString("dd/MM/yyyy"): "No aplica";
         public string TipoTramite { get; set; }
         [JsonIgnore]
         public DateTime FechaSolicitud { get; set; }

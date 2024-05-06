@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -46,11 +46,11 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(List<EstadoTituloDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("lista")]
-        public IHttpActionResult Listado([FromUri] ActivoDTO dto)
+        public async Task<IHttpActionResult> ListadoAsync([FromUri] ActivoDTO dto)
         {
-            var query = _service.GetAll(dto != null ? dto.Activo : null);
+            var query = await _service.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_ESTADO_TITULO>, IEnumerable<EstadoTituloDTO>>(query);
             return Ok(listado);
         }
@@ -72,7 +72,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(ResponseTypeSwagger<EstadoTituloDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [Route("{id}")]
         public async Task<IHttpActionResult> GetEstadoTramiteTitulo(int id)
         {
@@ -97,7 +97,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPost]
         [Route("crear")]
         public async Task<IHttpActionResult> Crear([FromBody] EstadoTituloDTO estado)
@@ -122,7 +122,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("editar")]
         public async Task<IHttpActionResult> Editar([FromBody] EstadoTituloDTO estado)
@@ -146,7 +146,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>16/12/2022</Fecha>
         [ResponseType(typeof(Respuesta))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
         public async Task<IHttpActionResult> AnularOrActivar(int id)

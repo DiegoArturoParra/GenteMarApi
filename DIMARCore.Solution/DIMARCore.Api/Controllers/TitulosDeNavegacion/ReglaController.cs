@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -30,25 +30,30 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
             _serviceReglas = new ReglaBO();
         }
 
+
+
         /// <summary>
         /// Retorna la lista de reglas por cargo del titulo
         /// </summary>
         /// <param name="CargoId">Parametro para filtrar por cargo.</param>
+        /// <param name="isShowAll">Parametro para filtrar todo o solo reglas activas.</param>
         /// <Autor>Diego Parra</Autor>
         /// <Fecha>2022/02/26</Fecha>
         /// <returns></returns>
         /// <response code="200">OK. Devuelve el listado de las reglas por cargo.</response>
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
+
         [ResponseType(typeof(List<ReglaDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
-        [Route("lista-by-cargo-titulo/{CargoId}")]
-        public async Task<IHttpActionResult> ReglasActivasByCargoTitulo(int CargoId)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [Route("lista-by-cargo-titulo/{CargoId}/ShowAll/{isShowAll}")]
+        public async Task<IHttpActionResult> ReglasByCargoTitulo(int CargoId, bool isShowAll)
         {
-            var listado = await _serviceReglas.GetReglasActivasByCargoTitulo(CargoId);
+            var listado = await _serviceReglas.GetReglasByCargoTitulo(CargoId, isShowAll);
             return Ok(listado);
         }
+
 
         /// <summary>
         /// Metodo para listar las reglas
@@ -63,10 +68,10 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<ReglaDTO>))]
         [HttpGet]
         [Route("lista")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
-        public IHttpActionResult ListReglas([FromUri] ActivoDTO dto)
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> ListReglas([FromUri] ActivoDTO dto)
         {
-            var query = _serviceReglas.GetAll(dto != null ? dto.Activo : null);
+            var query = await _serviceReglas.GetAllAsync(dto != null ? dto.Activo : null);
             var listado = Mapear<IEnumerable<GENTEMAR_REGLAS>, IEnumerable<ReglaDTO>>(query);
             return Ok(listado);
         }
@@ -88,7 +93,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseTypeSwagger<ReglaDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetRegla(int id)
         {
             var regla = await _serviceReglas.GetByIdAsync(id);
@@ -115,7 +120,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] ReglaDTO regla)
         {
             var data = Mapear<ReglaDTO, GENTEMAR_REGLAS>(regla);
@@ -143,7 +148,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("update")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] ReglaDTO regla)
         {
             var data = Mapear<ReglaDTO, GENTEMAR_REGLAS>(regla);
@@ -167,7 +172,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _serviceReglas.AnulaOrActivaAsync(id);

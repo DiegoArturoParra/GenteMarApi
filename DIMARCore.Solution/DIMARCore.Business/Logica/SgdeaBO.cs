@@ -1,9 +1,7 @@
 ﻿using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
-using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +36,7 @@ namespace DIMARCore.Business.Logica
         /// <returns></returns>
         public async Task<SGDEA_PREVISTAS> GetPrevistaEstado(decimal radicado, string estado, string tramite)
         {
-            return await new SGDEARepository().GetWithCondition(x => x.radicado == radicado
+            return await new SGDEARepository().GetWithConditionAsync(x => x.radicado == radicado
             && x.tipo_tramite.Contains(tramite) && x.estado == estado);
         }
     }

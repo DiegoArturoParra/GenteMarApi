@@ -25,11 +25,11 @@ namespace GenteMarCore.Tests.Utilties.CorreoSMTP
             var body = "Test CORREO Body";
             var title = "Test CORREO Title";
             var footer = "Test CORREO Footer";
-
+            var emailRequest = new SendEmailRequest(correosDestino, mensaje, body, title, footer);
             // Act
             try
             {
-                await _emailService.SendMail(correosDestino, mensaje, body, title, footer);
+                await _emailService.SendMail(emailRequest);
             }
             catch (Exception ex)
             {

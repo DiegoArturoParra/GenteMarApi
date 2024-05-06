@@ -64,7 +64,7 @@ namespace DIMARCore.Repositories.Repository
                              Pais = pais.des_pais,
                              Telefono = datosBasicos.telefono,
                              TipoDocumento = tipoDocumento.DESCRIPCION,
-                             FechaRegistro = datosBasicos.fecha_hora_creacion,
+                             FechaRegistro = datosBasicos.FechaCreacion,
                          }).Where(predicate).AsNoTracking();
             return query;
         }
@@ -87,8 +87,6 @@ namespace DIMARCore.Repositories.Repository
                     _context.GENTEMAR_DATOSBASICOS.Add(entidad);
                     await SaveAllAsync();
                     repositorio.IdModulo = entidad.id_gentemar.ToString();
-                    repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
-                    repositorio.FechaHoraCreacion = DateTime.Now;
                     _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                     await SaveAllAsync();
                     transaction.Commit();
@@ -104,16 +102,16 @@ namespace DIMARCore.Repositories.Repository
         /// <summary>
         /// Metodo para actualizar los datos basicos y la foto de los usuarios de gente de mar  
         /// </summary>
-        /// <param name="entidad"></param>
+        /// <param name="entidadReemplazo"></param>
         /// <param name="fotografia"></param>
         /// <returns></returns>
-        public async Task ActualizarDatosBasicos(GENTEMAR_DATOSBASICOS entidadActual, GENTEMAR_DATOSBASICOS entidad, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio)
+        public async Task ActualizarDatosBasicos(GENTEMAR_DATOSBASICOS entidadActual, GENTEMAR_DATOSBASICOS entidadReemplazo, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio)
         {
             using (var transaction = _context.Database.BeginTransaction())
                 try
                 {
-                    if (entidadActual.id_tipo_documento != entidad.id_tipo_documento
-                        || !entidadActual.documento_identificacion.Equals(entidad.documento_identificacion))
+                    if (entidadActual.id_tipo_documento != entidadReemplazo.id_tipo_documento
+                        || !entidadActual.documento_identificacion.Equals(entidadReemplazo.documento_identificacion))
                     {
                         var historial = new GENTEMAR_HISTORIAL_DOCUMENTO()
                         {
@@ -126,15 +124,12 @@ namespace DIMARCore.Repositories.Repository
                         await SaveAllAsync();
                     }
 
-                    entidad.usuario_creador_registro = entidadActual.usuario_creador_registro;
-                    _context.Entry(entidadActual).CurrentValues.SetValues(entidad);
+                    _context.Entry(entidadActual).CurrentValues.SetValues(entidadReemplazo);
                     await SaveAllAsync();
 
                     if (repositorio != null)
                     {
                         repositorio.IdModulo = entidadActual.id_gentemar.ToString();
-                        repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
-                        repositorio.FechaHoraCreacion = DateTime.Now;
                         _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                         await SaveAllAsync();
                     }
@@ -145,7 +140,7 @@ namespace DIMARCore.Repositories.Repository
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    ObtenerException(ex, entidad);
+                    ObtenerException(ex, entidadReemplazo);
                 }
         }
 
@@ -175,71 +170,33 @@ namespace DIMARCore.Repositories.Repository
         public async Task<UsuarioGenteMarDTO> GetPersonaByIdentificacionOrId(string identificacionConPuntos, long id = 0)
         {
             UsuarioGenteMarDTO usuario = new UsuarioGenteMarDTO();
-            if (id == 0)
-            {
-                usuario = await (from GenteMar in _context.GENTEMAR_DATOSBASICOS
-                                 join tipoDocumento in _context.APLICACIONES_TIPO_DOCUMENTO on GenteMar.id_tipo_documento equals tipoDocumento.ID_TIPO_DOCUMENTO
-                                 join estado in _context.GENTEMAR_ESTADO on GenteMar.id_estado equals estado.id_estado
-                                 where GenteMar.documento_identificacion.Equals(identificacionConPuntos)
-                                 select new
-                                 {
-                                     GenteMar,
-                                     tipoDocumento,
-                                     estado
-                                 }).Select(x => new UsuarioGenteMarDTO()
-                                 {
-                                     NombreEstado = x.estado.descripcion,
-                                     Estado = x.estado.id_estado,
-                                     Nombres = x.GenteMar.nombres,
-                                     Apellidos = x.GenteMar.apellidos,
-                                     DocumentoIdentificacion = x.GenteMar.documento_identificacion,
-                                     Id = x.GenteMar.id_gentemar,
-                                     IdTipoDocumento = x.tipoDocumento.ID_TIPO_DOCUMENTO,
-                                     FechaNacimiento = x.GenteMar.fecha_nacimiento,
-                                     FechaVencimiento = x.GenteMar.fecha_vencimiento,
-                                     ContieneEstupefacienteVigente = (from datosBasicosEstupefaciente in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS
-                                                                      join estupefaciente in _context.GENTEMAR_ANTECEDENTES on datosBasicosEstupefaciente.id_gentemar_antecedente
-                                                                      equals estupefaciente.id_gentemar_antecedente
-                                                                      where datosBasicosEstupefaciente.identificacion == x.GenteMar.documento_identificacion
-                                                                      && estupefaciente.id_estado_antecedente != (int)EstadoEstupefacienteEnum.Exitosa
-                                                                      && estupefaciente.fecha_vigencia.HasValue ? estupefaciente.fecha_vigencia.Value >= DateTime.Now : false
-                                                                      select estupefaciente).Any(vcite => vcite.id_antecedente > 0)
-                                 }).FirstOrDefaultAsync();
-            }
-            else
-            {
-
-                usuario = await (from GenteMar in _context.GENTEMAR_DATOSBASICOS
-                                 join tipoDocumento in _context.APLICACIONES_TIPO_DOCUMENTO on GenteMar.id_tipo_documento
-                                 equals tipoDocumento.ID_TIPO_DOCUMENTO
-                                 join estado in _context.GENTEMAR_ESTADO on GenteMar.id_estado equals estado.id_estado
-                                 where GenteMar.id_gentemar == id
-                                 select new
-                                 {
-                                     GenteMar,
-                                     tipoDocumento,
-                                     estado
-
-                                 }).Select(x => new UsuarioGenteMarDTO()
-                                 {
-                                     NombreEstado = x.estado.descripcion,
-                                     Estado = x.estado.id_estado,
-                                     Nombres = x.GenteMar.nombres,
-                                     Apellidos = x.GenteMar.apellidos,
-                                     DocumentoIdentificacion = x.GenteMar.documento_identificacion,
-                                     Id = x.GenteMar.id_gentemar,
-                                     IdTipoDocumento = x.tipoDocumento.ID_TIPO_DOCUMENTO,
-                                     FechaNacimiento = x.GenteMar.fecha_nacimiento,
-                                     FechaVencimiento = x.GenteMar.fecha_vencimiento,
-                                     ContieneEstupefacienteVigente = (from datosBasicosEstupefaciente in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS
-                                                                      join estupefaciente in _context.GENTEMAR_ANTECEDENTES on datosBasicosEstupefaciente.id_gentemar_antecedente
-                                                                      equals estupefaciente.id_gentemar_antecedente
-                                                                      where datosBasicosEstupefaciente.identificacion == x.GenteMar.documento_identificacion
-                                                                      && estupefaciente.id_estado_antecedente != (int)EstadoEstupefacienteEnum.Exitosa
-                                                                      && estupefaciente.fecha_vigencia.HasValue ? estupefaciente.fecha_vigencia.Value >= DateTime.Now : false
-                                                                      select estupefaciente).Any(vcite => vcite.id_antecedente > 0)
-                                 }).FirstOrDefaultAsync();
-            }
+            usuario = await (from GenteMar in _context.GENTEMAR_DATOSBASICOS
+                             join tipoDocumento in _context.APLICACIONES_TIPO_DOCUMENTO on GenteMar.id_tipo_documento equals tipoDocumento.ID_TIPO_DOCUMENTO
+                             join estado in _context.GENTEMAR_ESTADO on GenteMar.id_estado equals estado.id_estado
+                             where GenteMar.documento_identificacion.Equals(identificacionConPuntos) || GenteMar.id_gentemar == id
+                             select new
+                             {
+                                 GenteMar,
+                                 tipoDocumento,
+                                 estado
+                             }).Select(x => new UsuarioGenteMarDTO()
+                             {
+                                 NombreEstado = x.estado.descripcion,
+                                 Estado = x.estado.id_estado,
+                                 Nombres = x.GenteMar.nombres,
+                                 Apellidos = x.GenteMar.apellidos,
+                                 DocumentoIdentificacion = x.GenteMar.documento_identificacion,
+                                 Id = x.GenteMar.id_gentemar,
+                                 IdTipoDocumento = x.tipoDocumento.ID_TIPO_DOCUMENTO,
+                                 FechaNacimiento = x.GenteMar.fecha_nacimiento,
+                                 FechaVencimiento = x.GenteMar.fecha_vencimiento,
+                                 ContieneEstupefacienteVigente = (from datosBasicosEstupefaciente in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS
+                                                                  join estupefaciente in _context.GENTEMAR_ANTECEDENTES on datosBasicosEstupefaciente.id_gentemar_antecedente
+                                                                  equals estupefaciente.id_gentemar_antecedente
+                                                                  where datosBasicosEstupefaciente.identificacion == x.GenteMar.documento_identificacion
+                                                                  && estupefaciente.id_estado_antecedente != (int)EstadoEstupefacienteEnum.Exitosa
+                                                                  select estupefaciente).Any(vcite => vcite.id_antecedente > 0)
+                             }).FirstOrDefaultAsync();
             return usuario;
         }
 
@@ -249,64 +206,62 @@ namespace DIMARCore.Repositories.Repository
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public DatosBasicosDTO GetDatosBasicosId(long id)
+        public async Task<DatosBasicosDTO> GetDatosBasicosIdAsync(long id)
         {
-            var query = (from datosBasicos in _context.GENTEMAR_DATOSBASICOS
-                         join formacionGrado in _context.GENTEMAR_FORMACION_GRADO on datosBasicos.id_formacion_grado equals formacionGrado.id_formacion_grado
-                         where datosBasicos.id_gentemar == id
-                         select new DatosBasicosDTO
-                         {
-                             Apellidos = datosBasicos.apellidos,
-                             CodPais = datosBasicos.cod_pais,
-                             CorreoElectronico = datosBasicos.correo_electronico,
-                             Direccion = datosBasicos.direccion,
-                             DocumentoIdentificacion = datosBasicos.documento_identificacion,
-                             FechaExpedicion = datosBasicos.fecha_expedicion,
-                             FechaNacimiento = datosBasicos.fecha_nacimiento,
-                             FechaVencimiento = datosBasicos.fecha_vencimiento,
-                             Formacion = formacionGrado.id_formacion,
-                             UrlArchivo = (from archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS
-                                           where archivo.IdModulo == datosBasicos.id_gentemar.ToString()
-                                           select new
-                                           {
-                                               archivo
-                                           }).OrderByDescending(x => x.archivo.FechaHoraCreacion).Select(x => x.archivo.RutaArchivo).FirstOrDefault(),
-                             IdEstado = datosBasicos.id_estado,
-                             IdFormacionGrado = datosBasicos.id_formacion_grado,
-                             IdGenero = datosBasicos.id_genero,
-                             IdGentemar = datosBasicos.id_gentemar,
-                             IdMunicipioExpedicion = datosBasicos.id_municipio_expedicion,
-                             IdPaisResidencia = datosBasicos.id_pais_residencia,
-                             IdPaisNacimiento = datosBasicos.id_pais_nacimiento,
-                             IdMunicipioResidencia = datosBasicos.id_municipio_residencia,
-                             IdTipoDocumento = datosBasicos.id_tipo_documento,
-                             Nombres = datosBasicos.nombres,
-                             NumeroMovil = datosBasicos.numero_movil,
-                             Telefono = datosBasicos.telefono,
-                             HistorialDocumento = (from hd in _context.GENTEMAR_HISTORIAL_DOCUMENTO
-                                                   join td in _context.APLICACIONES_TIPO_DOCUMENTO on hd.id_tipo_documento equals td.ID_TIPO_DOCUMENTO
-                                                   where hd.id_gentemar == id
-                                                   select new HistorialDocumentoDTO
-                                                   {
-                                                       DocumentoIdentificacion = hd.documento_identificacion,
-                                                       IdHistorialDocumento = hd.id_historial_documento,
-                                                       IdTipoDocumento = hd.id_tipo_documento,
-                                                       NombreTipoDocumento = td.DESCRIPCION,
-                                                       FechaCambio = hd.fecha_cambio
-                                                   }).ToList()
+            var query = await (from datosBasicos in _context.GENTEMAR_DATOSBASICOS
+                               join formacionGrado in _context.GENTEMAR_FORMACION_GRADO on datosBasicos.id_formacion_grado equals formacionGrado.id_formacion_grado
+                               where datosBasicos.id_gentemar == id
+                               select new DatosBasicosDTO
+                               {
+                                   Apellidos = datosBasicos.apellidos,
+                                   CodPais = datosBasicos.cod_pais,
+                                   CorreoElectronico = datosBasicos.correo_electronico,
+                                   Direccion = datosBasicos.direccion,
+                                   DocumentoIdentificacion = datosBasicos.documento_identificacion,
+                                   FechaExpedicion = datosBasicos.fecha_expedicion,
+                                   FechaNacimiento = datosBasicos.fecha_nacimiento,
+                                   FechaVencimiento = datosBasicos.fecha_vencimiento,
+                                   Formacion = formacionGrado.id_formacion,
+                                   UrlArchivo = (from archivo in _context.GENTEMAR_REPOSITORIO_ARCHIVOS
+                                                 where archivo.IdModulo == datosBasicos.id_gentemar.ToString()
+                                                 select new
+                                                 {
+                                                     archivo
+                                                 }).OrderByDescending(x => x.archivo.FechaCreacion).Select(x => x.archivo.RutaArchivo).FirstOrDefault(),
+                                   IdEstado = datosBasicos.id_estado,
+                                   IdFormacionGrado = datosBasicos.id_formacion_grado,
+                                   IdGenero = datosBasicos.id_genero,
+                                   IdGentemar = datosBasicos.id_gentemar,
+                                   IdMunicipioExpedicion = datosBasicos.id_municipio_expedicion,
+                                   IdPaisResidencia = datosBasicos.id_pais_residencia,
+                                   IdPaisNacimiento = datosBasicos.id_pais_nacimiento,
+                                   IdMunicipioResidencia = datosBasicos.id_municipio_residencia,
+                                   IdTipoDocumento = datosBasicos.id_tipo_documento,
+                                   Nombres = datosBasicos.nombres,
+                                   NumeroMovil = datosBasicos.numero_movil,
+                                   Telefono = datosBasicos.telefono,
+                                   HistorialDocumento = (from hd in _context.GENTEMAR_HISTORIAL_DOCUMENTO
+                                                         join td in _context.APLICACIONES_TIPO_DOCUMENTO on hd.id_tipo_documento equals td.ID_TIPO_DOCUMENTO
+                                                         where hd.id_gentemar == id
+                                                         select new HistorialDocumentoDTO
+                                                         {
+                                                             DocumentoIdentificacion = hd.documento_identificacion,
+                                                             IdHistorialDocumento = hd.id_historial_documento,
+                                                             IdTipoDocumento = hd.id_tipo_documento,
+                                                             NombreTipoDocumento = td.DESCRIPCION,
+                                                             FechaCambio = hd.fecha_cambio
+                                                         }).ToList()
 
-                         }).FirstOrDefault();
-
-
+                               }).FirstOrDefaultAsync();
             return query;
         }
         public async Task<bool> ExisteById(long id)
         {
-            return await AnyWithCondition(x => x.id_gentemar == id);
+            return await AnyWithConditionAsync(x => x.id_gentemar == id);
         }
         public async Task<bool> ExistePersonaByIdentificacion(string identificacionConPuntos)
         {
-            return await AnyWithCondition(x => x.documento_identificacion.Equals(identificacionConPuntos));
+            return await AnyWithConditionAsync(x => x.documento_identificacion.Equals(identificacionConPuntos));
         }
 
 
@@ -337,7 +292,7 @@ namespace DIMARCore.Repositories.Repository
                                     FechaVencimiento = licencia.fecha_vencimiento,
                                     NombreUsuario = usuario.nombres + " " + usuario.apellidos,
                                     Radicado = licencia.radicado != 0 ? licencia.radicado.ToString() : "No contiene radicado."
-                                }).ToListAsync();
+                                }).AsNoTracking().ToListAsync();
 
 
             var DataTitulo = (from titulo in _context.GENTEMAR_TITULOS
@@ -357,15 +312,14 @@ namespace DIMARCore.Repositories.Repository
                                             join cargo in _context.GENTEMAR_CARGO_TITULO on reglaCargo.id_cargo_titulo equals cargo.id_cargo_titulo
                                             join nivel in _context.GENTEMAR_NIVEL on reglaCargo.id_nivel equals nivel.id_nivel
                                             join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla equals regla.id_regla
-                                            where cargoTitulo.id_titulo == titulo.id_titulo
-
+                                            where cargoTitulo.id_titulo == titulo.id_titulo && cargoTitulo.es_eliminado == false
                                             select new InfoCargosDTO
                                             {
                                                 CargoTitulo = cargo.cargo,
                                                 Nivel = nivel.nivel,
                                                 Regla = regla.nombre_regla
                                             }).ToList()
-                              }).ToListAsync();
+                              }).AsNoTracking().ToListAsync();
 
 
             var data = new LicenciasTitulosDTO()
@@ -379,8 +333,11 @@ namespace DIMARCore.Repositories.Repository
 
         }
 
-        public async Task CambiarEstadoTitulosLicenciasByEstadoPersona(IEnumerable<GENTEMAR_LICENCIAS> licencias, IEnumerable<GENTEMAR_TITULOS> titulos)
+        public async Task CambiarEstadoPersonaConTitulosLicencias(IEnumerable<GENTEMAR_LICENCIAS> licencias, IEnumerable<GENTEMAR_TITULOS> titulos,
+            GENTEMAR_DATOSBASICOS data)
         {
+            _context.Entry(data).State = EntityState.Modified;
+
             if (licencias.Any())
             {
                 foreach (var licencia in licencias)
@@ -396,6 +353,13 @@ namespace DIMARCore.Repositories.Repository
                 }
             }
             await SaveAllAsync();
+        }
+
+        public async Task<string> GetNombrePorIdentificacion(string numero_identificacion_usuario)
+        {
+            return await (from datosBasicos in _context.GENTEMAR_DATOSBASICOS
+                          where datosBasicos.documento_identificacion.Equals(numero_identificacion_usuario)
+                          select datosBasicos.nombres + " " + datosBasicos.apellidos).FirstOrDefaultAsync();
         }
     }
 

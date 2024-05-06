@@ -20,12 +20,11 @@ namespace DIMARCore.Business.Logica
                 }
                 return repo.GetAllWithCondition(x => x.activo == activo);
             }
-
         }
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var nivel = await new NivelTituloRepository().GetById(Id);
+            var nivel = await new NivelTituloRepository().GetByIdAsync(Id);
             return nivel == null
                 ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe el nivel solicitado."))
                 : Responses.SetOkResponse(nivel);
@@ -79,20 +78,32 @@ namespace DIMARCore.Business.Logica
 
             if (Id == 0)
             {
-                existe = await new NivelTituloRepository().AnyWithCondition(x => x.nivel.Equals(nombre));
+                existe = await new NivelTituloRepository().AnyWithConditionAsync(x => x.nivel.Equals(nombre));
             }
             else
             {
-                existe = await new NivelTituloRepository().AnyWithCondition(x => x.nivel.Equals(nombre) && x.id_nivel != Id);
+                existe = await new NivelTituloRepository().AnyWithConditionAsync(x => x.nivel.Equals(nombre) && x.id_nivel != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el nivel {nombre}"));
         }
 
-        public async Task<NivelDTO> GetNivelTituloByCargoReglaId(IdsTablasForaneasDTO ids)
+        public async Task<IEnumerable<NivelDTO>> GetNivelTituloByCargoReglaId(IdsTablasForaneasDTO ids)
         {
             var Nivel = await new ReglaCargoRepository().GetIdNivelForReglaCargo(ids);
             return Nivel ?? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No hay ninguna relación con la regla, capacidad y cargo solicitado."));
+        }
+
+        public async Task<IEnumerable<GENTEMAR_NIVEL>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new NivelTituloRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+            }
         }
     }
 }

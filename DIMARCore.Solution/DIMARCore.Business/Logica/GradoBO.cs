@@ -58,9 +58,16 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> CrearGrado(GradoInfoDTO data)
         {
-            var validate = await new GradoRepository().AnyWithCondition(x => x.grado.Equals(data.grado) || x.sigla.Equals(data.sigla));
-            if (validate)
-                throw new HttpStatusCodeException(Responses.SetConflictResponse($"El grado {data.grado} ya está registrado."));
+            var gradoExiste = await new GradoRepository().GetWithConditionAsync(x => x.grado.Equals(data.grado) && x.id_rango == data.id_rango.Value);
+            if (gradoExiste != null)
+            {
+                var formacionConGrado = await new FormacionGradoRepository().AnyWithConditionAsync(x => x.id_formacion == data.formacion.id_formacion.Value
+                                                                                                         && x.id_grado == gradoExiste.id_grado);
+                if (formacionConGrado)
+                {
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El grado {data.grado} con el rango-formación seleccionado ya está registrado."));
+                }
+            }
             await new GradoRepository().CrearGrados(data);
             return Responses.SetCreatedResponse(data);
         }
@@ -70,11 +77,23 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new GradoRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_grado == data.id_grado);
-                if (validate == null)
+                var entidad = await repo.GetWithConditionAsync(x => x.id_grado == data.id_grado);
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El grado no está registrado."));
-                data.id_grado = validate.id_grado;
-                data.activo = validate.activo;
+
+                var gradoExiste = await new GradoRepository().GetWithConditionAsync(x => x.grado.Equals(data.grado) && x.id_rango == data.id_rango.Value
+                                                                                    && x.id_grado != data.id_grado);
+
+                if (gradoExiste != null)
+                {
+                    var existeFormacionGrado = await new FormacionGradoRepository().AnyWithConditionAsync(x => x.id_formacion == data.formacion.id_formacion.Value
+                                                                                                                         && x.id_grado == gradoExiste.id_grado);
+                    if (existeFormacionGrado)
+                        throw new HttpStatusCodeException(Responses.SetConflictResponse($"El grado {data.grado} con el rango-formación seleccionado ya está registrado."));
+                }
+
+                data.id_grado = entidad.id_grado;
+                data.activo = entidad.activo;
                 await new GradoRepository().ActualizarGrados(data);
                 return Responses.SetUpdatedResponse(data);
             }
@@ -85,7 +104,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new GradoRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_grado == id);
+                var validate = await repo.GetWithConditionAsync(x => x.id_grado == id);
                 if (validate == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El grado no está registrado."));
 

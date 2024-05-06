@@ -2,15 +2,12 @@
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
 using DIMARCore.Utilities.Helpers;
+using DIMARCore.Utilities.Middleware;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using DIMARCore.Utilities.Middleware;
-using System.Linq;
-using System;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using static ClosedXML.Excel.XLPredefinedFormat;
 
 namespace DIMARCore.Business.Logica
 {
@@ -26,7 +23,7 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var entidad = await new CargoTituloRepository().GetById(Id);
+            var entidad = await new CargoTituloRepository().GetByIdAsync(Id);
             return entidad == null
                 ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encontro el cargo del titulo."))
                 : Responses.SetOkResponse(entidad);
@@ -73,11 +70,13 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, mensaje);
         }
 
-        public async Task<IEnumerable<GENTEMAR_CARGO_TITULO>> GetCargoTitulosBySeccionId(int seccionId)
+        public async Task<IEnumerable<CargoTituloInfoDTO>> GetCargosTituloBySeccionId(int seccionId, bool showAll)
         {
-            var data = await new CargoTituloRepository().GetAllWithConditionAsync(x => x.id_seccion == seccionId && x.activo == true);
+            var data = await new CargoTituloRepository().GetCargosTituloBySeccionId(seccionId, showAll);
+
             if (!data.Any())
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existen cargos para la sección seleccionada.");
+
             return data;
         }
 
@@ -96,12 +95,12 @@ namespace DIMARCore.Business.Logica
             bool existe;
             if (entidad.id_cargo_titulo == 0)
             {
-                existe = await new CargoTituloRepository().AnyWithCondition(x => x.cargo.Equals(entidad.cargo.Trim().ToUpper())
+                existe = await new CargoTituloRepository().AnyWithConditionAsync(x => x.cargo.Equals(entidad.cargo.Trim().ToUpper())
                     && x.id_seccion == entidad.id_seccion && x.id_clase == entidad.id_clase);
             }
             else
             {
-                existe = await new CargoTituloRepository().AnyWithCondition(x => x.cargo.Equals(entidad.cargo.Trim().ToUpper())
+                existe = await new CargoTituloRepository().AnyWithConditionAsync(x => x.cargo.Equals(entidad.cargo.Trim().ToUpper())
                     && x.id_seccion == entidad.id_seccion && x.id_clase == entidad.id_clase &&
                 x.id_cargo_titulo != entidad.id_cargo_titulo);
             }

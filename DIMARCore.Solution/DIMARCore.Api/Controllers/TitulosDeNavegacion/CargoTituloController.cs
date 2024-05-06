@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -37,6 +37,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         ///  Se obtiene el listado de cargos por sección.
         /// </summary>
         /// <param name="SeccionId"> parametro que contiene el id de la sección</param>
+        /// <param name="isShowAll"> parametro que contiene el id de la sección</param>
         /// <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
@@ -48,12 +49,11 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// </remarks>
         [ResponseType(typeof(List<CargoTituloInfoDTO>))]
         [HttpGet]
-        [Route("lista-by-seccion/{SeccionId}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
-        public async Task<IHttpActionResult> GetCargoTitulosBySeccionId(int SeccionId)
+        [Route("lista-by-seccion/{SeccionId}/ShowAll/{isShowAll}")]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        public async Task<IHttpActionResult> GetCargoTitulosBySeccionId(int SeccionId, bool isShowAll)
         {
-            var query = await _service.GetCargoTitulosBySeccionId(SeccionId);
-            var listado = Mapear<IEnumerable<GENTEMAR_CARGO_TITULO>, IEnumerable<CargoTituloInfoDTO>>(query);
+            var listado = await _service.GetCargosTituloBySeccionId(SeccionId, isShowAll);
             return Ok(listado);
         }
 
@@ -73,7 +73,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<CargoTituloDTO>))]
         [HttpPost]
         [Route("lista-by-secciones")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetCargoTitulosBySeccionesIds(List<int> SeccionesIds)
         {
             var listado = await _service.GetCargoTitulosBySeccionesIds(SeccionesIds);
@@ -100,7 +100,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<ListadoCargoTituloDTO>))]
         [HttpGet]
         [Route("lista-info-seccion-clase")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> ListadoInfoSeccionClase([FromUri] CargoTituloFilter filter)
         {
             var data = await _service.GetAllByFilter(filter);
@@ -126,7 +126,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(List<CargoTituloDTO>))]
         [HttpGet]
         [Route("lista-activos")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> ListadoActivos()
         {
             var data = await _service.GetCargosActivos();
@@ -150,7 +150,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseTypeSwagger<CargoTituloInfoDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetCargoTitulo(int id)
         {
             var entidad = await _service.GetByIdAsync(id);
@@ -176,7 +176,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear([FromBody] CreatedUpdateCargoTituloDTO cargo)
         {
             var data = Mapear<CreatedUpdateCargoTituloDTO, GENTEMAR_CARGO_TITULO>(cargo);
@@ -204,7 +204,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Editar([FromBody] CreatedUpdateCargoTituloDTO cargo)
         {
             var data = Mapear<CreatedUpdateCargoTituloDTO, GENTEMAR_CARGO_TITULO>(cargo);
@@ -228,7 +228,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("anula-or-activa/{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> AnularOrActivar(int id)
         {
             var response = await _service.AnulaOrActivaAsync(id);

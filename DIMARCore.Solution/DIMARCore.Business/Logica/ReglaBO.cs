@@ -10,21 +10,9 @@ namespace DIMARCore.Business.Logica
 {
     public class ReglaBO : IGenericCRUD<GENTEMAR_REGLAS, int>
     {
-        public IEnumerable<GENTEMAR_REGLAS> GetAll(bool? activo = true)
-        {
-            using (var repo = new ReglaRepository())
-            {
-                if (activo == null)
-                {
-                    return repo.GetAll();
-                }
-                return repo.GetAllWithCondition(x => x.activo == activo);
-            }
-        }
-
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var regla = await new ReglaRepository().GetById(Id);
+            var regla = await new ReglaRepository().GetByIdAsync(Id);
 
             return regla == null
                 ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No existe la regla solicitada."))
@@ -74,9 +62,9 @@ namespace DIMARCore.Business.Logica
         }
 
 
-        public async Task<IEnumerable<ReglaDTO>> GetReglasActivasByCargoTitulo(int cargoId)
+        public async Task<IEnumerable<ReglaDTO>> GetReglasByCargoTitulo(int cargoId, bool isShowAll)
         {
-            return await new ReglaRepository().GetReglasActivasByCargoTitulo(cargoId);
+            return await new ReglaRepository().GetReglasByCargoTitulo(cargoId, isShowAll);
         }
 
 
@@ -99,14 +87,31 @@ namespace DIMARCore.Business.Logica
             bool existe;
             if (Id == 0)
             {
-                existe = await new ReglaRepository().AnyWithCondition(x => x.nombre_regla.Equals(nombre));
+                existe = await new ReglaRepository().AnyWithConditionAsync(x => x.nombre_regla.Equals(nombre));
             }
             else
             {
-                existe = await new ReglaRepository().AnyWithCondition(x => x.nombre_regla.Equals(nombre) && x.id_regla != Id);
+                existe = await new ReglaRepository().AnyWithConditionAsync(x => x.nombre_regla.Equals(nombre) && x.id_regla != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la clase {nombre}"));
+        }
+
+        public IEnumerable<GENTEMAR_REGLAS> GetAll(bool? activo = true)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task<IEnumerable<GENTEMAR_REGLAS>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new ReglaRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+            }
         }
     }
 }

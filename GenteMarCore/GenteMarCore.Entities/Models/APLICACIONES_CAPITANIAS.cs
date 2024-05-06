@@ -1,17 +1,14 @@
 namespace GenteMarCore.Entities.Models
 {
-    using System;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
     [Table("APLICACIONES_CAPITANIAS", Schema = "DBA")]
     public partial class APLICACIONES_CAPITANIAS
     {
         public APLICACIONES_CAPITANIAS()
         {
-         
+
         }
 
         [Key]

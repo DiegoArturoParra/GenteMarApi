@@ -9,6 +9,7 @@ namespace GenteMarCore.Entities.Models
         [Key]
         public int id_estado { get; set; }
         [Required(ErrorMessage = "Descripción requerida.")]
+        [StringLength(100)]
         public string descripcion { get; set; }
         [Required(ErrorMessage = "Sigla requerida.")]
         public string sigla { get; set; }

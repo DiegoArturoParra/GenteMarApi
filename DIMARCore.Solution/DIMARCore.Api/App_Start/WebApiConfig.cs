@@ -1,5 +1,5 @@
 ﻿using DIMARCore.Api.Core;
-using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Filters;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -23,12 +23,13 @@ namespace DIMARCore.Api
             config.MessageHandlers.Add(new TokenValidationHandler());
             config.Filters.Add(new AuthorizeAttribute());
             config.Filters.Add(new ValidationExceptionFilterAttribute());
-            config.Filters.Add(new CustomExceptionFilter());
+            config.Filters.Add(new CustomExceptionFilterAttribute());
   
             // se elimina el formateador de respuestas xml
             config.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
             // se quita el fomato xml
             config.Formatters.Remove(config.Formatters.XmlFormatter);
+
             // se habilita el formateador de respuestas json
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
@@ -37,7 +38,6 @@ namespace DIMARCore.Api
             // se define que los json de respuesta sean indentados
             config.Formatters.JsonFormatter.Indent = true;
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("multipart/form-data"));
-
             // Rutas de API web
             config.MapHttpAttributeRoutes();
 

@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
@@ -52,7 +52,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Paginador<ListadoTituloDTO>))]
         [HttpGet]
         [Route("pagination")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
         public async Task<IHttpActionResult> PaginarAsync([FromUri] ParametrosPaginacion paginacion)
         {
             if (paginacion == null)
@@ -83,7 +83,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseTypeSwagger<InfoTituloDTO>))]
         [HttpGet]
         [Route("{id}")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
         public async Task<IHttpActionResult> GetTituloPorId(long id)
         {
             var response = await _serviceTitulo.GetTituloById(id);
@@ -107,7 +107,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Paginador<ListadoTituloDTO>))]
         [HttpPost]
         [Route("filter-by-identification")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC)]
         public async Task<IHttpActionResult> GetTitulosByIdentificacion(DocumentFilter filtro)
         {
             await _serviceTitulo.ExistePersonaByIdentificacion(filtro.Identificacion);
@@ -131,7 +131,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(Paginador<ListadoTituloDTO>))]
         [HttpPost]
         [Route("filter-by-id")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetTitulosById(IdentificatorFilter filtro)
         {
             await new DatosBasicosBO().ExisteById(Convert.ToInt64(filtro.Id));
@@ -180,7 +180,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> Crear()
         {
             Respuesta respuesta = new Respuesta();
@@ -220,7 +220,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> Editar()
         {
             Respuesta respuesta;
@@ -255,7 +255,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("desactivar-cargo")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         public async Task<IHttpActionResult> DesactivarCargoDelTitulo(DesactivateCargoDTO desactivateCargo)
         {
             Respuesta respuesta = await _serviceTitulo.DesactivarCargoDelTitulo(desactivateCargo);
@@ -277,7 +277,7 @@ namespace DIMARCore.Api.Controllers.TitulosDeNavegacion
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(ResponseTypeSwagger<FechasRadioOperadoresDTO>))]
         [HttpGet]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM, RolesEnum.GestorSedeCentral)]
         [Route("fechas-radio-operadores/{idGenteMar}")]
         public async Task<IHttpActionResult> GetFechasRadioOperadores(long idGenteMar)
         {

@@ -22,7 +22,7 @@ namespace DIMARCore.UIEntities.DTOs
         public int? EstadoId { get; set; }
 
     }
-    public class UsuarioTritonDTO
+    public class UsuarioGDMDTO
     {
         public long? LoginId { get; set; }
         [Required(ErrorMessage = "El nombre es requerido.")]

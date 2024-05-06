@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Enums;
@@ -48,7 +48,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ObservacionDTO>))]
         [HttpGet]
         [Route("datos-basicos/{id}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetObservacionesDatosBasicosbyIdGenteMar(int id)
         {
             var observacionesDatosBasicos = await new ObservacionesBO().GetObservacionesId(id, PathActual, ObservacionEnum.DatosBasicos);
@@ -70,7 +70,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("datos-basicos-crear")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearObservacionesDatosBasicos()
         {
 
@@ -101,7 +101,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ObservacionDTO>))]
         [HttpGet]
         [Route("titulos/{id}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetObservacionesTitulos(int id)
         {
             await new TituloBO().ExistById(id);
@@ -124,7 +124,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("titulos-crear")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearObservacionesTitulos()
         {
             Respuesta respuesta;
@@ -154,7 +154,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ObservacionDTO>))]
         [HttpGet]
         [Route("licencias/{id}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetObservacionesLicenciasbyIdGenteMar(int id)
         {
             var ObservacionesLicencias = await new ObservacionesBO().GetObservacionesId(id, PathActual, ObservacionEnum.Licencias);
@@ -178,7 +178,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("licencias-crear")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearObservacionesLicencias()
         {
 
@@ -212,7 +212,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<ObservacionDTO>))]
         [HttpGet]
         [Route("estupefacientes/{id}")]
-        [AuthorizeRoles(RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, 
+        [AuthorizeRolesFilter(RolesEnum.GestorVCITE, RolesEnum.JuridicaVCITE, 
             RolesEnum.AdministradorVCITE, RolesEnum.ConsultasVCITE)]
         public async Task<IHttpActionResult> GetObservacionesEstupefacientes(int id)
         {
@@ -236,7 +236,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("estupefacientes-crear")]
-        [AuthorizeRoles(RolesEnum.JuridicaVCITE, RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.JuridicaVCITE, RolesEnum.AdministradorVCITE)]
 
         public async Task<IHttpActionResult> CrearObservacionesEstupefacientes()
         {

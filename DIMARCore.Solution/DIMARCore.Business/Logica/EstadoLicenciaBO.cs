@@ -31,7 +31,7 @@ namespace DIMARCore.Business.Logica
         public async Task<IEnumerable<GENTEMAR_ESTADO_LICENCIA>> GetEstadosActivoAsync()
         {
             // Obtiene la lista
-            return await new EstadoLicenciaRepository().GetAllWithConditionAsync(x => x.activo == true);
+            return await new EstadoLicenciaRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO);
         }
         /// <summary>
         /// crea un nuevo estado 
@@ -42,9 +42,11 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new EstadoLicenciaRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.descripcion_estado == data.descripcion_estado);
+                data.descripcion_estado = data.descripcion_estado.Trim().ToUpper();
+                data.activo = Constantes.ACTIVO;
+                var validate = await repo.AnyWithConditionAsync(x => x.descripcion_estado == data.descripcion_estado);
                 if (validate)
-                    throw new HttpStatusCodeException(Responses.SetConflictResponse("El estado ya se encuentra creado."));
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El estado {data.descripcion_estado} ya se encuentra creado."));
                 await repo.Create(data);
                 return Responses.SetCreatedResponse(data);
             }
@@ -59,13 +61,16 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new EstadoLicenciaRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_estado_licencias == data.id_estado_licencias);
-                if (validate == null)
+                data.descripcion_estado = data.descripcion_estado.Trim().ToUpper();
+                var entidad = await repo.GetWithConditionAsync(x => x.id_estado_licencias == data.id_estado_licencias);
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado no existe."));
-                data.id_estado_licencias = validate.id_estado_licencias;
-                data.activo = validate.activo;
-                await new EstadoLicenciaRepository().Update(data);
-                return Responses.SetUpdatedResponse(data);
+                var validate = await repo.AnyWithConditionAsync(x => x.descripcion_estado == data.descripcion_estado && x.id_estado_licencias != entidad.id_estado_licencias);
+                if (validate)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"El estado {data.descripcion_estado} ya se encuentra creado."));
+                entidad.descripcion_estado = data.descripcion_estado;
+                await new EstadoLicenciaRepository().Update(entidad);
+                return Responses.SetUpdatedResponse(entidad);
             }
         }
         /// <summary>
@@ -77,7 +82,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new EstadoLicenciaRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_estado_licencias == id);
+                var validate = await repo.GetWithConditionAsync(x => x.id_estado_licencias == id);
                 if (validate == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("El estado no existe."));
                 validate.activo = !validate.activo;

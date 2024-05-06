@@ -7,6 +7,7 @@ namespace DIMARCore.Business.Interfaces
     public interface IGenericCRUD<T, TID> where T : class
     {
         IEnumerable<T> GetAll(bool? activo = true);
+        Task<IEnumerable<T>> GetAllAsync(bool? activo = true);
         Task<Respuesta> GetByIdAsync(TID Id);
         Task<Respuesta> CrearAsync(T entidad);
         Task<Respuesta> ActualizarAsync(T entidad);

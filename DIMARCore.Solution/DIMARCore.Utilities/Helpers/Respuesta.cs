@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net;
 
 namespace DIMARCore.Utilities.Helpers
@@ -30,6 +31,8 @@ namespace DIMARCore.Utilities.Helpers
         /// Objeto de respuesta
         /// </summary>
         public Object Data { get; set; }
+        [JsonIgnore]
+        public string StackTrace { get; set; }
         /// <summary>
         /// Estado
         /// </summary>

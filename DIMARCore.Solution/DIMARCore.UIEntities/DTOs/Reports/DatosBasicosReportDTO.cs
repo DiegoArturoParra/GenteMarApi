@@ -1,5 +1,4 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using DIMARCore.Utilities.Helpers;
 using System;
 
 namespace DIMARCore.UIEntities.DTOs.Reports
@@ -16,7 +15,7 @@ namespace DIMARCore.UIEntities.DTOs.Reports
         public string Genero { get; set; }
         [Ignore]
         public DateTime FechaNacimiento { get; set; }
-        public short Edad => Reutilizables.CalcularEdad(this.FechaNacimiento);
+        public short Edad { get; set; }
         [Name("Número de contacto")]
         public string NumeroContacto { get; set; }
         [Name("Correo electrónico")]

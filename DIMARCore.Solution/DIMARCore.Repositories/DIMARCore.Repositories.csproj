@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.2.0.143\lib\net461\Dapper.dll</HintPath>
+      <HintPath>..\packages\Dapper.2.1.35\lib\net461\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
@@ -53,24 +53,24 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="LinqKit, Version=1.2.4.0, Culture=neutral, PublicKeyToken=bc217f8844052a91, processorArchitecture=MSIL">
-      <HintPath>..\packages\LinqKit.1.2.4\lib\net45\LinqKit.dll</HintPath>
+    <Reference Include="LinqKit, Version=1.2.5.0, Culture=neutral, PublicKeyToken=bc217f8844052a91, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqKit.1.2.5\lib\net45\LinqKit.dll</HintPath>
     </Reference>
-    <Reference Include="LinqKit.Core, Version=1.2.4.0, Culture=neutral, PublicKeyToken=bc217f8844052a91, processorArchitecture=MSIL">
-      <HintPath>..\packages\LinqKit.Core.1.2.4\lib\net45\LinqKit.Core.dll</HintPath>
+    <Reference Include="LinqKit.Core, Version=1.2.5.0, Culture=neutral, PublicKeyToken=bc217f8844052a91, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqKit.Core.1.2.5\lib\net45\LinqKit.Core.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.17.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.17\lib\net45\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Odbc, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.Odbc.7.0.0\lib\net462\System.Data.Odbc.dll</HintPath>
+    <Reference Include="System.Data.Odbc, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.Odbc.8.0.0\lib\net462\System.Data.Odbc.dll</HintPath>
     </Reference>
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
@@ -85,7 +85,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogRepository.cs" />
+    <Compile Include="Repository\AplicacionCapitaniaRepository.cs" />
+    <Compile Include="Repository\AplicacionLoginRepository.cs" />
+    <Compile Include="Repository\AplicacionTipoRefrendoRepository.cs" />
+    <Compile Include="Repository\AplicacionTipoSolicitudRepository.cs" />
     <Compile Include="Repository\ExpedienteObservacionEstupefacienteRepository.cs" />
+    <Compile Include="Repository\FormacionGradoRepository.cs" />
     <Compile Include="Repository\ObservacionEntidadEstupefacienteRepository.cs" />
     <Compile Include="Repository\ActividadRepository.cs" />
     <Compile Include="Repository\ActividadSeccionLicenciasRepository.cs" />
@@ -123,7 +128,6 @@
     <Compile Include="Repository\ReglaCargoRepository.cs" />
     <Compile Include="Repository\DimRepository.cs" />
     <Compile Include="Repository\FormacionRepository.cs" />
-    <Compile Include="Repository\FotografiaRepository.cs" />
     <Compile Include="Repository\FuncionRepository.cs" />
     <Compile Include="Repository\GeneroRepository.cs" />
     <Compile Include="IGenericRepository.cs" />
@@ -138,12 +142,13 @@
     <Compile Include="Repository\RangoRepository.cs" />
     <Compile Include="Repository\ReglaFuncionRepository.cs" />
     <Compile Include="Repository\ReglaRepository.cs" />
-    <Compile Include="Repository\ReportesgdmRepository.cs" />
+    <Compile Include="Repository\ReportesDatosBasicosRepository.cs" />
+    <Compile Include="Repository\ReportesLicenciaRepository.cs" />
+    <Compile Include="Repository\ReportesTituloRepository.cs" />
     <Compile Include="Repository\ReportesVciteRepository.cs" />
     <Compile Include="Repository\SeccionClaseRepository.cs" />
     <Compile Include="Repository\SeccionLicenciasRepository.cs" />
     <Compile Include="Repository\SeccionTitulosRepository.cs" />
-    <Compile Include="Repository\ServiciosAplicacionesRepository.cs" />
     <Compile Include="Repository\SGDEARepository.cs" />
     <Compile Include="Repository\TipoDocumentoRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

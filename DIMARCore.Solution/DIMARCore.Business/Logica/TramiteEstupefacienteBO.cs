@@ -27,7 +27,7 @@ namespace DIMARCore.Business.Logica
         }
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
-            var entidad = await new TramiteEstupefacienteRepository().GetById(Id);
+            var entidad = await new TramiteEstupefacienteRepository().GetByIdAsync(Id);
             if (entidad == null)
                 throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra el tipo de tramite indicado"));
             return Responses.SetOkResponse(entidad);
@@ -59,11 +59,11 @@ namespace DIMARCore.Business.Logica
             Respuesta respuesta = new Respuesta();
             if (Id == 0)
             {
-                existe = await new TramiteEstupefacienteRepository().AnyWithCondition(x => x.descripcion_tipo_tramite.Equals(nombre));
+                existe = await new TramiteEstupefacienteRepository().AnyWithConditionAsync(x => x.descripcion_tipo_tramite.Equals(nombre));
             }
             else
             {
-                existe = await new TramiteEstupefacienteRepository().AnyWithCondition(x => x.descripcion_tipo_tramite.Equals(nombre) && x.id_tipo_tramite != Id);
+                existe = await new TramiteEstupefacienteRepository().AnyWithConditionAsync(x => x.descripcion_tipo_tramite.Equals(nombre) && x.id_tipo_tramite != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrado el tramite {nombre}"));
@@ -87,6 +87,21 @@ namespace DIMARCore.Business.Logica
                 mensaje = $"Se anulo {entidad.descripcion_tipo_tramite}";
             }
             return Responses.SetOkResponse(entidad, mensaje);
+        }
+
+        public async Task<IEnumerable<GENTEMAR_TRAMITE_ANTECEDENTE>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new TramiteEstupefacienteRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                else
+                {
+                    return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+                }
+            }
         }
     }
 }

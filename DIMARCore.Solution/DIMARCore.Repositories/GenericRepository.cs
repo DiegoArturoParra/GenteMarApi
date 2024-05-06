@@ -60,6 +60,22 @@ namespace DIMARCore.Repositories
 
         }
         #endregion
+
+        public void BeginTransaction()
+        {
+            _context.Database.BeginTransaction();
+        }
+
+        public void CommitTransaction()
+        {
+            _context.Database.CurrentTransaction?.Commit();
+        }
+
+        public void RollbackTransaction()
+        {
+            _context.Database.CurrentTransaction?.Rollback();
+        }
+
         private DbSet<T> Entities
         {
             get
@@ -95,14 +111,14 @@ namespace DIMARCore.Repositories
         #endregion
 
         #region get de un objeto con condiciones 
-        public async Task<T> GetWithCondition(Expression<Func<T, bool>> whereCondition)
+        public async Task<T> GetWithConditionAsync(Expression<Func<T, bool>> whereCondition)
         {
             return await Entities.Where(whereCondition).FirstOrDefaultAsync();
         }
         #endregion
 
         #region existe por condiciones 
-        public async Task<bool> AnyWithCondition(Expression<Func<T, bool>> whereCondition)
+        public async Task<bool> AnyWithConditionAsync(Expression<Func<T, bool>> whereCondition)
         {
             return await Entities.AnyAsync(whereCondition);
         }
@@ -130,8 +146,8 @@ namespace DIMARCore.Repositories
 
         #endregion
 
-        #region Get by Id In BD
-        public async Task<T> GetById(object id)
+        #region Get by Id Async In BD
+        public async Task<T> GetByIdAsync(object id)
         {
             return await Entities.FindAsync(id);
         }
@@ -214,11 +230,11 @@ namespace DIMARCore.Repositories
             else if (DbEntityException != null)
             {
                 Mensaje = ObtenerErroresDeAtributos(DbEntityException);
-                new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{Mensaje}");
+                throw new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{Mensaje}");
             }
             else
             {
-                new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{entidad}: {ex.Message}");
+                throw new HttpStatusCodeException(HttpStatusCode.InternalServerError, $"{entidad}: {ex.Message}");
             }
         }
         private string ObtenerErroresDeAtributos(DbEntityValidationException dbEntityException)

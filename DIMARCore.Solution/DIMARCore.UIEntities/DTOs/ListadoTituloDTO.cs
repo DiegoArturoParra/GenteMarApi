@@ -9,6 +9,7 @@ namespace DIMARCore.UIEntities.DTOs
         public long Id { get; set; }
         public string CapitaniaFirma { get; set; }
         public string CapitaniaFirmante { get; set; }
+        public bool ContienePrevista { get; set; }
         public List<InfoCargosDTO> Cargos { get; set; }
         public string Solicitud { get; set; }
         public string NombreUsuario { get; set; }

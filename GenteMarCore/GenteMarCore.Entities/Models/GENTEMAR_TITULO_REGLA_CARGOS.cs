@@ -1,5 +1,4 @@
 ﻿using GenteMarCore.Entities.Helpers;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,7 +14,5 @@ namespace GenteMarCore.Entities.Models
         public string habilitaciones_json { get; set; }
         public string funciones_json { get; set; }
         public bool es_eliminado { get; set; }
-        [NotMapped]
-        public List<string> Funciones { get; set; }
     }
 }

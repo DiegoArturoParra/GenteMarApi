@@ -16,113 +16,83 @@ namespace DIMARCore.Repositories.Repository
     {
         public IQueryable<ListadoEstupefacientesDTO> GetAntecedentesByFiltro(EstupefacientesFilter filtro)
         {
-            var query = (from antecedente in _context.GENTEMAR_ANTECEDENTES
-                         join usuario in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS on antecedente.id_gentemar_antecedente equals usuario.id_gentemar_antecedente
-                         join estado in _context.GENTEMAR_ESTADO_ANTECEDENTES on antecedente.id_estado_antecedente equals estado.id_estado_antecedente
-                         join tramite in _context.GENTEMAR_TRAMITE_ANTECEDENTE on antecedente.id_tipo_tramite equals tramite.id_tipo_tramite
-                         join capitaniaFirma in _context.APLICACIONES_CAPITANIAS on antecedente.id_capitania equals capitaniaFirma.ID_CAPITANIA
-                         join expedienteAntecedente in _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES on antecedente.id_antecedente
-                         equals expedienteAntecedente.id_antecedente into eAGroup
-                         from expedienteAntecedentes in eAGroup.DefaultIfEmpty()
-                         join consolidado in _context.GENTEMAR_CONSOLIDADO on expedienteAntecedentes.id_consolidado
-                         equals consolidado.id_consolidado into cGroup
-                         from consolidadoDefault in cGroup.DefaultIfEmpty()
-                         where tramite.activo == true && estado.activo == true
-                         group new { antecedente, usuario, tramite, estado, capitaniaFirma, expedienteAntecedentes, consolidadoDefault }
-                         by antecedente.id_antecedente into grupo
-                         select new
-                         {
-                             grupo.Key,
-                             grupo.FirstOrDefault().usuario,
-                             grupo.FirstOrDefault().antecedente,
-                             grupo.FirstOrDefault().tramite,
-                             grupo.FirstOrDefault().estado,
-                             grupo.FirstOrDefault().capitaniaFirma,
-                             grupo.FirstOrDefault().expedienteAntecedentes,
-                             grupo.FirstOrDefault().consolidadoDefault
-                         });
-
+            var query = _context.VIEW_REPORTE_ANTECEDENTES.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filtro.Identificacion))
             {
-                query = query.Where(x => x.usuario.identificacion.Equals(filtro.Identificacion));
+                query = query.Where(x => x.Identificacion.Equals(filtro.Identificacion));
             }
 
             if (filtro.FechaInicial.HasValue && filtro.FechaFinal.HasValue)
             {
                 var (DateInitial, DateEnd) = Reutilizables.FormatDatesByRange(filtro.FechaInicial.Value, filtro.FechaFinal.Value);
-                query = query.Where(x => x.antecedente.fecha_solicitud_sede_central >= DateInitial && x.antecedente.fecha_solicitud_sede_central <= DateEnd);
+                query = query.Where(x => x.FechaSolicitud >= DateInitial && x.FechaSolicitud <= DateEnd);
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(filtro.Identificacion) && string.IsNullOrWhiteSpace(filtro.Radicado))
+                if (string.IsNullOrWhiteSpace(filtro.Identificacion) && string.IsNullOrWhiteSpace(filtro.Radicado) && filtro.ConsolidadoId == 0)
                 {
                     var fechaActual = DateTime.Now;
                     var (DateInitial, DateEnd) = Reutilizables.FormatDatesByRange(fechaActual, fechaActual);
-                    query = query.Where(x => x.antecedente.fecha_solicitud_sede_central >= DateInitial && x.antecedente.fecha_solicitud_sede_central <= DateEnd);
+                    query = query.Where(x => x.FechaSolicitud >= DateInitial && x.FechaSolicitud <= DateEnd);
                 }
 
             }
 
             if (filtro.TipoDocumentoId > 0)
             {
-                query = query.Where(x => x.usuario.id_tipo_documento == filtro.TipoDocumentoId);
+                query = query.Where(x => x.TipoDocumentoId == filtro.TipoDocumentoId);
             }
 
-            if (filtro.EstadoId > 0)
+            if (filtro.EstadosId.Any())
             {
-                query = query.Where(x => x.antecedente.id_estado_antecedente == filtro.EstadoId);
+                query = query.Where(x => filtro.EstadosId.Contains(x.EstadoId));
             }
-            else if (string.IsNullOrWhiteSpace(filtro.Identificacion) && string.IsNullOrWhiteSpace(filtro.Radicado))
+            else if (string.IsNullOrWhiteSpace(filtro.Identificacion) && string.IsNullOrWhiteSpace(filtro.Radicado) && filtro.ConsolidadoId == 0)
             {
                 List<int> containsEstado = new List<int> { (int)EstadoEstupefacienteEnum.ParaEnviar, (int)EstadoEstupefacienteEnum.Consulta };
-                query = query.Where(x => containsEstado.Contains(x.antecedente.id_estado_antecedente));
+                query = query.Where(x => containsEstado.Contains(x.EstadoId));
             }
 
             if (filtro.ConsolidadoId > 0)
             {
-                query = query.Where(x => x.expedienteAntecedentes.id_consolidado == filtro.ConsolidadoId);
-            }
-
-            if (filtro.ExpedienteId > 0)
-            {
-                query = query.Where(x => x.expedienteAntecedentes.id_expediente == filtro.ExpedienteId);
+                query = query.Where(x => x.ConsolidadoId == filtro.ConsolidadoId);
             }
 
             if (filtro.TramiteId > 0)
             {
-                query = query.Where(x => x.antecedente.id_tipo_tramite == filtro.TramiteId);
+                query = query.Where(x => x.TramiteId == filtro.TramiteId);
             }
             if (!string.IsNullOrWhiteSpace(filtro.Radicado))
             {
-                query = query.Where(x => x.antecedente.numero_sgdea.Equals(filtro.Radicado));
+                query = query.Where(x => x.NumeroRadicadoSgdea.Equals(filtro.Radicado));
             }
 
 
             var intermediateQuery = query.Select(grupo => new ListadoEstupefacientesDTO
             {
-                Id = grupo.Key, // Use the grouping key instead of FirstOrDefault
-                Nombre = grupo.usuario.nombres,
-                Apellido = grupo.usuario.apellidos,
-                Radicado = grupo.antecedente.numero_sgdea,
-                Tramite = grupo.tramite.descripcion_tipo_tramite,
-                Capitania = grupo.capitaniaFirma.SIGLA_CAPITANIA + "-" + grupo.capitaniaFirma.DESCRIPCION,
-                Documento = grupo.usuario.identificacion,
-                Estado = grupo.estado.descripcion_estado_antecedente,
-                FechaAprobacion = grupo.antecedente.fecha_aprobacion,
-                FechaSolicitudSedeCentral = grupo.antecedente.fecha_solicitud_sede_central,
-                FechaVigencia = grupo.antecedente.fecha_vigencia,
-                NumeroConsolidado = grupo.consolidadoDefault.numero_consolidado,
+                Id = grupo.AntecedenteId,
+                Nombre = grupo.Nombres,
+                Apellido = grupo.Apellidos,
+                Radicado = grupo.NumeroRadicadoSgdea,
+                Tramite = grupo.TipoTramite,
+                Capitania = grupo.SiglaCapitania + "-" + grupo.NombreCapitania,
+                Documento = grupo.Identificacion,
+                Estado = grupo.Estado,
+                FechaAprobacion = grupo.FechaAprobacion,
+                FechaSolicitudSedeCentral = grupo.FechaSolicitud,
+                FechaVigencia = grupo.FechaVigencia,
+                NumeroConsolidado = grupo.NumeroConsolidado,
                 ExpedientesPorEntidad = (from relacion in _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES
                                          join expediente in _context.GENTEMAR_EXPEDIENTE on relacion.id_expediente equals expediente.id_expediente
                                          join entidad in _context.GENTEMAR_ENTIDAD_ANTECEDENTE on relacion.id_entidad equals entidad.id_entidad
-                                         where relacion.id_antecedente == grupo.Key
+                                         where relacion.id_antecedente == grupo.AntecedenteId
                                          select new ExpedienteEntidadDTO
                                          {
                                              Entidad = entidad.entidad,
                                              NumeroDeExpediente = expediente.numero_expediente,
                                          }).ToList(),
-                FechaRegistro = grupo.antecedente.fecha_hora_creacion
+                FechaRegistro = grupo.FechaCreacion
             });
 
             return intermediateQuery.AsNoTracking();
@@ -134,7 +104,7 @@ namespace DIMARCore.Repositories.Repository
             return await (from antecedente in _context.GENTEMAR_ANTECEDENTES
                           join usuario in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS on antecedente.id_gentemar_antecedente equals usuario.id_gentemar_antecedente
                           where usuario.identificacion.Equals(identificacion)
-                          select antecedente.numero_sgdea).ToListAsync();
+                          select antecedente.numero_sgdea).AsNoTracking().ToListAsync();
         }
         public async Task<IEnumerable<string>> GetRadicadosTitulosByDocumento(string identificacion)
         {
@@ -173,29 +143,26 @@ namespace DIMARCore.Repositories.Repository
                               Id = x.GenteMar.id_gentemar_antecedente,
                               IdTipoDocumento = x.tipoDocumento.ID_TIPO_DOCUMENTO,
                               FechaNacimiento = x.GenteMar.fecha_nacimiento
-                          }).FirstOrDefaultAsync();
+                          }).AsNoTracking().FirstOrDefaultAsync();
         }
 
         public async Task CreateWithPersonGenteMar(GENTEMAR_ANTECEDENTES entidad, GENTEMAR_ANTECEDENTES_DATOSBASICOS datosBasicosAntecedentes)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            try
             {
-                try
-                {
-                    _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS.Add(datosBasicosAntecedentes);
-                    await SaveAllAsync();
-                    entidad.id_gentemar_antecedente = datosBasicosAntecedentes.id_gentemar_antecedente;
-                    _context.GENTEMAR_ANTECEDENTES.Add(entidad);
-                    await SaveAllAsync();
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    ObtenerException(ex, entidad);
-                }
+                BeginTransaction();
+                _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS.Add(datosBasicosAntecedentes);
+                await SaveAllAsync();
+                entidad.id_gentemar_antecedente = datosBasicosAntecedentes.id_gentemar_antecedente;
+                _context.GENTEMAR_ANTECEDENTES.Add(entidad);
+                await SaveAllAsync();
+                CommitTransaction();
             }
-
+            catch (Exception ex)
+            {
+                RollbackTransaction();
+                ObtenerException(ex, entidad);
+            }
         }
         public async Task<DetalleEstupefacienteDTO> GetDetallePersonaEstupefaciente(long id)
         {
@@ -237,7 +204,7 @@ namespace DIMARCore.Repositories.Repository
                                    FechaVigencia = x.antecedente.fecha_vigencia,
                                    Tramite = x.tramite.descripcion_tipo_tramite,
                                    Capitania = x.capitania.SIGLA_CAPITANIA + " - " + x.capitania.DESCRIPCION
-                               }).FirstOrDefaultAsync();
+                               }).AsNoTracking().FirstOrDefaultAsync();
 
             return query;
         }
@@ -266,8 +233,9 @@ namespace DIMARCore.Repositories.Repository
             }
         }
 
-        public async Task<IList<EstupefacientesExcelDTO>> GetEstupefacientesEstadoInicial()
+        public async Task<List<EstupefacientesExcelDTO>> GetEstupefacientesEstadoInicial()
         {
+
             var query = (from antecedente in _context.GENTEMAR_ANTECEDENTES
                          join usuario in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS on antecedente.id_gentemar_antecedente equals usuario.id_gentemar_antecedente
                          join documento in _context.APLICACIONES_TIPO_DOCUMENTO on usuario.id_tipo_documento equals documento.ID_TIPO_DOCUMENTO
@@ -296,7 +264,7 @@ namespace DIMARCore.Repositories.Repository
                 FechaRadicado = m.antecedente.fecha_sgdea,
                 FechaNacimiento = m.usuario.fecha_nacimiento,
                 TipoDocumento = m.documento.SIGLA
-            }).ToListAsync();
+            }).AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<EstupefacientesBulkDTO>> GetEstupefacientesSinObservaciones(IList<long> listIds)
@@ -334,7 +302,8 @@ namespace DIMARCore.Repositories.Repository
                                                        Observacion = relacion.descripcion_observacion,
                                                        FechaEntidad = relacion.fecha_respuesta_entidad
                                                    }).ToList()
-            }).Where(f => f.CountObservaciones == _context.GENTEMAR_ENTIDAD_ANTECEDENTE.Where(e => e.activo == true).Count()).ToListAsync();
+            }).Where(f => f.CountObservaciones == _context.GENTEMAR_ENTIDAD_ANTECEDENTE.Where(e => e.activo == Constantes.ACTIVO).Count())
+            .AsNoTracking().ToListAsync();
             return data;
         }
 
@@ -350,9 +319,7 @@ namespace DIMARCore.Repositories.Repository
                     GENTEMAR_CONSOLIDADO newProcedding = new GENTEMAR_CONSOLIDADO();
                     if (isNew)
                     {
-                        newProcedding.fecha_hora_creacion = DateTime.Now;
                         newProcedding.numero_consolidado = consolidadoOrId;
-                        newProcedding.usuario_creador_registro = usuarioCreadorRegistro;
                         _context.GENTEMAR_CONSOLIDADO.Add(newProcedding);
                         await SaveAllAsync();
                     }
@@ -368,8 +335,6 @@ namespace DIMARCore.Repositories.Repository
                             expediente = new GENTEMAR_EXPEDIENTE
                             {
                                 numero_expediente = item.NumeroExpediente,
-                                fecha_hora_creacion = DateTime.Now,
-                                usuario_creador_registro = usuarioCreadorRegistro
                             };
                             _context.GENTEMAR_EXPEDIENTE.Add(expediente);
                             await SaveAllAsync();
@@ -405,6 +370,7 @@ namespace DIMARCore.Repositories.Repository
         public async Task ActualizarAntecedenteWithGenteDeMar(GENTEMAR_ANTECEDENTES dataEstupefaciente,
             GENTEMAR_ANTECEDENTES_DATOSBASICOS estupefacienteDatosBasicosActual, GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null)
         {
+            string loginName = ClaimsHelper.GetLoginName();
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
@@ -415,8 +381,6 @@ namespace DIMARCore.Repositories.Repository
                     if (repositorio != null)
                     {
                         repositorio.IdModulo = dataEstupefaciente.Observacion.id_observacion.ToString();
-                        repositorio.IdUsuarioCreador = dataEstupefaciente.Observacion.usuario_creador_registro;
-                        repositorio.FechaHoraCreacion = dataEstupefaciente.Observacion.fecha_hora_creacion;
                         _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
                     }
                     _context.Entry(dataEstupefaciente).State = EntityState.Modified;
@@ -461,9 +425,9 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task ChangeNarcoticStateIfAllVerifications(long idAntecedente)
         {
-            var countEntidades = await _context.GENTEMAR_ENTIDAD_ANTECEDENTE.Where(y => y.activo == true).CountAsync();
+            var countEntidades = await _context.GENTEMAR_ENTIDAD_ANTECEDENTE.Where(y => y.activo == Constantes.ACTIVO).CountAsync();
             var observacionesVerificacion = await _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES
-                                    .Where(y => y.id_antecedente == idAntecedente && y.verificacion_exitosa == true).CountAsync();
+                                    .Where(y => y.id_antecedente == idAntecedente && y.verificacion_exitosa == Constantes.ACTIVO).CountAsync();
 
             if (observacionesVerificacion == countEntidades)
             {

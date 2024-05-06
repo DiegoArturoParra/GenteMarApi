@@ -1,5 +1,4 @@
-﻿using DIMARCore.Business.Helpers;
-using DIMARCore.Business.Interfaces;
+﻿using DIMARCore.Business.Interfaces;
 using DIMARCore.Repositories.Repository;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.Utilities.Helpers;
@@ -11,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace DIMARCore.Business.Logica
 {
@@ -18,62 +18,45 @@ namespace DIMARCore.Business.Logica
     {
         public async Task<Respuesta> CrearAsync(GENTEMAR_TITULOS entidad, string pathActual)
         {
-            Respuesta respuesta = new Respuesta();
             await ValidacionesDeNegocio(entidad);
-            try
+
+            using (var reglaCargoRepo = new ReglaCargoRepository())
             {
-                using (var reglaCargoRepo = new ReglaCargoRepository())
+                foreach (var cargo in entidad.Cargos)
                 {
-                    foreach (var cargo in entidad.Cargos)
-                    {
-                        cargo.CargoReglaId = await reglaCargoRepo.GetIdReglaCargo(new IdsTablasForaneasDTO(cargo.IdsRelacion.NivelId,
-                            cargo.IdsRelacion.ReglaId, cargo.IdsRelacion.CargoId, cargo.IdsRelacion.CapacidadId));
-                    }
-                }
-
-                using (var repo = new TituloRepository())
-                {
-                    if (entidad.Observacion != null && entidad.Observacion.Archivo != null)
-                    {
-                        string path = $"{Constantes.CARPETA_MODULO_TITULOS}\\{Constantes.CARPETA_OBSERVACIONES}";
-                        respuesta = Reutilizables.GuardarArchivo(entidad.Observacion.Archivo, pathActual, path);
-                        if (respuesta.Estado)
-                        {
-                            var archivo = (Archivo)respuesta.Data;
-                            if (archivo != null)
-                            {
-                                entidad.Observacion.ruta_archivo = archivo.PathArchivo;
-
-                                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                                {
-                                    IdAplicacion = Constantes.ID_APLICACION,
-                                    NombreModulo = Constantes.CARPETA_MODULO_TITULOS,
-                                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                    FechaCargue = DateTime.Now,
-                                    NombreArchivo = entidad.Observacion.Archivo.FileName,
-                                    RutaArchivo = entidad.Observacion.ruta_archivo,
-                                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                    DescripcionDocumento = "observación de titulos.",
-                                };
-                                await repo.CrearTitulo(entidad, repositorio);
-                                return Responses.SetCreatedResponse();
-                            }
-                        }
-                    }
-                    await repo.CrearTitulo(entidad);
-                    return Responses.SetCreatedResponse();
+                    cargo.CargoReglaId = await reglaCargoRepo.GetIdReglaCargo(new IdsTablasForaneasDTO(cargo.IdsRelacion.NivelId,
+                        cargo.IdsRelacion.ReglaId, cargo.IdsRelacion.CargoId, cargo.IdsRelacion.CapacidadId));
                 }
             }
-            catch (Exception ex)
+
+            using (var repo = new TituloRepository())
             {
-                var archivo = (Archivo)respuesta.Data;
-                if (archivo != null)
+                if (entidad.Observacion == null)
                 {
-                    Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
+                    await repo.CrearTitulo(entidad);
+                    return Responses.SetCreatedResponse(new { entidad.id_titulo });
                 }
-                respuesta = Responses.SetInternalServerErrorResponse(ex);
-                _ = new DbLogger().InsertLogToDatabase(respuesta);
-                return respuesta;
+                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+                if (entidad.Observacion != null)
+                {
+                    if (entidad.Observacion.Archivo != null)
+                    {
+                        repositorio = SaveFileOfObservation(pathActual, entidad.Observacion.Archivo);
+                    }
+                }
+                try
+                {
+                    await repo.CrearTitulo(entidad, repositorio);
+                    return Responses.SetCreatedResponse(new { entidad.id_titulo });
+                }
+                catch (Exception ex)
+                {
+                    if (repositorio != null)
+                    {
+                        Reutilizables.EliminarArchivo(pathActual, repositorio.RutaArchivo);
+                    }
+                    throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex));
+                }
             }
         }
 
@@ -81,7 +64,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repo = new TituloRepository())
             {
-                var existe = await repo.AnyWithCondition(x => x.id_titulo == id);
+                var existe = await repo.AnyWithConditionAsync(x => x.id_titulo == id);
                 if (!existe)
                     throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro el id del titulo.");
             }
@@ -89,9 +72,9 @@ namespace DIMARCore.Business.Logica
 
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_TITULOS entidad, string pathActual)
         {
-            Respuesta respuesta = new Respuesta();
             if (entidad.Observacion == null)
                 throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "La observación es requerida.");
+
             await ValidacionesDeNegocio(entidad, true);
             using (var reglaCargoRepo = new ReglaCargoRepository())
             {
@@ -104,79 +87,87 @@ namespace DIMARCore.Business.Logica
             }
             using (var repo = new TituloRepository())
             {
-                GENTEMAR_TITULOS tituloActual = await repo.GetById(entidad.id_titulo);
+
+                GENTEMAR_TITULOS tituloActual = await repo.GetByIdAsync(entidad.id_titulo);
                 if (tituloActual == null)
                     throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No se encontro el id del titulo.");
+
+                tituloActual.id_capitania_firmante = entidad.id_capitania_firmante;
+                tituloActual.id_estado_tramite = entidad.id_estado_tramite;
+                tituloActual.fecha_expedicion = entidad.fecha_expedicion;
+                tituloActual.fecha_vencimiento = entidad.fecha_vencimiento;
+                tituloActual.id_tipo_solicitud = entidad.id_tipo_solicitud;
+                tituloActual.Cargos = entidad.Cargos;
+                tituloActual.Observacion = entidad.Observacion;
+
+                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+
+                if (entidad.Observacion.Archivo != null)
+                {
+                    repositorio = SaveFileOfObservation(pathActual, entidad.Observacion.Archivo);
+                }
+
                 try
                 {
-                    tituloActual.id_capitania_firmante = entidad.id_capitania_firmante;
-                    tituloActual.id_estado_tramite = entidad.id_estado_tramite;
-                    tituloActual.fecha_expedicion = entidad.fecha_expedicion;
-                    tituloActual.fecha_vencimiento = entidad.fecha_vencimiento;
-                    tituloActual.id_tipo_solicitud = entidad.id_tipo_solicitud;
-                    tituloActual.Cargos = entidad.Cargos;
-                    tituloActual.Observacion = entidad.Observacion;
-                    if (entidad.Observacion.Archivo != null)
-                    {
-                        string path = $"{Constantes.CARPETA_MODULO_TITULOS}\\{Constantes.CARPETA_OBSERVACIONES}";
-                        respuesta = Reutilizables.GuardarArchivo(entidad.Observacion.Archivo, pathActual, path);
-                        if (respuesta.Estado)
-                        {
-                            var archivo = (Archivo)respuesta.Data;
-                            if (archivo != null)
-                            {
-                                entidad.Observacion.ruta_archivo = archivo.PathArchivo;
-
-                                GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
-                                {
-                                    IdAplicacion = Constantes.ID_APLICACION,
-                                    NombreModulo = Constantes.CARPETA_MODULO_TITULOS,
-                                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
-                                    FechaCargue = DateTime.Now,
-                                    NombreArchivo = entidad.Observacion.Archivo.FileName,
-                                    RutaArchivo = entidad.Observacion.ruta_archivo,
-                                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
-                                    DescripcionDocumento = Reutilizables.DescribirDocumento(archivo.NombreArchivo),
-                                };
-                                await repo.ActualizarTitulo(tituloActual, repositorio);
-                                respuesta = Responses.SetUpdatedResponse();
-                            }
-                        }
-                    }
-
-                    await repo.ActualizarTitulo(tituloActual);
-                    return Responses.SetUpdatedResponse();
-
+                    await repo.ActualizarTitulo(tituloActual, repositorio);
+                    return Responses.SetUpdatedResponse(new { tituloActual.id_titulo });
                 }
                 catch (Exception ex)
                 {
-                    var archivo = (Archivo)respuesta.Data;
-                    if (archivo != null)
+                    if (repositorio != null)
                     {
-                        Reutilizables.EliminarArchivo(pathActual, archivo.PathArchivo);
+                        Reutilizables.EliminarArchivo(pathActual, repositorio.RutaArchivo);
                     }
-                    respuesta = Responses.SetInternalServerErrorResponse(ex);
-                    _ = new DbLogger().InsertLogToDatabase(respuesta);
-                    return respuesta;
+                    throw new HttpStatusCodeException(Responses.SetInternalServerErrorResponse(ex));
                 }
             }
         }
+        private GENTEMAR_REPOSITORIO_ARCHIVOS SaveFileOfObservation(string rutaInicial, HttpPostedFile fileObservation)
+        {
+            GENTEMAR_REPOSITORIO_ARCHIVOS repositorio = null;
+            string path = $"{Constantes.CARPETA_MODULO_TITULOS}\\{Constantes.CARPETA_OBSERVACIONES}";
+            var respuesta = Reutilizables.GuardarArchivo(fileObservation, rutaInicial, path);
+            if (!respuesta.Estado)
+                throw new HttpStatusCodeException(respuesta);
 
+            var archivo = (Archivo)respuesta.Data;
+            if (archivo != null)
+            {
+                repositorio = new GENTEMAR_REPOSITORIO_ARCHIVOS()
+                {
+                    IdAplicacion = Constantes.ID_APLICACION,
+                    NombreModulo = Constantes.CARPETA_MODULO_TITULOS,
+                    TipoDocumento = Constantes.CARPETA_OBSERVACIONES,
+                    FechaCargue = DateTime.Now,
+                    NombreArchivo = fileObservation.FileName,
+                    RutaArchivo = archivo.PathArchivo,
+                    Nombre = Path.GetFileNameWithoutExtension(archivo.NombreArchivo),
+                    DescripcionDocumento = "Observación de titulos.",
+                };
+            }
+            return repositorio;
+        }
         private async Task ValidacionesDeNegocio(GENTEMAR_TITULOS entidad, bool isEdit = false)
         {
-
+            decimal radicado = Convert.ToDecimal(entidad.radicado);
             if (!isEdit)
             {
-                var existeRadicadoSGDEA = await new SGDEARepository().AnyWithCondition(x => x.radicado.ToString().Equals(entidad.radicado));
+                var existeRadicadoSGDEA = await new SGDEARepository().AnyWithConditionAsync(x => x.radicado.Equals(radicado));
                 if (!existeRadicadoSGDEA)
-                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el radicado: {entidad.radicado} en el SGDEA.");
+                    throw new HttpStatusCodeException(HttpStatusCode.NotFound, $"No existe el radicado: {radicado} en el SGDEA.");
 
-                var SeRepiteRadicado = await new TituloRepository().AnyWithCondition(x => x.radicado.Equals(entidad.radicado));
+                var SeRepiteRadicado = await new TituloRepository().AnyWithConditionAsync(x => x.radicado.Equals(entidad.radicado));
                 if (SeRepiteRadicado)
-                    throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"Ya se uso el radicado: {entidad.radicado}.");
-
+                    throw new HttpStatusCodeException(HttpStatusCode.Conflict, $"Ya está en uso el radicado {radicado}.");
             }
-            var existeTipoRefrendo = await new ServiciosAplicacionesRepository<APLICACIONES_TIPO_REFRENDO>().AnyWithCondition(y => y.ID_TIPO_CERTIFICADO == entidad.id_tipo_refrendo);
+            var existRadicadoImpreso = await new SGDEARepository().AnyWithConditionAsync(x => x.radicado.Equals(radicado) && x.estado == Constantes.PREVISTAGENERADA);
+            if (existRadicadoImpreso)
+            {
+                var message = isEdit ? $"No se puede modificar el título con el radicado: {radicado} ya se encuentra generada la prevista." :
+                    $"No se puede crear el título con el radicado: {radicado} ya se encuentra generada la prevista.";
+                throw new HttpStatusCodeException(HttpStatusCode.Conflict, message);
+            }
+            var existeTipoRefrendo = await new AplicacionTipoRefrendoRepository().AnyWithConditionAsync(y => y.ID_TIPO_CERTIFICADO == entidad.id_tipo_refrendo);
             if (!existeTipoRefrendo)
                 throw new HttpStatusCodeException(HttpStatusCode.NotFound, "No existe el tipo de refrendo.");
 
@@ -229,7 +220,7 @@ namespace DIMARCore.Business.Logica
         {
             using (var repositorio = new TituloReglaCargosRepository())
             {
-                var data = await repositorio.GetById(desactivateCargo.TituloReglaCargoId);
+                var data = await repositorio.GetByIdAsync(desactivateCargo.TituloReglaCargoId);
                 if (data == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"La persona no tiene ese titulo con el cargo relacionado."));
 

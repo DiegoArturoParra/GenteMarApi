@@ -20,23 +20,23 @@ namespace DIMARCore.UIEntities.DTOs
         private string _firstName;
         public string Nombres
         {
-            get => _firstName?.ToUpper();
+            get => _firstName?.ToUpper().Trim();
             set => _firstName = value;
         }
         private string _lastName;
         public string Apellidos
         {
-            get => _lastName?.ToUpper();
+            get => _lastName?.ToUpper().Trim();
             set => _lastName = value;
         }
         public int? IdGenero { get; set; }
         public DateTime? FechaNacimiento { get; set; }
-        public int? IdPaisNacimiento { get; set; }
-        public int? IdPaisResidencia { get; set; }
+        public string IdPaisNacimiento { get; set; }
+        public string IdPaisResidencia { get; set; }
         private string _direccion;
         public string Direccion
         {
-            get => _direccion?.ToUpper();
+            get => _direccion?.ToUpper().Trim();
             set => _direccion = value;
         }
         public int? IdMunicipioResidencia { get; set; }
@@ -44,7 +44,7 @@ namespace DIMARCore.UIEntities.DTOs
         private string _correo;
         public string CorreoElectronico
         {
-            get => _correo = _correo?.ToUpper();
+            get => _correo = _correo?.ToUpper().Trim();
             set => _correo = value;
         }
         public string NumeroMovil { get; set; }

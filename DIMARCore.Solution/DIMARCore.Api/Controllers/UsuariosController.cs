@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.Business.Logica;
@@ -34,7 +34,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<List<UserDirectory>>))]
         [HttpGet]
         [Route("listar-directorio-activo")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public IHttpActionResult GetUsuariosPorDirectorioActivo([FromUri] ActiveDirectoryFilter filtro)
         {
             var listado = new UsuarioBO().GetUsuariosPorDirectorioActivo(filtro);
@@ -53,8 +53,8 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [ResponseType(typeof(ResponseTypeSwagger<List<RolSession>>))]
         [HttpGet]
-        [Route("listar-roles-triton")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.AdministradorVCITE)]
+        [Route("listar-roles-GDM")]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetRoles()
         {
             var listado = await new AplicacionRolesBO().GetRoles();
@@ -73,7 +73,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(ResponseTypeSwagger<List<InfoUsuarioDTO>>))]
         [HttpGet]
         [Route("listar")]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM, RolesEnum.AdministradorVCITE)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> GetUsuarios()
         {
             var listado = await new UsuarioBO().GetUsuarios();
@@ -93,9 +93,9 @@ namespace DIMARCore.Api.Controllers
         [HttpGet]
         [Authorize]
         [Route("menu")]
-        public async Task<IHttpActionResult> GetUsuarioWithMenu()
+        public async Task<IHttpActionResult> GetMenuPorUsuarioLoginName()
         {
-            var listado = await new MenuBO().GetUsuarioWithMenu(GetIdAplicacion(), GetLoginName());
+            var listado = await new MenuBO().GetMenuPorUsuarioLoginName(GetIdAplicacion(), GetLoginName());
             return Ok(listado);
         }
 
@@ -114,12 +114,12 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         [ResponseType(typeof(ResponseCreatedTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPost]
-        [Route("crear-triton")]
-        public async Task<IHttpActionResult> CrearUsuarioTriton([FromBody] UsuarioTritonDTO usuario)
+        [Route("crear-usuario-GDM")]
+        public async Task<IHttpActionResult> CrearUsuarioGDM([FromBody] UsuarioGDMDTO usuario)
         {
-            var response = await new UsuarioBO().CreateUserTriton(usuario);
+            var response = await new UsuarioBO().CreateUserGDM(usuario);
             return Created(string.Empty, response);
         }
 
@@ -138,12 +138,12 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPut]
-        [Route("editar-triton")]
-        public async Task<IHttpActionResult> EditarUsuarioTriton([FromBody] UsuarioTritonDTO usuario)
+        [Route("editar-usuario-GDM")]
+        public async Task<IHttpActionResult> EditarUsuarioGDM([FromBody] UsuarioGDMDTO usuario)
         {
-            var response = await new UsuarioBO().UpdateUserTriton(usuario);
+            var response = await new UsuarioBO().UpdateUserGDM(usuario);
             return Ok(response);
         }
 
@@ -162,7 +162,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
         [ResponseType(typeof(ResponseEditTypeSwagger))]
-        [AuthorizeRoles(RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         [HttpPut]
         [Route("retirar-o-activar/{id}")]
         public async Task<IHttpActionResult> InactivarOActivarUsuario(int id)

@@ -1,4 +1,5 @@
 ﻿using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -52,7 +53,7 @@ namespace DIMARCore.Repositories.Repository
         public async Task<IEnumerable<ReglaDTO>> GetReglasSinFunciones()
         {
             var listado = await ReglasInDetalle();
-            return await _context.GENTEMAR_REGLAS.Where(x => !listado.Contains(x.id_regla) && x.activo == true).Select(x => new ReglaDTO
+            return await _context.GENTEMAR_REGLAS.Where(x => !listado.Contains(x.id_regla) && x.activo == Constantes.ACTIVO).Select(x => new ReglaDTO
             {
                 Descripcion = x.nombre_regla,
                 Id = x.id_regla,

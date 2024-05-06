@@ -1,4 +1,4 @@
-﻿using DIMARCore.Api.Core.Atributos;
+﻿using DIMARCore.Api.Core.Filters;
 using DIMARCore.Business.Logica;
 using DIMARCore.UIEntities.DTOs;
 using DIMARCore.UIEntities.QueryFilters;
@@ -19,12 +19,10 @@ namespace DIMARCore.Api.Controllers
     /// <summary>
     /// API Datos Basicos
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/datosBasicos")]
     public class DatosBasicosController : BaseApiController
     {
-
         private readonly DatosBasicosBO _service;
 
         /// <summary>
@@ -48,7 +46,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Paginador<ListadoDatosBasicosDTO>))]
         [HttpPost]
         [Route("paginar")]
-        [AuthorizeRoles(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> PaginarDatosBasicosAsync([FromBody] DatosBasicosQueryFilter filtro)
         {
             if (filtro == null)
@@ -104,7 +102,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPost]
         [Route("crear")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> Crear()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -162,7 +160,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("actualizar")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM, RolesEnum.Capitania)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM, RolesEnum.Capitania)]
         public async Task<IHttpActionResult> Actualizar()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -211,7 +209,7 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("cambiar-estado")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> ChangeStatus()
         {
             DatosBasicosDTO dataDatosBasicos = new DatosBasicosDTO();
@@ -247,10 +245,10 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server. Error En el servidor. </response>
         [HttpGet]
         [Route("listar/{id}")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
-        public IHttpActionResult GetById(long id)
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetByIdAsync(long id)
         {
-            var DatosBasicos = _service.GetDatosBasicosId(id, PathActual);
+            var DatosBasicos = await _service.GetDatosBasicosIdAsync(id, PathActual);
             return Ok(DatosBasicos);
         }
 
@@ -268,7 +266,7 @@ namespace DIMARCore.Api.Controllers
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         [HttpPost]
         [Route("por-filtro")]
-        [AuthorizeRoles(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM,
+        [AuthorizeRolesFilter(RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.Consultas, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM,
             RolesEnum.AdministradorVCITE, RolesEnum.JuridicaVCITE, RolesEnum.GestorVCITE)]
         public async Task<IHttpActionResult> GetPersonaByIdentificacionOrId(ParametrosGenteMarDTO parametrosGenteMar)
         {
@@ -289,7 +287,6 @@ namespace DIMARCore.Api.Controllers
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-
         [ResponseType(typeof(LicenciasTitulosDTO))]
         [HttpGet]
         [Route("lista-titulo-licencia-documento/{documento}")]
@@ -299,6 +296,5 @@ namespace DIMARCore.Api.Controllers
             var data = await _service.GetlicenciaTituloVigentesPorDocumentoUsuario(documento);
             return Ok(data);
         }
-
     }
 }

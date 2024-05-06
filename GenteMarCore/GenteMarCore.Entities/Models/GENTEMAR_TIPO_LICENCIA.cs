@@ -8,7 +8,8 @@ namespace GenteMarCore.Entities.Models
     {
         [Key]
         public int id_tipo_licencia { get; set; }
+        [StringLength(200)]
         public string tipo_licencia { get; set; }
-        public bool? activo { get; set; }
+        public bool activo { get; set; }
     }
 }

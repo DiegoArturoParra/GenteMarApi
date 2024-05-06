@@ -1,6 +1,9 @@
 ﻿
+using DIMARCore.Api.Core.Filters;
+using DIMARCore.Api.Core.Models;
 using DIMARCore.Business;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Enums;
 using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
@@ -14,7 +17,6 @@ namespace DIMARCore.Api.Controllers
     /// <summary>
     /// Api limitaciones
     /// </summary>
-    [Authorize]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api/limitaciones")]
     public class LimitacionesController : BaseApiController
@@ -42,9 +44,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<LimitacionDTO>))]
         [HttpGet]
         [Route("lista")]
-        public IHttpActionResult GetLimitaciones()
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetLimitacionesAsync()
         {
-            var limitaciones = _service.GetLimitaciones();
+            var limitaciones = await _service.GetLimitacionesAsync();
             var data = Mapear<IList<GENTEMAR_LIMITACION>, IList<LimitacionDTO>>(limitaciones);
             return Ok(data);
         }
@@ -63,9 +66,10 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(List<LimitacionDTO>))]
         [HttpGet]
         [Route("lista-activo")]
-        public IHttpActionResult GetLimitacionesActivo()
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetLimitacionesActivoAsync()
         {
-            var limitaciones = _service.GetLimitacionesActivo();
+            var limitaciones = await _service.GetLimitacionesActivoAsync();
             var data = Mapear<IList<GENTEMAR_LIMITACION>, IList<LimitacionDTO>>(limitaciones);
             return Ok(data);
         }
@@ -77,17 +81,18 @@ namespace DIMARCore.Api.Controllers
         /// <Autor>Camilo Vargas</Autor>
         /// <Fecha>2022/02/26</Fecha>
         /// <returns></returns>
-        /// <response code="200">OK. Devuelve la información de la actividad .</response>
+        /// <response code="200">OK. Devuelve la información de la limitación .</response>
         /// <response code="204">No Content. No hay estado.</response>
         /// <response code="400">Bad request. Objeto invalido.</response>  
         /// <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
         /// <response code="500">Internal Server. Error En el servidor. </response>
-        [ResponseType(typeof(GENTEMAR_ACTIVIDAD))]
+        [ResponseType(typeof(GENTEMAR_LIMITACION))]
         [HttpGet]
         [Route("id")]
-        public IHttpActionResult GetLimitacion(int id)
+        [AuthorizeRolesFilter(RolesEnum.Consultas, RolesEnum.GestorSedeCentral, RolesEnum.Capitania, RolesEnum.ASEPAC, RolesEnum.AdministradorGDM)]
+        public async Task<IHttpActionResult> GetLimitacionAsync(int id)
         {
-            var limitacion = _service.GetLimitacion(id);
+            var limitacion = await _service.GetLimitacionAsync(id);
             return Ok(limitacion);
         }
 
@@ -106,15 +111,16 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseCreatedTypeSwagger))]
         [HttpPost]
         [Route("crear")]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CrearLimitacion(LimitacionDTO datos)
         {
 
             var data = Mapear<LimitacionDTO, GENTEMAR_LIMITACION>(datos);
-            var limitacion = await _service.CrearLimitacion(data);
-            return ResultadoStatus(limitacion);
+            var response = await _service.CrearLimitacion(data);
+            return Created(string.Empty, response);
         }
 
 
@@ -132,15 +138,15 @@ namespace DIMARCore.Api.Controllers
         /// <response code="409">Conflict. conflicto de solicitud con el estado.</response>
         /// <response code="500">Internal Server Error. ha ocurrido un error.</response>
         /// <returns></returns>
-        [ResponseType(typeof(Respuesta))]
+        [ResponseType(typeof(ResponseEditTypeSwagger))]
         [HttpPut]
         [Route("editar")]
-        [AllowAnonymous]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> EditarLimitacion(LimitacionDTO datos)
         {
             var data = Mapear<LimitacionDTO, GENTEMAR_LIMITACION>(datos);
-            var limitacion = await _service.EditarLimitaciónAsync(data);
-            return ResultadoStatus(limitacion);
+            var response = await _service.EditarLimitacionAsync(data);
+            return Ok(response);
         }
 
         /// <summary>
@@ -159,14 +165,11 @@ namespace DIMARCore.Api.Controllers
         [ResponseType(typeof(Respuesta))]
         [HttpPut]
         [Route("inhabilitar/{id}")]
-        [AllowAnonymous]
+        [AuthorizeRolesFilter(RolesEnum.AdministradorGDM)]
         public async Task<IHttpActionResult> CambiarRangoAsync(int id)
         {
-            var respuesta = await _service.cambiarLimitacion(id);
+            var respuesta = await _service.CambiarLimitacion(id);
             return ResultadoStatus(respuesta);
         }
-
-
-
     }
 }

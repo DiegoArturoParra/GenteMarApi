@@ -9,7 +9,7 @@ namespace DIMARCore.UIEntities.DTOs
         private string _grado;
         public string grado
         {
-            get => _grado?.ToUpper();
+            get => _grado?.Trim().ToUpper();
             set => _grado = value;
         }
         public int? id_rango { get; set; }
@@ -17,14 +17,14 @@ namespace DIMARCore.UIEntities.DTOs
         private string _nombreRango;
         public string nombreRango
         {
-            get => _nombreRango != null ? _nombreRango?.ToUpper() : _nombreRango;
+            get => _nombreRango != null ? _nombreRango?.Trim().ToUpper() : _nombreRango;
             set => _nombreRango = value;
         }
         [JsonIgnore]
         private string _sigla;
         public string sigla
         {
-            get => _sigla?.ToUpper();
+            get => _sigla?.Trim().ToUpper();
             set => _sigla = value;
         }
         public int? id_formacion_grado { get; set; }

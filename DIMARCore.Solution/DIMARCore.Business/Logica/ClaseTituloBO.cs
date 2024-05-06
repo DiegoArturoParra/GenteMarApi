@@ -5,6 +5,8 @@ using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DIMARCore.Utilities.Middleware;
+using System.Linq;
+using System.Data;
 
 namespace DIMARCore.Business.Logica
 {
@@ -25,7 +27,7 @@ namespace DIMARCore.Business.Logica
         public async Task<Respuesta> GetByIdAsync(int Id)
         {
 
-            var entidad = await new ClaseTitulosRepository().GetById(Id);
+            var entidad = await new ClaseTitulosRepository().GetByIdAsync(Id);
             return entidad == null
                 ? throw new HttpStatusCodeException(Responses.SetNotFoundResponse($"No encuentra registrada la clase del titulo."))
                 : Responses.SetOkResponse(entidad);
@@ -57,11 +59,11 @@ namespace DIMARCore.Business.Logica
             bool existe;
             if (Id == 0)
             {
-                existe = await new ClaseTitulosRepository().AnyWithCondition(x => x.descripcion_clase.Equals(nombre));
+                existe = await new ClaseTitulosRepository().AnyWithConditionAsync(x => x.descripcion_clase.Equals(nombre));
             }
             else
             {
-                existe = await new ClaseTitulosRepository().AnyWithCondition(x => x.descripcion_clase.Equals(nombre) && x.id_clase != Id);
+                existe = await new ClaseTitulosRepository().AnyWithConditionAsync(x => x.descripcion_clase.Equals(nombre) && x.id_clase != Id);
             }
 
             if (existe)
@@ -86,6 +88,17 @@ namespace DIMARCore.Business.Logica
             return Responses.SetOkResponse(entidad, mensaje);
         }
 
+        public async Task<IEnumerable<GENTEMAR_CLASE_TITULOS>> GetAllAsync(bool? activo = true)
+        {
+            using (var repo = new ClaseTitulosRepository())
+            {
+                if (activo == null)
+                {
+                    return await repo.GetAllAsync();
+                }
+                return await repo.GetAllWithConditionAsync(x => x.activo == activo);
+            }
+        }
     }
 }
 

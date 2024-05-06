@@ -14,9 +14,10 @@ namespace GenteMarCore.Entities.Models
 
         [Key]
         public int id_tipo_tramite { get; set; }
-        public bool activo { get; set; } = true;
+
         [StringLength(250)]
         public string descripcion_tipo_tramite { get; set; }
+        public bool activo { get; set; } = true;
 
         public virtual ICollection<GENTEMAR_ANTECEDENTES> GENTEMAR_ANTECEDENTES { get; set; }
     }

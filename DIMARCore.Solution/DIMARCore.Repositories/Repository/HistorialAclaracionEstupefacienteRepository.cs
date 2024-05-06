@@ -22,8 +22,6 @@ namespace DIMARCore.Repositories.Repository
                     if (repositorio != null)
                     {
                         repositorio.IdModulo = dataAclaracion.id_aclaracion.ToString();
-                        repositorio.IdUsuarioCreador = ClaimsHelper.GetLoginName();
-                        repositorio.FechaHoraCreacion = DateTime.Now;
                         _context.GENTEMAR_REPOSITORIO_ARCHIVOS.Add(repositorio);
 
                     }
@@ -47,13 +45,14 @@ namespace DIMARCore.Repositories.Repository
                                    join observacionExpediente in _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES
                                    on aclaracion.id_expediente_observacion equals observacionExpediente.id_expediente_observacion
                                    join entidad in _context.GENTEMAR_ENTIDAD_ANTECEDENTE on observacionExpediente.id_entidad equals entidad.id_entidad
+                                   join login in _context.APLICACIONES_LOGINS on aclaracion.LoginCreacionId equals login.ID_LOGIN
                                    where observacionExpediente.id_antecedente == idAntecedente
                                    select new HistorialAclaracionDTO
                                    {
                                        DetalleAclaracion = aclaracion.detalle_aclaracion,
                                        Entidad = entidad.entidad,
-                                       FechaHoraCreacion = aclaracion.fecha_hora_creacion,
-                                       UsuarioCreador = aclaracion.usuario_creador_registro,
+                                       FechaHoraCreacion = aclaracion.FechaCreacion,
+                                       UsuarioCreador = login.LOGIN_NAME,
                                        ObservacionAnteriorJson = aclaracion.detalle_observacion_anterior_json,
                                        ArchivoBase = new ArchivoBaseDTO()
                                        {

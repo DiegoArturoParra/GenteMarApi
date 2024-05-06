@@ -9,6 +9,30 @@ namespace DIMARCore.Business.Logica
 {
     public class EntidadBO : IGenericCRUD<GENTEMAR_ENTIDAD_ANTECEDENTE, int>
     {
+        public IEnumerable<GENTEMAR_ENTIDAD_ANTECEDENTE> GetAll(bool? activo = true)
+        {
+            using (var repo = new EntidadEstupefacienteRepository())
+            {
+                if (activo == null)
+                {
+                    return repo.GetAll();
+                }
+                else
+                {
+                    return repo.GetAllWithCondition(x => x.activo == activo);
+                }
+            }
+        }
+
+        public async Task<Respuesta> GetByIdAsync(int Id)
+        {
+            var entidad = await new EntidadEstupefacienteRepository().GetByIdAsync(Id);
+
+            if (entidad == null)
+                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No encuentra registrada la entidad"));
+
+            return Responses.SetOkResponse(entidad);
+        }
         public async Task<Respuesta> ActualizarAsync(GENTEMAR_ENTIDAD_ANTECEDENTE objeto)
         {
 
@@ -59,39 +83,29 @@ namespace DIMARCore.Business.Logica
 
             if (Id == 0)
             {
-                existe = await new EntidadEstupefacienteRepository().AnyWithCondition(x => x.entidad.Equals(nombre));
+                existe = await new EntidadEstupefacienteRepository().AnyWithConditionAsync(x => x.entidad.Equals(nombre));
             }
             else
             {
-                existe = await new EntidadEstupefacienteRepository().AnyWithCondition(x => x.entidad.Equals(nombre) && x.id_entidad != Id);
+                existe = await new EntidadEstupefacienteRepository().AnyWithConditionAsync(x => x.entidad.Equals(nombre) && x.id_entidad != Id);
             }
             if (existe)
                 throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la entidad {nombre}"));
         }
 
-        public IEnumerable<GENTEMAR_ENTIDAD_ANTECEDENTE> GetAll(bool? activo = true)
+        public async Task<IEnumerable<GENTEMAR_ENTIDAD_ANTECEDENTE>> GetAllAsync(bool? activo = true)
         {
             using (var repo = new EntidadEstupefacienteRepository())
             {
                 if (activo == null)
                 {
-                    return repo.GetAll();
+                    return await repo.GetAllAsync();
                 }
                 else
                 {
-                    return repo.GetAllWithCondition(x => x.activo == activo);
+                    return await repo.GetAllWithConditionAsync(x => x.activo == activo);
                 }
             }
-        }
-
-        public async Task<Respuesta> GetByIdAsync(int Id)
-        {
-            var entidad = await new EntidadEstupefacienteRepository().GetById(Id);
-
-            if (entidad == null)
-                throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No encuentra registrada la entidad"));
-
-            return Responses.SetOkResponse(entidad);
         }
     }
 }

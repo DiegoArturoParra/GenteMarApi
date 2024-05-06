@@ -16,10 +16,10 @@ namespace DIMARCore.Business
         /// <returns>Lista de Limitaciones</returns>
         /// <entidad>GENTEMAR_LIMITACION</entidad>
         /// <tabla>GENTEMAR_LIMITACION</tabla>
-        public IList<GENTEMAR_LIMITACION> GetLimitaciones()
+        public async Task<IList<GENTEMAR_LIMITACION>> GetLimitacionesAsync()
         {
             // Obtiene la lista
-            return new LimitacionRepository().GetLimitaciones();
+            return await new LimitacionRepository().GetLimitaciones();
         }
 
         /// <summary>
@@ -28,10 +28,11 @@ namespace DIMARCore.Business
         /// <returns>Lista de Limitaciones</returns>
         /// <entidad>GENTEMAR_LIMITACION</entidad>
         /// <tabla>GENTEMAR_LIMITACION</tabla>
-        public IList<GENTEMAR_LIMITACION> GetLimitacionesActivo()
+        public async Task<IList<GENTEMAR_LIMITACION>> GetLimitacionesActivoAsync()
         {
             // Obtiene la lista
-            return new LimitacionRepository().GetAllWithCondition(x => x.activo == true).ToList();
+            var data = await new LimitacionRepository().GetAllWithConditionAsync(x => x.activo == Constantes.ACTIVO);
+            return data.ToList();
         }
 
 
@@ -43,9 +44,9 @@ namespace DIMARCore.Business
         /// <returns>Objeto Limitacion dado su id</returns>
         /// <entidad>GENTEMAR_LIMITACION</entidad>
         /// <tabla>GENTEMAR_LIMITACION</tabla>
-        public GENTEMAR_LIMITACION GetLimitacion(int id)
+        public async Task<GENTEMAR_LIMITACION> GetLimitacionAsync(int id)
         {
-            return new LimitacionRepository().GetLimitacion(id);
+            return await new LimitacionRepository().GetByIdAsync(id);
         }
 
 
@@ -58,10 +59,10 @@ namespace DIMARCore.Business
         {
             using (var repo = new LimitacionRepository())
             {
-                var validate = await repo.AnyWithCondition(x => x.limitaciones.Equals(datos.limitaciones));
+                var validate = await repo.AnyWithConditionAsync(x => x.limitaciones.Equals(datos.limitaciones));
                 if (validate)
                     throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la limitación {datos.limitaciones}"));
-                datos.activo = true;
+                datos.activo = Constantes.ACTIVO;
                 await repo.Create(datos);
                 return Responses.SetCreatedResponse(datos);
             }
@@ -74,20 +75,24 @@ namespace DIMARCore.Business
         /// <param name="datos">Datos de una Limitación</param>
         /// <param name="usuario">Usuario </param> //Todo: Se deja para implementar Autenticación
         /// <returns>Respuesta resultado</returns>
-        public async Task<Respuesta> EditarLimitaciónAsync(GENTEMAR_LIMITACION datos)
+        public async Task<Respuesta> EditarLimitacionAsync(GENTEMAR_LIMITACION datos)
         {
             using (var repo = new LimitacionRepository())
             {
                 // busca la Limitación en el sistema
 
-                var validate = await repo.GetWithCondition(x => x.id_limitacion == datos.id_limitacion);
+                var entidad = await repo.GetWithConditionAsync(x => x.id_limitacion == datos.id_limitacion);
 
-                if (validate == null)
+                if (entidad == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la limitación."));
-                datos.id_limitacion = validate.id_limitacion;
-                datos.activo = validate.activo;
-                await new LimitacionRepository().Update(datos);
-                return Responses.SetUpdatedResponse(validate);
+
+                var validate = await repo.AnyWithConditionAsync(x => x.limitaciones.Equals(datos.limitaciones));
+                if (validate)
+                    throw new HttpStatusCodeException(Responses.SetConflictResponse($"Ya se encuentra registrada la limitación {datos.limitaciones}"));
+
+                entidad.limitaciones = datos.limitaciones;
+                await new LimitacionRepository().Update(entidad);
+                return Responses.SetUpdatedResponse(entidad);
             }
         }
 
@@ -96,11 +101,11 @@ namespace DIMARCore.Business
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Respuesta> cambiarLimitacion(int id)
+        public async Task<Respuesta> CambiarLimitacion(int id)
         {
             using (var repo = new LimitacionRepository())
             {
-                var validate = await repo.GetWithCondition(x => x.id_limitacion == id);
+                var validate = await repo.GetWithConditionAsync(x => x.id_limitacion == id);
                 if (validate == null)
                     throw new HttpStatusCodeException(Responses.SetNotFoundResponse("No se encuentra registrada la limitación."));
                 validate.activo = !validate.activo;

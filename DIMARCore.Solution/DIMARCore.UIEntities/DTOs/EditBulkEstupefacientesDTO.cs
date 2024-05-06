@@ -11,10 +11,8 @@ namespace DIMARCore.UIEntities.DTOs
         public IList<long> EstupefacientesId { get; set; }
         [Required(ErrorMessage = "Estado id requerida.")]
         public int EstadoAntecedenteId { get; set; }
-        [Required(ErrorMessage = "Fecha de aprobación requerida.")]
-        public DateTime FechaAprobacion { get; set; }
-        [Required(ErrorMessage = "Fecha de vigencia requerida.")]
-        public DateTime FechaVigencia { get; set; }
+        [Required(ErrorMessage = "Consolidado id requerido.")]
+        public int ConsolidadoId { get; set; }
         public IList<ObservacionesEntidadDTO> ObservacionesPorEntidad { get; set; }
     }
 
@@ -27,7 +25,6 @@ namespace DIMARCore.UIEntities.DTOs
         [Required(ErrorMessage = "Consolidado id requerido.")]
         public int ConsolidadoId { get; set; }
         [Required(ErrorMessage = "Observación de la entidad requerida.")]
-
         public ObservacionesEntidadDTO ObservacionEntidad { get; set; }
     }
 

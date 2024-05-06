@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DIMARCore.Api.Core;
-using DIMARCore.Api.Core.Atributos;
+using DIMARCore.Api.Core.Filters;
 using DIMARCore.Utilities.Config;
 using DIMARCore.Utilities.Helpers;
 using DIMARCore.Utilities.Middleware;

@@ -13,7 +13,8 @@ namespace DIMARCore.Repositories.Repository
 {
     public class ReportesVciteRepository : GenericRepository<GENTEMAR_ANTECEDENTES>
     {
-        public async Task<IEnumerable<ReportPieChartVciteDTO>> GetDataByPieChartEstadosEstupefaciente(ReportPieChartVciteFilter reportPieChartFilter)
+        public async Task<IEnumerable<DataPieChartVciteDTO>> GetDataByPieChartEstadosEstupefaciente(ReportPieChartVciteFilter reportPieChartFilter,
+            CancellationTokenSource tokenSource)
         {
 
             var fechaActual = DateTime.Now;
@@ -21,93 +22,70 @@ namespace DIMARCore.Repositories.Repository
 
             return await (from antecedente in _context.GENTEMAR_ANTECEDENTES
                           join estado in _context.GENTEMAR_ESTADO_ANTECEDENTES on antecedente.id_estado_antecedente equals estado.id_estado_antecedente
-                          where estado.activo == true
+                          where estado.activo == Constantes.ACTIVO
                           && antecedente.fecha_vigencia >= fechaActual
                           && antecedente.fecha_solicitud_sede_central >= DateInitial
                           && antecedente.fecha_solicitud_sede_central <= DateEnd
                           group estado by estado.id_estado_antecedente into grupo
-                          select new ReportPieChartVciteDTO
+                          select new DataPieChartVciteDTO
                           {
-                              CantidadDeDatosPorEstado = grupo.Count(),
+                              data = grupo.Count(),
                               Estado = grupo.Max(e => e.descripcion_estado_antecedente),
                               IsVigente = "VIGENTE"
                           })
                          .Union
                          (from antecedente in _context.GENTEMAR_ANTECEDENTES
                           join estado in _context.GENTEMAR_ESTADO_ANTECEDENTES on antecedente.id_estado_antecedente equals estado.id_estado_antecedente
-                          where estado.activo == true
+                          where estado.activo == Constantes.ACTIVO
                           && antecedente.fecha_vigencia <= fechaActual
                           && antecedente.fecha_solicitud_sede_central >= DateInitial
                           && antecedente.fecha_solicitud_sede_central <= DateEnd
                           group estado by estado.id_estado_antecedente into grupo
-                          select new ReportPieChartVciteDTO
+                          select new DataPieChartVciteDTO
                           {
-                              CantidadDeDatosPorEstado = grupo.Count(),
+                              data = grupo.Count(),
                               Estado = grupo.Max(e => e.descripcion_estado_antecedente),
                               IsVigente = "NO VIGENTE"
                           })
                          .Union
                          (from antecedente in _context.GENTEMAR_ANTECEDENTES
                           join estado in _context.GENTEMAR_ESTADO_ANTECEDENTES on antecedente.id_estado_antecedente equals estado.id_estado_antecedente
-                          where estado.activo == true &&
+                          where estado.activo == Constantes.ACTIVO &&
                           antecedente.fecha_vigencia == null
                           && antecedente.fecha_solicitud_sede_central >= DateInitial
                           && antecedente.fecha_solicitud_sede_central <= DateEnd
                           group estado by estado.id_estado_antecedente into grupo
-                          select new ReportPieChartVciteDTO
+                          select new DataPieChartVciteDTO
                           {
-                              CantidadDeDatosPorEstado = grupo.Count(),
+                              data = grupo.Count(),
                               Estado = grupo.Max(e => e.descripcion_estado_antecedente),
                               IsVigente = "NO CONTIENE FECHA DE VIGENCIA."
-                          }).ToListAsync();
+                          }).ToListAsync(tokenSource.Token);
         }
 
         public async Task<IEnumerable<VciteReportDTO>> GetDataByReportEstupefacientes(EstupefacientesReportFilter reportFilter, CancellationTokenSource tokenSource)
         {
             var fechaActual = DateTime.Now;
-            var query = (from antecedente in _context.GENTEMAR_ANTECEDENTES
-                         join usuario in _context.GENTEMAR_ANTECEDENTES_DATOSBASICOS on antecedente.id_gentemar_antecedente equals usuario.id_gentemar_antecedente
-                         join tipoDocumento in _context.APLICACIONES_TIPO_DOCUMENTO on usuario.id_tipo_documento equals tipoDocumento.ID_TIPO_DOCUMENTO
-                         join estado in _context.GENTEMAR_ESTADO_ANTECEDENTES on antecedente.id_estado_antecedente equals estado.id_estado_antecedente
-                         join tramite in _context.GENTEMAR_TRAMITE_ANTECEDENTE on antecedente.id_tipo_tramite equals tramite.id_tipo_tramite
-                         join expedienteAntecedente in _context.GENTEMAR_EXPEDIENTE_OBSERVACION_ANTECEDENTES on antecedente.id_antecedente
-                         equals expedienteAntecedente.id_antecedente into eAGroup
-                         from expedienteAntecedentes in eAGroup.DefaultIfEmpty()
-                         join consolidado in _context.GENTEMAR_CONSOLIDADO on expedienteAntecedentes.id_consolidado
-                         equals consolidado.id_consolidado into cGroup
-                         from consolidadoDefault in cGroup.DefaultIfEmpty()
-                         group new { antecedente, usuario, tipoDocumento, tramite, estado, expedienteAntecedentes, consolidadoDefault }
-                         by antecedente.id_antecedente into grupo
-                         select new
-                         {
-                             grupo.Key,
-                             grupo.FirstOrDefault().usuario,
-                             grupo.FirstOrDefault().tipoDocumento,
-                             grupo.FirstOrDefault().antecedente,
-                             grupo.FirstOrDefault().tramite,
-                             grupo.FirstOrDefault().estado,
-                             grupo.FirstOrDefault().expedienteAntecedentes,
-                             grupo.FirstOrDefault().consolidadoDefault
-                         });
+            var query = _context.VIEW_REPORTE_ANTECEDENTES.AsNoTracking().AsQueryable();
 
             if (reportFilter.EstadosId.Any())
             {
-                query = query.Where(y => reportFilter.EstadosId.Contains(y.estado.id_estado_antecedente));
+                query = query.Where(y => reportFilter.EstadosId.Contains(y.EstadoId));
             }
             if (reportFilter.ConsolidadosId.Any())
             {
-                query = query.Where(y => reportFilter.ConsolidadosId.Contains(y.consolidadoDefault.id_consolidado));
+                query = query.Where(y => reportFilter.ConsolidadosId.Contains(y.ConsolidadoId));
             }
             if (reportFilter.IsVigente.HasValue)
             {
 
                 if (reportFilter.IsVigente.Value)
                 {
-                    query = query.Where(y => y.antecedente.fecha_vigencia >= fechaActual);
+                    query = query.Where(y => y.FechaVigencia >= fechaActual);
                 }
                 else
                 {
-                    query = query.Where(y => y.antecedente.fecha_vigencia <= fechaActual);
+                    query = query.Where(y => y.FechaVigencia <= fechaActual);
                 }
             }
 
@@ -116,33 +94,33 @@ namespace DIMARCore.Repositories.Repository
                 var (DateInitial, DateEnd) = Reutilizables.FormatDatesByRange(reportFilter.FechaCreacionInicial.Value, reportFilter.FechaCreacionFinal.Value);
                 reportFilter.FechaCreacionInicial = DateInitial;
                 reportFilter.FechaCreacionFinal = DateEnd;
-                query = query.Where(x => x.antecedente.fecha_hora_creacion >= reportFilter.FechaCreacionInicial
-                && x.antecedente.fecha_hora_creacion <= reportFilter.FechaCreacionFinal);
+                query = query.Where(x => x.FechaCreacion >= reportFilter.FechaCreacionInicial
+                && x.FechaCreacion <= reportFilter.FechaCreacionFinal);
             }
             else
             {
                 // Establecer el mes y el día a 01
                 DateTime fechaDeseada = new DateTime(fechaActual.Year, 1, 1);
                 var (DateInitial, DateEnd) = Reutilizables.FormatDatesByRange(fechaDeseada, fechaActual);
-                query = query.Where(x => x.antecedente.fecha_hora_creacion >= DateInitial
-                                                             && x.antecedente.fecha_hora_creacion <= DateEnd);
+                query = query.Where(x => x.FechaCreacion >= DateInitial
+                                                             && x.FechaCreacion <= DateEnd);
             }
             return await query.Select(x => new VciteReportDTO
             {
-                Apellidos = x.usuario.apellidos,
-                Nombres = x.usuario.nombres,
-                TipoDocumento = x.tipoDocumento.DESCRIPCION,
-                Documento = x.usuario.identificacion,
-                FechaCreacion = x.antecedente.fecha_hora_creacion,
-                FechaVigencia = x.antecedente.fecha_vigencia,
-                Estado = x.estado.descripcion_estado_antecedente,
-                EsVigente = x.antecedente.fecha_vigencia.HasValue ? x.antecedente.fecha_vigencia.Value >= fechaActual ? "Si" : "No" : "No contiene fecha aún.",
-                FechaNacimiento = x.usuario.fecha_nacimiento,
-                FechaAprobacion = x.antecedente.fecha_aprobacion,
-                FechaRadicadoSGDEA = x.antecedente.fecha_sgdea.Value,
-                FechaSolicitud = x.antecedente.fecha_solicitud_sede_central,
-                TipoTramite = x.tramite.descripcion_tipo_tramite,
-                NumeroRadicadoSGDEA = x.antecedente.numero_sgdea
+                Nombres = x.Nombres,
+                Apellidos = x.Apellidos,
+                TipoDocumento = x.TipoDocumento,
+                Documento = x.Identificacion,
+                FechaCreacion = x.FechaCreacion,
+                FechaVigencia = x.FechaVigencia,
+                Estado = x.Estado,
+                EsVigente = x.EsVigente,
+                FechaNacimiento = x.FechaNacimiento,
+                FechaAprobacion = x.FechaAprobacion,
+                FechaRadicadoSGDEA = x.FechaRadicadoSgdea,
+                FechaSolicitud = x.FechaSolicitud,
+                TipoTramite = x.TipoTramite,
+                NumeroRadicadoSGDEA = x.NumeroRadicadoSgdea
             }).AsNoTracking().ToListAsync(tokenSource.Token);
         }
 
@@ -157,15 +135,14 @@ namespace DIMARCore.Repositories.Repository
                           {
                               Estado = estado.descripcion_estado_antecedente,
                               NumeroRadicadoSGDEA = antecedente.numero_sgdea,
-                              FechaRadicadoSGDEA = antecedente.fecha_sgdea.Value,
+                              FechaRadicadoSGDEA = antecedente.fecha_sgdea,
                               TipoTramite = tramite.descripcion_tipo_tramite,
                               FechaSolicitud = antecedente.fecha_solicitud_sede_central,
                               FechaAprobacion = antecedente.fecha_aprobacion,
                               FechaVigencia = antecedente.fecha_vigencia,
                               EsVigente = antecedente.fecha_vigencia.HasValue ? antecedente.fecha_vigencia.Value >= fechaActual ? "Si" : "No" : "No contiene fecha aún.",
-                              FechaCreacion = antecedente.fecha_hora_creacion
-                          }).ToListAsync();
-
+                              FechaCreacion = antecedente.FechaCreacion
+                          }).AsNoTracking().ToListAsync();
         }
     }
 }

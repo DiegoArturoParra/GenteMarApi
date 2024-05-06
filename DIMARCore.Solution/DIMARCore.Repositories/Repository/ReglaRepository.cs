@@ -11,22 +11,21 @@ namespace DIMARCore.Repositories.Repository
     {
         public async Task<bool> ExisteRegla(int reglaId)
         {
-            return await AnyWithCondition(x => x.id_regla == reglaId);
+            return await AnyWithConditionAsync(x => x.id_regla == reglaId);
         }
 
-        public async Task<IEnumerable<ReglaDTO>> GetReglasActivasByCargoTitulo(int cargoId)
+        public async Task<IEnumerable<ReglaDTO>> GetReglasByCargoTitulo(int cargoId, bool isShowAll)
         {
-
             var query = await (from reglaCargo in _context.GENTEMAR_REGLAS_CARGO
-                               join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla
-                               equals regla.id_regla
-                               where reglaCargo.id_cargo_titulo == cargoId && regla.activo == true
-                               group regla by new { regla.id_regla, regla.nombre_regla } into objeto
+                               join regla in _context.GENTEMAR_REGLAS on reglaCargo.id_regla equals regla.id_regla
+                               where reglaCargo.id_cargo_titulo == cargoId && (isShowAll ? true : regla.activo)
+                               group regla by new { regla.id_regla, regla.nombre_regla, regla.activo } into grupo
                                select new ReglaDTO
                                {
-                                   Id = objeto.Key.id_regla,
-                                   Descripcion = objeto.Key.nombre_regla
-                               }).ToListAsync();
+                                   Id = grupo.Key.id_regla,
+                                   Descripcion = grupo.Key.nombre_regla,
+                                   IsActive = grupo.Key.activo,
+                               }).AsNoTracking().ToListAsync();
             return query;
         }
 

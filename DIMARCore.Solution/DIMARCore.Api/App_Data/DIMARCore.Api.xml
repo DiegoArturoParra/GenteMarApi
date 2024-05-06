@@ -673,6 +673,22 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.ObservacionEntidadEstupefacienteController.EditarMasivoDeEstupefacientesIds(DIMARCore.UIEntities.DTOs.EditBulkEstupefacientesDTO)">
+            <summary>
+            Servicio para editar masivamente estados de estupefacientes
+            </summary>
+            <param name="estupefacientes"></param>
+            <remarks>
+            <Autor>Diego Parra</Autor>
+            <Fecha>28/04/2023</Fecha>
+            </remarks>
+            <response code="200">OK. se ha actualizado los recursos (estupefacientes).</response>   
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="500">Internal Server Error. ha ocurrido un error.</response>
+            <returns></returns>
+        </member>
         <member name="T:DIMARCore.Api.Controllers.Estupefacientes.ExpedienteController">
             <summary>
             Servicios para los expedientes de estupefacientes
@@ -793,31 +809,6 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="T:DIMARCore.Api.Controllers.Estupefacientes.HistoricoEstupefacienteController">
-            <summary>
-            servicios para historico de estupefacientes (de aclaraciones y de una persona)
-            <Autor>Diego Parra</Autor>
-            <Fecha>23/03/2023</Fecha>
-            </summary>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.HistoricoEstupefacienteController.#ctor">
-            <summary>
-            ctor
-            </summary>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.HistoricoEstupefacienteController.GetHistoricoEstupefacientesPorPersona(DIMARCore.UIEntities.DTOs.CedulaDTO)">
-            <summary>
-            Historico de estupefacientes de una persona seleccionada
-            </summary>
-            <remarks>
-            <Autor>Diego Parra</Autor>
-            <Fecha>29/03/2023</Fecha>
-            </remarks>
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="200">OK. Devuelve el objeto solicitado.</response>        
-            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="500">Internal Server Error. ha ocurrido un error.</response>
-        </member>
         <member name="T:DIMARCore.Api.Controllers.Estupefacientes.TipoTramiteController">
             <summary>
             servicios para los tipos de tramite de estupefacientes
@@ -830,7 +821,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.TipoTramiteController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.TipoTramiteController.ListadoAsync(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
             servicio get tramites por filtro de estado
             </summary>
@@ -1004,7 +995,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.EstadoEstupefacienteController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.EstadoEstupefacienteController.ListadoAsync(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
             servicio get estados antecedente por filtro de estado
             </summary>
@@ -1175,22 +1166,6 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Estupefacientes.EstupefacienteController.EditarBulk(DIMARCore.UIEntities.DTOs.EditBulkEstupefacientesDTO)">
-            <summary>
-            Servicio para editar masivamente estados de estupefacientes
-            </summary>
-            <param name="estupefacientes"></param>
-            <remarks>
-            <Autor>Diego Parra</Autor>
-            <Fecha>28/04/2023</Fecha>
-            </remarks>
-            <response code="200">OK. se ha actualizado los recursos (estupefacientes).</response>   
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
-            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
-            <response code="500">Internal Server Error. ha ocurrido un error.</response>
-            <returns></returns>
-        </member>
         <member name="M:DIMARCore.Api.Controllers.Estupefacientes.EstupefacienteController.GetRadicadosTitulos(DIMARCore.UIEntities.DTOs.CedulaDTO)">
             <summary>
              Listado de radicados de los titulos de navegación
@@ -1249,7 +1224,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.DatosBasicos.RangoController.GetRango(System.Boolean)">
+        <member name="M:DIMARCore.Api.Controllers.DatosBasicos.RangoController.GetRangoAsync(System.Boolean)">
             <summary>
             Metodo para listar los rangos  
             </summary>    
@@ -1279,7 +1254,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.DatosBasicos.RangoController.actualizarRangoAsync(DIMARCore.UIEntities.DTOs.RangoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.DatosBasicos.RangoController.ActualizarRangoAsync(DIMARCore.UIEntities.DTOs.RangoDTO)">
             <summary>
             Servicio para editar un rango 
             </summary>
@@ -1315,6 +1290,11 @@
             servicios de Secciones, para titulos y licencias
             </summary>
         </member>
+        <member name="M:DIMARCore.Api.Controllers.ImpresionDocumentosController.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
         <member name="M:DIMARCore.Api.Controllers.ImpresionDocumentosController.GetPrevistaLicencias(System.Int32)">
             <summary>
              Generacion de la prevista del documento 
@@ -1341,7 +1321,7 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.ImpresionDocumentosController.SavePrevistas(DIMARCore.UIEntities.DTOs.ImpresionDocumentoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.ImpresionDocumentosController.SavePrevista(DIMARCore.UIEntities.DTOs.ImpresionDocumentoDTO)">
             <summary>
              Gurdado de la prevista del documento 
             </summary>
@@ -1608,7 +1588,7 @@
              <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
              <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.DatosBasicosController.GetById(System.Int64)">
+        <member name="M:DIMARCore.Api.Controllers.DatosBasicosController.GetByIdAsync(System.Int64)">
             <summary>
             Servicio para busqueda de gente de mar por Id
             </summary>
@@ -1656,7 +1636,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.DimController.GetDimId(DIMARCore.UIEntities.DTOs.DatosBasicosDTO)">
+        <member name="M:DIMARCore.Api.Controllers.DimController.GetDimIdAsync(DIMARCore.UIEntities.DTOs.DatosBasicosDTO)">
             <summary>
             Metodo para traer los dim impresos por una persona 
             </summary>
@@ -1734,7 +1714,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.FormacionController.actualizarFormacion(DIMARCore.UIEntities.DTOs.FormacionDTO)">
+        <member name="M:DIMARCore.Api.Controllers.FormacionController.ActualizarFormacion(DIMARCore.UIEntities.DTOs.FormacionDTO)">
             <summary>
             Servicio para editar una formación 
             </summary>
@@ -1793,7 +1773,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.GenteMarEstadoController.GetEstadoActivo">
+        <member name="M:DIMARCore.Api.Controllers.GenteMarEstadoController.GetEstadoActivoAsync">
             <summary>
             Metodo para listar estados activos
             </summary>    
@@ -1806,7 +1786,7 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.GenteMarEstadoController.GetEstados">
+        <member name="M:DIMARCore.Api.Controllers.GenteMarEstadoController.GetEstadosAsync">
             <summary>
             Metodo para listar estados 
             </summary>    
@@ -1838,7 +1818,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.GenteMarEstadoController.actualizarEstado(DIMARCore.UIEntities.DTOs.EstadoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.GenteMarEstadoController.ActualizarEstado(DIMARCore.UIEntities.DTOs.EstadoDTO)">
             <summary>
             Servicio para editar un estado
             </summary>
@@ -1916,7 +1896,7 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.GradoController.GetGradosActivosConFormacion">
+        <member name="M:DIMARCore.Api.Controllers.GradoController.GetGradosActivosConFormacionAsync">
             <summary>
             Metodo para listar grados activos
             </summary>    
@@ -1986,7 +1966,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargoLicenciaList(DIMARCore.UIEntities.DTOs.CargoInfoLicenciaDTO)">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargoLicenciaListAsync(DIMARCore.UIEntities.QueryFilters.CargoLicenciaFilter)">
             <summary>
              Se obtiene el listado de los cargos.
             </summary>
@@ -2014,13 +1994,14 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargosLicenciaActivos(DIMARCore.UIEntities.QueryFilters.CargoLicenciaFilter)">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargosLicenciaActivosPorFiltroParaReporte(DIMARCore.UIEntities.QueryFilters.Reports.CargoLicenciaReportFilter)">
             <summary>
-             Se obtiene el listado de los cargos activos.
+             Se obtiene el listado de los cargos para el reporte por un filtro especifico.
             </summary>
+            <param name="cargoLicenciaFilter"></param>
             <remarks>
-            <Autor>Camilo Varagas</Autor>
-            <Fecha>13/06/2022</Fecha>
+            <Autor>Diego Para </Autor>
+            <Fecha>13/06/2023</Fecha>
             </remarks>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
@@ -2060,7 +2041,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargoLicenciaIdDetalle(System.Int64)">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargoLicenciaIdDetalleAsync(System.Int64)">
             <summary>
              Se obtiene el cargo por id detalle 
             </summary>
@@ -2074,7 +2055,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargoLicenciaId(System.Int64)">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.CargoLicenciaController.CargoLicenciaIdAsync(System.Int64)">
             <summary>
              Se obtiene el cargo por id.
             </summary>
@@ -2295,6 +2276,21 @@
             <response code="500">Internal Server. Error En el servidor. </response>
             <returns></returns>
         </member>
+        <member name="M:DIMARCore.Api.Controllers.Licencias.LicenciaController.ChangeStatus">
+            <summary>
+            Servicio para crear una licencia
+            </summary>        
+            <remarks>
+            <Autor>Camilo Vargas</Autor>
+            <Fecha>09/08/2022</Fecha>
+            </remarks>
+            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
+            <response code="200">OK. Devuelve el objeto solicitado.</response>   
+            <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
+            <response code="409">Conflict. conflicto de solicitud con el estado.</response>
+            <response code="500">Internal Server. Error En el servidor. </response>
+            <returns></returns>
+        </member>
         <member name="T:DIMARCore.Api.Controllers.Licencias.LimitanteController">
             <summary>
             api de las limitantes 
@@ -2305,7 +2301,7 @@
             constructor 
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.LimitanteController.GetLimitantes">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.LimitanteController.GetLimitantesAsync">
             <summary>
             Listado de Limitantes con información basica
             </summary>
@@ -2318,7 +2314,7 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.LimitanteController.GetLimitantesActivo">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.LimitanteController.GetLimitantesActivoAsync">
             <summary>
             Listado de Limitantes activos con información basica
             </summary>
@@ -2352,7 +2348,7 @@
             <Autor>Camilo Vargas</Autor>
             <Fecha>28/04/2022</Fecha>
             </remarks>
-            <param name="datos">objeto para crear un estado.</param>
+            <param name="datos">objeto para crear una limitación.</param>
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="200">OK. Devuelve el objeto solicitado.</response>   
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
@@ -2376,9 +2372,9 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Licencias.LimitanteController.CambiarRangoAsync(System.Int32)">
+        <member name="M:DIMARCore.Api.Controllers.Licencias.LimitanteController.CambiarLimitanteAsync(System.Int32)">
             <summary>
-            cambia el estado de un rango 
+            cambia el estado de una limitante 
             </summary>
             <param name="id"></param>
             <returns></returns>
@@ -2401,7 +2397,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.LimitacionesController.GetLimitaciones">
+        <member name="M:DIMARCore.Api.Controllers.LimitacionesController.GetLimitacionesAsync">
             <summary>
             Listado de Limitaciones con información basica
             </summary>
@@ -2414,7 +2410,7 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.LimitacionesController.GetLimitacionesActivo">
+        <member name="M:DIMARCore.Api.Controllers.LimitacionesController.GetLimitacionesActivoAsync">
             <summary>
             Listado de Limitaciones con información basica
             </summary>
@@ -2427,14 +2423,14 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.LimitacionesController.GetLimitacion(System.Int32)">
+        <member name="M:DIMARCore.Api.Controllers.LimitacionesController.GetLimitacionAsync(System.Int32)">
             <summary>
             Retorna una Limitación dado un Id
             </summary>
             <Autor>Camilo Vargas</Autor>
             <Fecha>2022/02/26</Fecha>
             <returns></returns>
-            <response code="200">OK. Devuelve la información de la actividad .</response>
+            <response code="200">OK. Devuelve la información de la limitación .</response>
             <response code="204">No Content. No hay estado.</response>
             <response code="400">Bad request. Objeto invalido.</response>  
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
@@ -2797,7 +2793,7 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.Reportes.ReportesVCITEController.GetPieChartEstupefacientesPorEstado(DIMARCore.UIEntities.QueryFilters.Reports.ReportPieChartVciteFilter)">
+        <member name="M:DIMARCore.Api.Controllers.Reportes.ReportesVCITEController.GetPieChartEstupefacientesPorEstado(DIMARCore.UIEntities.QueryFilters.Reports.ReportPieChartVciteFilter,System.Threading.CancellationToken)">
             <summary>
               Grafico Pie Chart de estupefacientes por estado
             </summary>
@@ -2819,7 +2815,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.GetTiposSolicitud">
+        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.GetTiposSolicitudAsync">
             <summary>
             servicio para los tipos de solicitud
             </summary>
@@ -2831,7 +2827,7 @@
             <response code="500">Internal Server. Error En el servidor. </response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.ListarRefrendos">
+        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.ListarRefrendosAsync">
             <summary>
             Servicio para listar los tipos de refrendo.
             </summary>
@@ -2846,21 +2842,9 @@
             <response code="500">Internal Server. Error En el servidor. </response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.GetCapitaniasFirma">
+        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.GetCapitaniasFirmaAsync">
             <summary>
             servicio para las capitanias 
-            </summary>
-            <Autor>Diego Parra</Autor>
-            <Fecha>05/03/2022</Fecha>
-            <response code="200">OK. Devuelve el objeto solicitado.</response>        
-            <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
-            <response code="404">NotFound. No se ha encontrado data.</response>
-            <response code="500">Internal Server. Error En el servidor. </response>
-            <returns></returns>
-        </member>
-        <member name="M:DIMARCore.Api.Controllers.ServiciosAplicacionesController.GetCapitaniasFirmante">
-            <summary>
-            servicio para las capitanias firmante
             </summary>
             <Autor>Diego Parra</Autor>
             <Fecha>05/03/2022</Fecha>
@@ -3299,7 +3283,7 @@
             <response code="404">NotFound. No se ha encontrado el objeto solicitado.</response>
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.ClasesController.GetClasesLicencias">
+        <member name="M:DIMARCore.Api.Controllers.ClasesController.GetClasesLicenciasAsync">
             <summary>
              Se obtiene el listado de las clases de las licencias de navegación.
             </summary>
@@ -3420,7 +3404,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.EstadoTituloController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.EstadoTituloController.ListadoAsync(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
             Servicio que lista los estados de tramite para un titulo.
             </summary>
@@ -3581,7 +3565,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CapacidadController.CapacidadesActivasByReglaCargo(DIMARCore.UIEntities.DTOs.IdsLlaveCompuestaDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CapacidadController.CapacidadesByReglaCargo(DIMARCore.UIEntities.DTOs.IdsLlaveCompuestaDTO)">
             <summary>
              Se obtiene el listado de capacidades por Id regla.
             </summary>
@@ -3685,11 +3669,12 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.GetCargoTitulosBySeccionId(System.Int32)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.CargoTituloController.GetCargoTitulosBySeccionId(System.Int32,System.Boolean)">
             <summary>
              Se obtiene el listado de cargos por sección.
             </summary>
             <param name="SeccionId"> parametro que contiene el id de la sección</param>
+            <param name="isShowAll"> parametro que contiene el id de la sección</param>
             <response code="200">OK. Devuelve la lista de cargos por sección solicitado.</response>   
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="404">NotFound. No ha encontrado información de cargos por la sección.</response>
@@ -3915,7 +3900,7 @@
             Constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.FuncionesActivasByRegla(System.Int32)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.FuncionesActivasByRegla(System.Int32,System.Boolean)">
             <summary>
             Servicio que lista las funciones por regla.
             </summary>
@@ -3926,11 +3911,12 @@
             <response code="401">Unauthorized. No se ha indicado o es incorrecto el Token JWT de acceso.</response>              
             <response code="500">Internal Server. Error En el servidor. </response>
             <param name="ReglaId">objeto que filtra las funciones por regla</param>
+            <param name="isShowAll"></param>
             <returns></returns>
             <Autor>Diego Parra</Autor>
             <Fecha>05/05/2022</Fecha>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.FuncionController.ListadoAsync(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
             Servicio que lista las funciones.
             </summary>
@@ -4036,7 +4022,7 @@
             <param name="items">(IdsReglaCargoDTO) objeto que tiene los ids de regla y cargo (llave compuesta)</param>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.HabilitacionController.ListadoAsync(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
             Servicio para el listado de habilitaciones.
             </summary>
@@ -4142,7 +4128,7 @@
             <param name="ids">objeto que contiene las foraneas para busquedes de nivel por cargo-regla-id</param>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.NivelController.Listado(DIMARCore.UIEntities.DTOs.ActivoDTO)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.NivelController.ListadoAsync(DIMARCore.UIEntities.DTOs.ActivoDTO)">
             <summary>
             Servicio que lista los niveles de un titulo.
             </summary>
@@ -4230,11 +4216,12 @@
             constructor
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.ReglasActivasByCargoTitulo(System.Int32)">
+        <member name="M:DIMARCore.Api.Controllers.TitulosDeNavegacion.ReglaController.ReglasByCargoTitulo(System.Int32,System.Boolean)">
             <summary>
             Retorna la lista de reglas por cargo del titulo
             </summary>
             <param name="CargoId">Parametro para filtrar por cargo.</param>
+            <param name="isShowAll">Parametro para filtrar todo o solo reglas activas.</param>
             <Autor>Diego Parra</Autor>
             <Fecha>2022/02/26</Fecha>
             <returns></returns>
@@ -4511,7 +4498,7 @@
             <response code="200">OK. Devuelve la información del listado de menu.</response>           
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.UsuariosController.GetUsuarioWithMenu">
+        <member name="M:DIMARCore.Api.Controllers.UsuariosController.GetMenuPorUsuarioLoginName">
             <summary>
             Servicio que retorna el menu correspondiente al usuario logueado.
             </summary>
@@ -4522,7 +4509,7 @@
             <response code="200">OK. Devuelve la información del listado de menu.</response>           
             <response code="500">Internal Server. Error En el servidor. </response>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.UsuariosController.CrearUsuarioTriton(DIMARCore.UIEntities.DTOs.UsuarioTritonDTO)">
+        <member name="M:DIMARCore.Api.Controllers.UsuariosController.CrearUsuarioGDM(DIMARCore.UIEntities.DTOs.UsuarioGDMDTO)">
             <summary>
             Servicio para crear un usuario en el sistema de gente de mar.
             </summary>        
@@ -4538,7 +4525,7 @@
             <response code="500">Internal Server Error. ha ocurrido un error.</response>
             <returns></returns>
         </member>
-        <member name="M:DIMARCore.Api.Controllers.UsuariosController.EditarUsuarioTriton(DIMARCore.UIEntities.DTOs.UsuarioTritonDTO)">
+        <member name="M:DIMARCore.Api.Controllers.UsuariosController.EditarUsuarioGDM(DIMARCore.UIEntities.DTOs.UsuarioGDMDTO)">
             <summary>
             Servicio para crear un usuario en la aplicación gente de mar.
             </summary>        
@@ -4733,34 +4720,53 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:DIMARCore.Api.Core.Atributos.AuthorizeRolesAttribute">
+        <member name="T:DIMARCore.Api.Core.Filters.AuthorizeRolesFilterAttribute">
             <summary>
             Clase para autorizar varios roles en los controladores
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Core.Atributos.AuthorizeRolesAttribute.#ctor(DIMARCore.Utilities.Enums.RolesEnum[])">
+        <member name="M:DIMARCore.Api.Core.Filters.AuthorizeRolesFilterAttribute.#ctor(DIMARCore.Utilities.Enums.RolesEnum[])">
             <summary>
-            se concatena los roles por comas
+            se concatena los ids de los roles 
             </summary>
             <param name="rolesEnum"></param>
         </member>
-        <member name="T:DIMARCore.Api.Core.Atributos.LogRequestFilter">
+        <member name="M:DIMARCore.Api.Core.Filters.AuthorizeRolesFilterAttribute.OnActionExecutingAsync(System.Web.Http.Controllers.HttpActionContext,System.Threading.CancellationToken)">
+            <summary>
+            Metodo que se ejecuta antes de la accion del controlador para validar los roles
+            </summary>
+            <param name="actionContext"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:DIMARCore.Api.Core.Filters.LogRequestFilterAttribute">
             <summary>
             log de peticiones
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Core.Atributos.LogRequestFilter.OnActionExecuting(System.Web.Http.Controllers.HttpActionContext)">
+        <member name="M:DIMARCore.Api.Core.Filters.LogRequestFilterAttribute.OnActionExecuting(System.Web.Http.Controllers.HttpActionContext)">
             <summary>
             log de peticiones
             </summary>
             <param name="actionContext"></param>
         </member>
-        <member name="T:DIMARCore.Api.Core.Atributos.ValidationExceptionFilterAttribute">
+        <member name="T:DIMARCore.Api.Core.Filters.CustomExceptionFilterAttribute">
+            <summary>
+            Excepcion generica filtro que guarda el log (warning y error)
+            </summary>
+        </member>
+        <member name="M:DIMARCore.Api.Core.Filters.CustomExceptionFilterAttribute.OnException(System.Web.Http.Filters.HttpActionExecutedContext)">
+            <summary>
+            Metodo onException que retorna y guarda el log.
+            </summary>
+            <param name="actionExecutedContext"></param>
+        </member>
+        <member name="T:DIMARCore.Api.Core.Filters.ValidationExceptionFilterAttribute">
             <summary>
             filtro para mostrar invalido el modelo
             </summary>
         </member>
-        <member name="M:DIMARCore.Api.Core.Atributos.ValidationExceptionFilterAttribute.OnActionExecuting(System.Web.Http.Controllers.HttpActionContext)">
+        <member name="M:DIMARCore.Api.Core.Filters.ValidationExceptionFilterAttribute.OnActionExecuting(System.Web.Http.Controllers.HttpActionContext)">
             <summary>
             metodo que muestra los errores
             </summary>
@@ -4917,17 +4923,6 @@
             <param name="request">Solicitud</param>
             <param name="idAplicacion">Id de la aplciación en formato cadena</param>
             <returns>Retorna si se encontro el id de la aplicación</returns>
-        </member>
-        <member name="T:DIMARCore.Api.Core.CustomExceptionFilter">
-            <summary>
-            Excepcion generica filtro que guarda el log (warning y error)
-            </summary>
-        </member>
-        <member name="M:DIMARCore.Api.Core.CustomExceptionFilter.OnException(System.Web.Http.Filters.HttpActionExecutedContext)">
-            <summary>
-            Metodo onException que retorna y guarda el log.
-            </summary>
-            <param name="actionExecutedContext"></param>
         </member>
         <member name="T:DIMARCore.Api.Core.AutoMapperProfiles">
             <summary>

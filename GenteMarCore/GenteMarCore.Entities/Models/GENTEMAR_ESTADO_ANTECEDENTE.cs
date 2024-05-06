@@ -10,7 +10,7 @@ namespace GenteMarCore.Entities.Models
         public int id_estado_antecedente { get; set; }
         public bool activo { get; set; } = true;
 
-        [StringLength(250)]
+        [StringLength(100)]
         public string descripcion_estado_antecedente { get; set; }
     }
 }

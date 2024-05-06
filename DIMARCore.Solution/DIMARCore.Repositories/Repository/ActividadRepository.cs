@@ -1,5 +1,6 @@
 ﻿using DIMARCore.UIEntities;
 using DIMARCore.UIEntities.DTOs;
+using DIMARCore.Utilities.Helpers;
 using GenteMarCore.Entities.Models;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -37,10 +38,10 @@ namespace DIMARCore.Repositories.Repository
 
         public async Task<IEnumerable<ActividadLicenciaDTO>> GetActividadesActivasPorTiposDeLicencia(List<int> idsTipoLicencia)
         {
-            return await _context.GENTEMAR_ACTIVIDAD.Where(x => idsTipoLicencia.Contains(x.id_tipo_licencia) && x.activo == true).Select(x => new ActividadLicenciaDTO
+            return await _context.GENTEMAR_ACTIVIDAD.Where(x => idsTipoLicencia.Contains(x.id_tipo_licencia) && x.activo == Constantes.ACTIVO).Select(x => new ActividadLicenciaDTO
             {
                 Id = x.id_actividad,
-                IsActive = x.activo.Value,
+                IsActive = x.activo,
                 Descripcion = x.actividad,
             }).ToListAsync();
         }
