@@ -22,16 +22,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: 🚀 Setup .NET
+      
       - uses: actions/checkout@v2
 
-      - name: Setup MSBuild path
+      - name: 🚀 Setup .NET
         uses: microsoft/setup-msbuild@v1.0.2
 
-      - name: Setup NuGet
+      - name: 🚀 Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
       
-      - name: Setup VSTest
+      - name: 🚀 Setup VSTest
         uses: darenm/Setup-VSTest@v1
 
       - name: 🔨 Restore NuGet packages Api
@@ -43,7 +43,7 @@ jobs:
       - name: 💣 Build
         run: msbuild "${{ env.WORKING_DIRECTORY_Api }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
-      - name: Build Solution
+      - name: 💣 Build Solution tests
         run: |
           msbuild.exe "${{ env.WORKING_DIRECTORY_Api }}"\GenteMarCore.sln /p:platform="Any CPU" /p:configuration="Release"
           
