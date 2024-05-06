@@ -45,10 +45,10 @@ jobs:
 
       - name: 💣 Build Solution tests
         run: |
-          msbuild.exe "${{ env.WORKING_DIRECTORY_Test }}"\GenteMarCore.sln /p:platform="Any CPU" /p:configuration="Release"
+          msbuild.exe ${{ env.WORKING_DIRECTORY_GenteMarCore }}\GenteMarCore.sln /p:platform="Any CPU" /p:configuration="Release"
           
       - name: 🔍 Test
-        run: vstest.console.exe  "${{ env.WORKING_DIRECTORY_Test }}"\bin\Release\GenteMarCore.Tests.dll
+        run: vstest.console.exe  ${{ env.WORKING_DIRECTORY_Test }}\bin\Release\GenteMarCore.Tests.dll
         
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2

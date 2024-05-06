@@ -55,23 +55,26 @@ namespace DIMARCore.Utilities.CorreoSMTP
                 {
                     mailMessage.To.Add(item);
                 }
-                if (!datosNotificacion.CC.Contains(","))
+
+                if (!string.IsNullOrWhiteSpace(datosNotificacion.CC))
                 {
-                    if (!string.IsNullOrEmpty(datosNotificacion.CC))
+                    if (datosNotificacion.CC.Contains(","))
+                    {
+                        foreach (string item in datosNotificacion.CC.Split(','))
+                        {
+                            if (!string.IsNullOrEmpty(item))
+                            {
+                                mailMessage.CC.Add(item);
+                            }
+                        }
+                    }
+                    else
                     {
                         mailMessage.CC.Add(datosNotificacion.CC);
                     }
                 }
-                else
-                {
-                    foreach (string item in datosNotificacion.CC.Split(','))
-                    {
-                        if (!string.IsNullOrEmpty(item))
-                        {
-                            mailMessage.CC.Add(item);
-                        }
-                    }
-                }
+
+
                 mailMessage.Subject = datosNotificacion.Asunto;
                 strBody = strBody.Replace("@TITLE", datosNotificacion.Titulo);
                 strBody = strBody.Replace("@BODY", datosNotificacion.CuerpoDelMensaje);
