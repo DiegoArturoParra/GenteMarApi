@@ -22,9 +22,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
       - name: 🚀 Setup .NET
-      
+      - uses: actions/checkout@v2
+
       - name: Setup MSBuild path
         uses: microsoft/setup-msbuild@v1.0.2
 
