@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{330C7E03-F1B4-49E7-965A-B6D9785AA084}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DIMARCore.UIEntities</RootNamespace>
+    <AssemblyName>DIMARCore.UIEntities</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DIMARCore.Api.Desarrollo|AnyCPU'">
+    <OutputPath>bin\DIMARCore.Api.Desarrollo\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DIMARCore.Api.Pruebas|AnyCPU'">
+    <OutputPath>bin\DIMARCore.Api.Pruebas\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DIMARCore.Api.Produccion|AnyCPU'">
+    <OutputPath>bin\DIMARCore.Api.Produccion\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CsvHelper, Version=32.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\CsvHelper.32.0.1\lib\net48\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DTOs\AclaracionEditDTO.cs" />
+    <Compile Include="DTOs\ActividadLicenciaDTO.cs" />
+    <Compile Include="DTOs\AplicacionSessionDTO.cs" />
+    <Compile Include="DTOs\ArchivoBaseDTO.cs" />
+    <Compile Include="DTOs\AuditoriaDTO.cs" />
+    <Compile Include="DTOs\CambioEstadoLicenciaDTO.cs" />
+    <Compile Include="DTOs\CambioEstadoLicenciaTituloDTO.cs" />
+    <Compile Include="DTOs\CapitaniaSessionDTO.cs" />
+    <Compile Include="DTOs\CargoLicenciaDTO.cs" />
+    <Compile Include="DTOs\CargoTituloDTO.cs" />
+    <Compile Include="DTOs\CrearExpedienteEntidadDTO.cs" />
+    <Compile Include="DTOs\CrearObservacionEntidadVciteDTO.cs" />
+    <Compile Include="DTOs\CreatedUpdateCargoTituloDTO.cs" />
+    <Compile Include="DTOs\DetalleExpedienteObservacionVciteDTO.cs" />
+    <Compile Include="DTOs\EdicionMasivaPartialEstupefacientesDTO.cs" />
+    <Compile Include="DTOs\IdsLlaveCompuestaDTO.cs" />
+    <Compile Include="DTOs\InfoCargosDTO.cs" />
+    <Compile Include="DTOs\InfoFuncionDTO.cs" />
+    <Compile Include="DTOs\ListarCargosDeTitulosPorPersonaDTO.cs" />
+    <Compile Include="DTOs\ListarCargoTituloDTO.cs" />
+    <Compile Include="DTOs\ListarEstupefacientesEdicionMasivaDTO.cs" />
+    <Compile Include="DTOs\EstupefacientesExcelDTO.cs" />
+    <Compile Include="DTOs\ExpedienteEntidadObservacionDTO.cs" />
+    <Compile Include="DTOs\HistorialAclaracionDTO.cs" />
+    <Compile Include="DTOs\ObservacionEntidadAnteriorVciteDTO.cs" />
+    <Compile Include="DTOs\ObservacionEntidadVciteDTO.cs" />
+    <Compile Include="DTOs\ActividadTipoLicenciaDTO.cs" />
+    <Compile Include="DTOs\ActivoDTO.cs" />
+    <Compile Include="DTOs\CapacidadDTO.cs" />
+    <Compile Include="DTOs\CapitaniaDTO.cs" />
+    <Compile Include="DTOs\CargoLicenciaDetalleDTO.cs" />
+    <Compile Include="DTOs\CargoInfoLicenciaDTO.cs" />
+    <Compile Include="DTOs\CargoReglaDTO.cs" />
+    <Compile Include="DTOs\CargoTituloDetalleDTO.cs" />
+    <Compile Include="DTOs\CategoriaDTO.cs" />
+    <Compile Include="DTOs\ClaseDTO.cs" />
+    <Compile Include="DTOs\ConsolidadoDTO.cs" />
+    <Compile Include="DTOs\CrearConsolidadoExcelDTO.cs" />
+    <Compile Include="DTOs\DatosBasicosUsuarioDTO.cs" />
+    <Compile Include="DTOs\DesactivateCargoDTO.cs" />
+    <Compile Include="DTOs\EdicionMasivaEstupefacientesDTO.cs" />
+    <Compile Include="DTOs\EditInfoEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\EstadoLicenciaDTO.cs" />
+    <Compile Include="DTOs\EstadoTituloDTO.cs" />
+    <Compile Include="DTOs\CrearEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\ExpedienteDTO.cs" />
+    <Compile Include="DTOs\ExpedienteEntidadDTO.cs" />
+    <Compile Include="DTOs\HistorialDocumentoDTO.cs" />
+    <Compile Include="DTOs\DetalleEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\ImpresionDocumentoDTO.cs" />
+    <Compile Include="DTOs\InfoUsuarioDTO.cs" />
+    <Compile Include="DTOs\LicenciaDTO.cs" />
+    <Compile Include="DTOs\EntidadDTO.cs" />
+    <Compile Include="DTOs\EstadoEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\LicenciaListarDTO.cs" />
+    <Compile Include="DTOs\LicenciasTitulosDTO.cs" />
+    <Compile Include="DTOs\LimitanteDTO.cs" />
+    <Compile Include="DTOs\ListarEstupefacientesDTO.cs" />
+    <Compile Include="DTOs\MenuDTO.cs" />
+    <Compile Include="DTOs\MultaDTO.cs" />
+    <Compile Include="DTOs\NavesDTO.cs" />
+    <Compile Include="DTOs\NavesImpDocDTO.cs" />
+    <Compile Include="DTOs\ObservacionesEntidadDTO.cs" />
+    <Compile Include="DTOs\ObservacionesEntidadVciteEdicionMasivaDTO.cs" />
+    <Compile Include="DTOs\PlantillaLicenciaDTO.cs" />
+    <Compile Include="DTOs\PlantillaTituloDTO.cs" />
+    <Compile Include="DTOs\RadicadoInfoDTO.cs" />
+    <Compile Include="DTOs\RegistrosActualizadosDTO.cs" />
+    <Compile Include="DTOs\ReglaFuncionDTO.cs" />
+    <Compile Include="DTOs\CrearDatosBasicosDTO.cs" />
+    <Compile Include="DTOs\DetalleCargoReglaDTO.cs" />
+    <Compile Include="DTOs\DimRegistroEmbarqueDTO.cs" />
+    <Compile Include="DTOs\EstadoDTO.cs" />
+    <Compile Include="DTOs\FechasRadioOperadoresDTO.cs" />
+    <Compile Include="DTOs\FormacionDTO.cs" />
+    <Compile Include="DTOs\FormacionGradoDTO.cs" />
+    <Compile Include="DTOs\FuncionDTO.cs" />
+    <Compile Include="DTOs\GradoInfoDTO.cs" />
+    <Compile Include="DTOs\HabilitacionDTO.cs" />
+    <Compile Include="DTOs\IdsTablasForaneasDTO.cs" />
+    <Compile Include="DTOs\InfoReglaFuncionDTO.cs" />
+    <Compile Include="DTOs\InfoTituloDTO.cs" />
+    <Compile Include="DTOs\LimitacionDTO.cs" />
+    <Compile Include="DTOs\ListarDatosBasicosDTO.cs" />
+    <Compile Include="DTOs\MunicipioDTO.cs" />
+    <Compile Include="DTOs\NivelDTO.cs" />
+    <Compile Include="DTOs\ObservacionDTO.cs" />
+    <Compile Include="DTOs\PaisDTO.cs" />
+    <Compile Include="DTOs\ParametrosGenteMarDTO.cs" />
+    <Compile Include="DTOs\RadicadoDTO.cs" />
+    <Compile Include="DTOs\RangoDTO.cs" />
+    <Compile Include="DTOs\ReglaDTO.cs" />
+    <Compile Include="DTOs\RelacionCargosReglaDTO.cs" />
+    <Compile Include="DTOs\Reports\DatosBasicosReportDTO.cs" />
+    <Compile Include="DTOs\Reports\FileTocsvDTO.cs" />
+    <Compile Include="DTOs\Reports\LicenciasReportDTO.cs" />
+    <Compile Include="DTOs\Reports\DataPieChartVciteDTO.cs" />
+    <Compile Include="DTOs\Reports\TitulosReportDTO.cs" />
+    <Compile Include="DTOs\Reports\VciteHistoricoPersonaDTO.cs" />
+    <Compile Include="DTOs\Reports\VciteReportDTO.cs" />
+    <Compile Include="DTOs\RolSessionDTO.cs" />
+    <Compile Include="DTOs\SeccionDTO.cs" />
+    <Compile Include="DTOs\CamposTablasMaestrasDTO.cs" />
+    <Compile Include="DTOs\TipoDocumentoDTO.cs" />
+    <Compile Include="DTOs\TipoLicenciaDTO.cs" />
+    <Compile Include="DTOs\TipoRefrendoDTO.cs" />
+    <Compile Include="DTOs\TipoSolicitudDTO.cs" />
+    <Compile Include="DTOs\TituloDTO.cs" />
+    <Compile Include="DTOs\TramiteEstupefacienteDTO.cs" />
+    <Compile Include="DTOs\UserTokenDTO.cs" />
+    <Compile Include="DTOs\UsuariogdmDTO.cs" />
+    <Compile Include="DTOs\UsuarioGenteMarDTO.cs" />
+    <Compile Include="DTOs\ListarTituloDTO.cs" />
+    <Compile Include="DTOs\UserSesionDTO.cs" />
+    <Compile Include="DTOs\ValidacionVciteGenteMarDTO.cs" />
+    <Compile Include="DTOs\VersionDTO.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryFilters\CargoLicenciaFilter.cs" />
+    <Compile Include="QueryFilters\CargoTituloFilter.cs" />
+    <Compile Include="QueryFilters\DatosBasicosQueryFilter.cs" />
+    <Compile Include="QueryFilters\DetalleReglaFilter.cs" />
+    <Compile Include="QueryFilters\EstupefacientesFilter.cs" />
+    <Compile Include="QueryFilters\ExpedienteFilter.cs" />
+    <Compile Include="QueryFilters\DocumentFilter.cs" />
+    <Compile Include="QueryFilters\IdentificatorFilter.cs" />
+    <Compile Include="QueryFilters\RadicadoSGDEAFilter.cs" />
+    <Compile Include="QueryFilters\Reports\CargoLicenciaReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\DatosBasicosReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\EstupefacientesReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\LicenciasReportFilter.cs" />
+    <Compile Include="QueryFilters\Reports\ReportPieChartVciteFilter.cs" />
+    <Compile Include="QueryFilters\Reports\TitulosReportFilter.cs" />
+    <Compile Include="Requests\BodyRequest.cs" />
+    <Compile Include="Requests\LoginRequest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\GenteMarCore\GenteMarCore.Entities\GenteMarCore.Entities.csproj">
+      <Project>{e99819b7-d951-4c59-8928-220b258dbc9a}</Project>
+      <Name>GenteMarCore.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DIMARCore.Utilities\DIMARCore.Utilities.csproj">
+      <Project>{b589e3f9-8b8e-4ae7-aea5-7e42d93174ae}</Project>
+      <Name>DIMARCore.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
