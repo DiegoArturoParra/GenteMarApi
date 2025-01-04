@@ -13,10 +13,10 @@ on:
   workflow_dispatch:
 env:
   CONFIGURATION: Release
-  WORKING_DIRECTORY: DIMARCore.Solution
-  WORKING_DIRECTORY_GenteMarCore: GenteMarCore
-  WORKING_DIRECTORY_Test: GenteMarCore\GenteMarCore.Tests
-  WORKING_DIRECTORY_Api: DIMARCore.Solution\DIMARCore.Api
+  WORKING_DIRECTORY: src\DIMARCore.Solution
+  WORKING_DIRECTORY_GenteMarCore: src\GenteMarCore
+  WORKING_DIRECTORY_Test: src\GenteMarCore\GenteMarCore.Tests
+  WORKING_DIRECTORY_Api: src\DIMARCore.Solution\DIMARCore.Api
 jobs:
   build:
     runs-on: windows-latest
