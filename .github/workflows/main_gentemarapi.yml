@@ -13,9 +13,8 @@ on:
   workflow_dispatch:
 env:
   CONFIGURATION: Release
-  WORKING_DIRECTORY: .
-  WORKING_DIRECTORY_Test: src\GenteMarCore\GenteMarCore.Tests
-  WORKING_DIRECTORY_Api: src\DIMARCore.Solution\DIMARCore.Api
+  WORKING_DIRECTORY_TEST: src\GenteMarCore\GenteMarCore.Tests
+  WORKING_DIRECTORY_API: .\src\DIMARCore.Solution\DIMARCore.Api
 jobs:
   build:
     runs-on: windows-latest
@@ -34,13 +33,17 @@ jobs:
         uses: darenm/Setup-VSTest@v1
 
       - name: 🔨 Restore NuGet packages Api
-        run: nuget restore "${{ env.WORKING_DIRECTORY }}"
+        run: nuget restore GenteDeMar.sln
         
-      - name: 💣 Build
-        run: msbuild "${{ env.WORKING_DIRECTORY_Api }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
+      - name: 💣 Build project
+        run: |
+           msbuild.exe GenteDeMar.sln /p:platform="Any CPU" /p:configuration="Release"
+        
+      - name: 💣 Build API
+        run: msbuild "${{ env.WORKING_DIRECTORY_API }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
       - name: 🔍 Test
-        run: vstest.console.exe  ${{ env.WORKING_DIRECTORY_Test }}\bin\Release\GenteMarCore.Tests.dll
+        run: vstest.console.exe ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\GenteMarCore.Tests.dll
         
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
