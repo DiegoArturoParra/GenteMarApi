@@ -39,10 +39,6 @@ jobs:
       - name: 💣 Build
         run: msbuild "${{ env.WORKING_DIRECTORY_Api }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
-      - name: 💣 Build Solution tests
-        run: |
-          msbuild.exe ${{ env.WORKING_DIRECTORY_GenteMarCore }}\GenteMarCore.sln /p:platform="Any CPU" /p:configuration="Release"
-          
       - name: 🔍 Test
         run: vstest.console.exe  ${{ env.WORKING_DIRECTORY_Test }}\bin\Release\GenteMarCore.Tests.dll
         
