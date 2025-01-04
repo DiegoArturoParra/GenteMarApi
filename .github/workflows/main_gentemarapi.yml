@@ -51,7 +51,7 @@ jobs:
         run: vstest.console.exe  ${{ env.WORKING_DIRECTORY_Test }}\bin\Release\GenteMarCore.Tests.dll
         
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ASP-app
           path: '/published/**'
