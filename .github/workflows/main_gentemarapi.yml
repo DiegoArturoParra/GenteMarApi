@@ -13,8 +13,7 @@ on:
   workflow_dispatch:
 env:
   CONFIGURATION: Release
-  WORKING_DIRECTORY: src\DIMARCore.Solution
-  WORKING_DIRECTORY_GenteMarCore: src\GenteMarCore
+  WORKING_DIRECTORY: .
   WORKING_DIRECTORY_Test: src\GenteMarCore\GenteMarCore.Tests
   WORKING_DIRECTORY_Api: src\DIMARCore.Solution\DIMARCore.Api
 jobs:
@@ -37,9 +36,6 @@ jobs:
       - name: 🔨 Restore NuGet packages Api
         run: nuget restore "${{ env.WORKING_DIRECTORY }}"
         
-      - name: 🔨 Restore NuGet packages GenteMarCore
-        run: nuget restore "${{ env.WORKING_DIRECTORY_GenteMarCore }}"
-      
       - name: 💣 Build
         run: msbuild "${{ env.WORKING_DIRECTORY_Api }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
