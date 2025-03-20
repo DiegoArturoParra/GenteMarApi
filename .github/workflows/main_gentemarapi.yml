@@ -29,7 +29,7 @@ jobs:
       - name: 🔨 Restore NuGet packages
         run: nuget restore GenteDeMar.sln
         
-      - name: 💣 Build solution
+      - name: 💣 Build solution (including tests)
         run: |
           msbuild.exe GenteDeMar.sln /p:platform="Any CPU" /p:configuration="Release"
 
@@ -42,6 +42,12 @@ jobs:
           name: ASP-app
           path: '/published/**'
 
+      - name: 📤 Upload test binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-binaries
+          path: ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\
+
   test:
     runs-on: windows-latest
     needs: build
@@ -50,6 +56,15 @@ jobs:
 
       - name: 🚀 Setup VSTest
         uses: darenm/Setup-VSTest@v1
+
+      - name: 📥 Download test binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binaries
+          path: ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\
+
+      - name: 🔍 Debug - List test files
+        run: dir /s /b ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\
 
       - name: 🔍 Run tests
         run: vstest.console.exe ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\GenteMarCore.Tests.dll
