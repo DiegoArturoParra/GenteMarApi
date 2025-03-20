@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP app to Azure Web App - GenteMarApi
 
 on:
@@ -8,19 +5,19 @@ on:
     branches:
       - main
   pull_request:
-     branches: 
+    branches:
       - main
   workflow_dispatch:
+
 env:
   CONFIGURATION: Release
   WORKING_DIRECTORY_TEST: src\GenteMarCore\GenteMarCore.Tests
   WORKING_DIRECTORY_API: .\src\DIMARCore.Solution\DIMARCore.Api
+
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-      
       - uses: actions/checkout@v3
 
       - name: 🚀 Setup .NET
@@ -28,25 +25,47 @@ jobs:
 
       - name: 🚀 Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
-      
-      - name: 🚀 Setup VSTest
-        uses: darenm/Setup-VSTest@v1
 
-      - name: 🔨 Restore NuGet packages Api
+      - name: 🔨 Restore NuGet packages
         run: nuget restore GenteDeMar.sln
         
-      - name: 💣 Build project
+      - name: 💣 Build solution
         run: |
-           msbuild.exe GenteDeMar.sln /p:platform="Any CPU" /p:configuration="Release"
-        
+          msbuild.exe GenteDeMar.sln /p:platform="Any CPU" /p:configuration="Release"
+
       - name: 💣 Build API
         run: msbuild "${{ env.WORKING_DIRECTORY_API }}" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
 
-      - name: 🔍 Test
-        run: vstest.console.exe ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\GenteMarCore.Tests.dll
-        
-      - name: Upload artifact for deployment job
+      - name: 📤 Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ASP-app
           path: '/published/**'
+
+  test:
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 🚀 Setup VSTest
+        uses: darenm/Setup-VSTest@v1
+
+      - name: 🔍 Run tests
+        run: vstest.console.exe ${{ env.WORKING_DIRECTORY_TEST }}\bin\Release\GenteMarCore.Tests.dll
+
+  deploy:
+    runs-on: windows-latest
+    needs: test
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ASP-app
+          path: /published
+
+      - name: 🚀 Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "GenteMarApi"
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: /published
