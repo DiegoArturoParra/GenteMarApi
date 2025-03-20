@@ -11,7 +11,7 @@ on:
 
 env:
   CONFIGURATION: Release
-  WORKING_DIRECTORY_TEST: src\GenteMarCore\GenteMarCore.Tests
+  WORKING_DIRECTORY_TEST: .\src\GenteMarCore\GenteMarCore.Tests
   WORKING_DIRECTORY_API: .\src\DIMARCore.Solution\DIMARCore.Api
 
 jobs:
